@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="고추참치회">
-<title>고추참치회 장부 V6.0.1</title>
+<title>고추참치회 장부 V6.1</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
@@ -185,12 +185,25 @@ nav{position:fixed;z-index:40;bottom:0;left:0;right:0;background:rgba(255,255,25
 /* V6.0 Firebase */
 .cloudBadge{display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border-radius:999px;font-size:12px;font-weight:800;background:#eee;color:#555}.cloudBadge.online{background:#e7f7ec;color:#137333}.cloudBadge.syncing{background:#fff4d6;color:#8a5a00}.cloudBadge.error{background:#fde8e7;color:#b3261e}.cloudPanel{border:1px solid #ead2ca;background:#fff;border-radius:16px;padding:14px;margin:12px}.cloudPanel h3{margin:0 0 8px}.cloudActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.cloudNote{font-size:12px;color:#745b54;line-height:1.5}
 
+
+/* V6.1 Authentication */
+.authPanel{border:1px solid #e8d0c7;background:#fffaf6;border-radius:16px;padding:12px;margin:10px 0}
+.authRow{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.authBadge{display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:800;background:#eee;color:#5a443d}
+.authBadge.admin{background:#dcfce7;color:#17653a}
+.authBadge.member{background:#e8f1ff;color:#24528a}
+.authBadge.guest{background:#fff0ca;color:#76530c}
+.authButtons{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
+.authHint{font-size:12px;color:#7a625b;line-height:1.45;margin-top:6px}
+.loginForm{display:grid;gap:10px}
+.loginError{min-height:18px;color:#c42c24;font-size:12px;font-weight:700}
+
 </style>
 </head>
 <body>
 <div class="app">
 <header><div class="head">
- <div class="brand"><img class="logo" src="mascot.png"><div><div class="title" id="groupTitle">고추참치회</div><div class="sub">카카오뱅크 · V6.0 Firebase 실시간 공유</div></div></div>
+ <div class="brand"><img class="logo" src="mascot.png"><div><div class="title" id="groupTitle">고추참치회</div><div class="sub">카카오뱅크 · V6.1 로그인·권한 분리</div></div></div>
  <button class="mode" id="modeBtn">조회 모드</button>
 </div></header>
 <main>
@@ -276,14 +289,19 @@ nav{position:fixed;z-index:40;bottom:0;left:0;right:0;background:rgba(255,255,25
  <div class="menuList" style="margin-top:12px">
   <button class="menuItem" id="installMenu"><div class="menuIcon">📲</div><div><b>앱 설치</b><span>고양이 아이콘·주소창 없는 앱 모드</span></div></button>
   <button class="menuItem" id="shareInstallMenu"><div class="menuIcon">🔗</div><div><b>설치 링크 보내기</b><span>카카오톡·문자 등으로 회원에게 앱 주소 공유</span></div></button>
-  <button class="menuItem" id="pinMenu"><div class="menuIcon">🔐</div><div><b>총무 PIN 변경</b><span>현재 PIN을 확인한 뒤 변경</span></div></button>
+  <button class="menuItem" id="pinMenu"><div class="menuIcon">🧩</div><div><b>초기 등록 PIN 변경</b><span>첫 총무 계정 등록에만 사용하는 보조 PIN</span></div></button>
   <button class="menuItem" id="signatureMenu"><div class="menuIcon">✍️</div><div><b>총무 서명 등록</b><span>보고서 하단에 자동 표시</span></div></button>
   <button class="menuItem" id="stampMenu"><div class="menuIcon">🔴</div><div><b>승인 도장 등록</b><span>직접 등록하거나 기본 승인 도장 사용</span></div></button>
   <input type="file" id="signatureFile" accept="image/*" hidden>
   <input type="file" id="stampFile" accept="image/*" hidden>
 
   <button class="menuItem" id="arrearsStartMenu"><div class="menuIcon">📅</div><div><b>미수금 계산 시작월</b><span id="arrearsStartLabel">2026년 8월부터 자동 계산</span></div></button>
-  <div class="cloudPanel"><div class="section" style="margin:0"><h3>☁️ Firebase 공유</h3><span id="cloudStatus" class="cloudBadge">연결 준비</span></div><div id="cloudDetail" class="cloudNote">인터넷 연결 후 Firebase 상태를 확인합니다.</div><div class="cloudActions"><button class="btn soft" id="uploadCloud">현재 데이터 올리기</button><button class="btn line" id="downloadCloud">클라우드 다시 받기</button></div><div class="cloudNote" style="margin-top:8px">회원·거래·결산·보고서는 모든 휴대폰에 실시간 공유됩니다. 영수증과 회원사진 등 이미지는 Firebase Storage 설정 전까지 현재 휴대폰에만 보관됩니다.</div></div>
+  <div class="authPanel">
+   <div class="authRow"><div><b>🔐 로그인 및 권한</b><div id="authUserText" class="small">로그인하지 않음</div></div><span id="authRoleBadge" class="authBadge guest">조회 회원</span></div>
+   <div class="authButtons"><button class="btn soft" id="authLoginBtn">이메일 로그인</button><button class="btn line" id="authLogoutBtn" style="display:none">로그아웃</button><button class="btn line" id="registerAdminBtn" style="display:none">현재 계정을 총무로 등록</button></div>
+   <div class="authHint">회원은 로그인 없이 조회할 수 있습니다. 거래 수정·회원 관리·클라우드 업로드는 총무 이메일 계정만 가능합니다.</div>
+  </div>
+  <div class="cloudPanel"><div class="section" style="margin:0"><h3>☁️ Firebase 공유</h3><span id="cloudStatus" class="cloudBadge">연결 준비</span></div><div id="cloudDetail" class="cloudNote">인터넷 연결 후 Firebase 상태를 확인합니다.</div><div class="cloudActions"><button class="btn soft" id="uploadCloud">현재 데이터 올리기</button><button class="btn line" id="downloadCloud">클라우드 다시 받기</button></div><div class="cloudNote" style="margin-top:8px">회원·거래·결산·보고서는 모든 휴대폰에 실시간 공유됩니다. 로그인하지 않은 회원은 조회만 가능하고, 등록된 총무 이메일만 수정할 수 있습니다. 이미지는 Storage 연결 전까지 현재 휴대폰에만 보관됩니다.</div></div>
 <button class="menuItem" id="autoRuleMenu"><div class="menuIcon">🤖</div><div><b>자동분류 규칙</b><span>총무가 분류한 거래를 다음 업로드부터 자동 인식</span></div></button>
   <button class="menuItem" id="importHistoryMenu"><div class="menuIcon">📥</div><div><b>최근 업로드 이력</b><span>카카오뱅크 파일 반영 결과 확인</span></div></button>
   <button class="menuItem" id="backupMenu"><div class="menuIcon">☁️</div><div><b>백업 저장</b><span>전체 장부를 JSON 파일로 저장</span></div></button>
@@ -423,15 +441,30 @@ nav{position:fixed;z-index:40;bottom:0;left:0;right:0;background:rgba(255,255,25
  <button class="btn line full" style="margin-top:8px" onclick="closeModal('assetModal')">닫기</button>
 </div></div>
 
+
+<div class="modal" id="loginModal"><div class="sheet">
+ <h3>Firebase 이메일 로그인</h3>
+ <div class="loginForm">
+  <div><div class="label">이메일</div><input class="field" id="loginEmail" type="email" autocomplete="email" placeholder="example@gmail.com"></div>
+  <div><div class="label">비밀번호</div><input class="field" id="loginPassword" type="password" autocomplete="current-password" placeholder="6자리 이상"></div>
+  <div id="loginError" class="loginError"></div>
+  <button class="btn accent full" id="loginSubmit">로그인</button>
+  <button class="btn soft full" id="signupSubmit">처음 계정 만들기</button>
+  <button class="btn line full" onclick="closeModal('loginModal')">취소</button>
+  <div class="small">Firebase 콘솔에서 Authentication의 이메일/비밀번호 로그인을 먼저 사용 설정해야 합니다.</div>
+ </div>
+</div></div>
+
 <div id="printArea" style="display:none"></div>
 
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script>
 const KEY='gochuchamchi-v5-data';
 const FIREBASE_CONFIG={apiKey:'AIzaSyA46ZSYVenzkY0dPod85SWIhcK1voDDD24',authDomain:'gochuchamchi-7.firebaseapp.com',projectId:'gochuchamchi-7',storageBucket:'gochuchamchi-7.firebasestorage.app',messagingSenderId:'633073478568',appId:'1:633073478568:web:127832c1732948263a0b9d'};
 const CLOUD_DOC_PATH='groups/gochuchamchi/app/state';
-let db=null,cloudRef=null,cloudReady=false,cloudApplying=false,cloudTimer=null,lastCloudWrite=0,unsubscribeCloud=null;
+let db=null,auth=null,groupRef=null,cloudRef=null,cloudReady=false,cloudApplying=false,cloudTimer=null,lastCloudWrite=0,unsubscribeCloud=null,currentUser=null,adminEmails=[];
 
 const categories=['전체','회비','입출금통장 이자','식사비','모임비','기타수입','기타지출','미분류'];
 const seed={
@@ -481,15 +514,78 @@ function setCloudStatus(mode,text,detail=''){
 }
 function save(){
  localStorage.setItem(KEY,JSON.stringify(state));
- if(!cloudReady||cloudApplying)return;
+ if(!cloudReady||cloudApplying||!admin)return;
  clearTimeout(cloudTimer);setCloudStatus('syncing','동기화 중');
- cloudTimer=setTimeout(async()=>{try{lastCloudWrite=Date.now();await cloudRef.set({state:mediaSafeState(state),updatedAt:firebase.firestore.FieldValue.serverTimestamp(),version:'6.0'},{merge:true});setCloudStatus('online','공유됨','마지막 변경사항이 Firebase에 저장되었습니다.')}catch(e){console.error(e);setCloudStatus('error','저장 실패',e.message||'Firebase 쓰기 실패')}},550)
+ cloudTimer=setTimeout(async()=>{try{lastCloudWrite=Date.now();await cloudRef.set({state:mediaSafeState(state),updatedAt:firebase.firestore.FieldValue.serverTimestamp(),version:'6.1'},{merge:true});setCloudStatus('online','공유됨','마지막 변경사항이 Firebase에 저장되었습니다.')}catch(e){console.error(e);setCloudStatus('error','저장 실패',e.message||'Firebase 쓰기 실패')}},550)
 }
+
+function normalizeEmail(v){return String(v||'').trim().toLowerCase()}
+function isAdminEmail(email){return adminEmails.map(normalizeEmail).includes(normalizeEmail(email))}
+function updateAuthUI(){
+ const email=currentUser?.email||'';
+ admin=!!(currentUser&&isAdminEmail(email));
+ const text=$('#authUserText'),badge=$('#authRoleBadge'),login=$('#authLoginBtn'),logout=$('#authLogoutBtn'),reg=$('#registerAdminBtn');
+ if(text)text.textContent=currentUser?email:'로그인하지 않음';
+ if(badge){
+  badge.className='authBadge '+(admin?'admin':currentUser?'member':'guest');
+  badge.textContent=admin?'총무':currentUser?'로그인 회원':'조회 회원';
+ }
+ if(login)login.style.display=currentUser?'none':'inline-flex';
+ if(logout)logout.style.display=currentUser?'inline-flex':'none';
+ if(reg)reg.style.display=currentUser&&!admin?'inline-flex':'none';
+ render()
+}
+function openLogin(){
+ $('#loginError').textContent='';
+ $('#loginPassword').value='';
+ $('#loginModal').classList.add('show');
+ setTimeout(()=>$('#loginEmail')?.focus(),100)
+}
+function authErrorMessage(e){
+ const code=e?.code||'';
+ if(code.includes('invalid-credential')||code.includes('wrong-password')||code.includes('user-not-found'))return '이메일 또는 비밀번호가 올바르지 않습니다.';
+ if(code.includes('email-already-in-use'))return '이미 등록된 이메일입니다. 로그인 버튼을 이용하세요.';
+ if(code.includes('weak-password'))return '비밀번호는 6자리 이상 입력하세요.';
+ if(code.includes('invalid-email'))return '이메일 형식을 확인하세요.';
+ if(code.includes('operation-not-allowed'))return 'Firebase Authentication에서 이메일/비밀번호 로그인을 사용 설정하세요.';
+ return e?.message||'로그인 처리 중 오류가 발생했습니다.'
+}
+async function submitLogin(create=false){
+ if(!auth)return alert('Firebase 인증 연결을 준비 중입니다.');
+ const email=normalizeEmail($('#loginEmail').value),password=$('#loginPassword').value;
+ if(!email||password.length<6){$('#loginError').textContent='이메일과 6자리 이상의 비밀번호를 입력하세요.';return}
+ $('#loginError').textContent='처리 중...';
+ try{
+  if(create)await auth.createUserWithEmailAndPassword(email,password);
+  else await auth.signInWithEmailAndPassword(email,password);
+  closeModal('loginModal');
+ }catch(e){console.error(e);$('#loginError').textContent=authErrorMessage(e)}
+}
+async function logoutAuth(){
+ if(!auth)return;
+ if(confirm('로그아웃하고 조회 모드로 전환할까요?'))await auth.signOut()
+}
+async function registerCurrentAsAdmin(){
+ if(!currentUser||!groupRef)return alert('먼저 이메일로 로그인하세요.');
+ const pin=prompt('최초 총무 등록을 위해 기존 총무 PIN을 입력하세요.');
+ if(pin!==state.adminPin)return alert('총무 PIN이 맞지 않습니다.');
+ const email=normalizeEmail(currentUser.email);
+ if(!confirm(`${email}\n이 계정을 총무로 등록할까요?`))return;
+ try{
+  const next=[...new Set([...adminEmails.map(normalizeEmail),email])];
+  await groupRef.set({adminEmails:next},{merge:true});
+  adminEmails=next;updateAuthUI();
+  alert('현재 계정이 총무로 등록되었습니다.\n이제 Firestore 보안 규칙을 적용하세요.');
+ }catch(e){alert('총무 등록 실패: '+e.message)}
+}
+
 async function initFirebase(){
  try{
   if(!window.firebase)throw new Error('Firebase SDK를 불러오지 못했습니다. 인터넷 연결을 확인하세요.');
   if(!firebase.apps.length)firebase.initializeApp(FIREBASE_CONFIG);
-  db=firebase.firestore();cloudRef=db.doc(CLOUD_DOC_PATH);cloudReady=true;setCloudStatus('syncing','연결 중');
+  db=firebase.firestore();auth=firebase.auth();groupRef=db.doc('groups/gochuchamchi');cloudRef=db.doc(CLOUD_DOC_PATH);cloudReady=true;setCloudStatus('syncing','연결 중');
+  groupRef.onSnapshot(s=>{adminEmails=(s.data()?.adminEmails||[]).map(normalizeEmail);updateAuthUI()},e=>console.warn('권한 정보 읽기 실패',e));
+  auth.onAuthStateChanged(user=>{currentUser=user||null;updateAuthUI()});
   unsubscribeCloud=cloudRef.onSnapshot(snap=>{
    if(!snap.exists){setCloudStatus('online','연결됨','클라우드 데이터가 없습니다. 총무가 현재 데이터를 올려주세요.');return}
    const remote=snap.data()?.state;if(!remote||!Array.isArray(remote.members)||!Array.isArray(remote.transactions))return;
@@ -504,7 +600,7 @@ async function initFirebase(){
 async function uploadCurrentToCloud(){
  if(!requireAdmin())return;if(!cloudReady){alert('Firebase가 아직 연결되지 않았습니다.');return}
  if(!confirm('현재 휴대폰의 회원·거래·보고서 데이터를 Firebase 기준 데이터로 올릴까요?'))return;
- try{setCloudStatus('syncing','업로드 중');lastCloudWrite=Date.now();await cloudRef.set({state:mediaSafeState(state),updatedAt:firebase.firestore.FieldValue.serverTimestamp(),version:'6.0'},{merge:true});setCloudStatus('online','업로드 완료','다른 휴대폰에서 같은 주소를 열면 데이터가 표시됩니다.');alert('클라우드 업로드가 완료되었습니다.')}catch(e){alert('업로드 실패: '+e.message);setCloudStatus('error','업로드 실패',e.message)}
+ try{setCloudStatus('syncing','업로드 중');lastCloudWrite=Date.now();await cloudRef.set({state:mediaSafeState(state),updatedAt:firebase.firestore.FieldValue.serverTimestamp(),version:'6.1'},{merge:true});setCloudStatus('online','업로드 완료','다른 휴대폰에서 같은 주소를 열면 데이터가 표시됩니다.');alert('클라우드 업로드가 완료되었습니다.')}catch(e){alert('업로드 실패: '+e.message);setCloudStatus('error','업로드 실패',e.message)}
 }
 async function downloadCloudNow(){
  if(!cloudReady){alert('Firebase가 아직 연결되지 않았습니다.');return}
@@ -578,7 +674,7 @@ function renderArrears(){
 
 function render(){
  const m=$('#homeMonth').value||nowMonth(),s=summary(m);
- $('#groupTitle').textContent=state.groupName;$('#modeBtn').textContent=admin?'총무 모드':'조회 모드';$('#modeBtn').style.background=admin?'#dcfce7':'#fff0ca';
+ $('#groupTitle').textContent=state.groupName;$('#modeBtn').textContent=admin?'총무 로그인':currentUser?'회원 로그인':'조회 모드';$('#modeBtn').style.background=admin?'#dcfce7':currentUser?'#e8f1ff':'#fff0ca';
  $('#kBalance').textContent=won(totalBalance());$('#kDues').textContent=won(s.dues);$('#kOut').textContent=won(s.out);$('#kReview').textContent=s.review+'건';
  renderPayments(m);renderRecent();renderTransactions();renderMembers();renderFeeHistory();renderReport();renderArrears();renderImportHistory();$('#arrearsStartLabel').textContent=(state.arrearsStartMonth||'2026-08').replace('-','년 ')+'월부터 자동 계산';
  $('#fab').style.display=admin?'block':'none';$('#addMemberBtn').style.display=admin?'block':'none';$('#finalizeMonthly').style.display=admin?'block':'none';$('#newMeetingReport').style.display=admin?'block':'none';$('#closeMonthBtn').style.display=admin?'block':'none';
@@ -751,10 +847,11 @@ function fillSelects(){
 }
 function go(id){$$('.screen').forEach(x=>x.classList.remove('active'));$('#'+id).classList.add('active');$$('.navbtn').forEach(x=>x.classList.toggle('active',x.dataset.screen===id));render();scrollTo(0,0)}
 function closeModal(id){$('#'+id).classList.remove('show')}
-function requireAdmin(){if(admin)return true;alert('총무 모드에서 사용할 수 있습니다.');return false}
+function requireAdmin(){if(admin)return true;alert(currentUser?'현재 계정은 총무 권한이 없습니다.':'총무 이메일 계정으로 로그인해야 사용할 수 있습니다.');return false}
 async function toggleAdmin(){
- if(admin){admin=false;render();return}
- const pin=prompt('총무 PIN을 입력하세요.');if(pin===state.adminPin){admin=true;render()}else if(pin!==null)alert('PIN이 맞지 않습니다.')
+ if(admin){await logoutAuth();return}
+ if(currentUser){alert('현재 로그인 계정은 총무로 등록되지 않았습니다.\n설정 → 현재 계정을 총무로 등록을 이용하세요.');go('settings');return}
+ openLogin()
 }
 
 
@@ -1290,7 +1387,7 @@ function backup(){
 async function restore(file){try{const obj=JSON.parse(await file.text());if(!obj.members||!obj.transactions)throw Error();state=obj;save();render();alert('복원이 완료되었습니다.')}catch(e){alert('올바른 백업 파일이 아닙니다.')}}
 function changePin(){if(!requireAdmin())return;const old=prompt('현재 PIN을 입력하세요.');if(old!==state.adminPin)return alert('현재 PIN이 맞지 않습니다.');const p=prompt('새 PIN 4자리 이상');if(!p||p.length<4)return alert('4자리 이상 입력하세요.');state.adminPin=p;save();alert('PIN이 변경되었습니다.')}
 
-const INSTALL_URL='https://gochuchamchi-ledger1.github.io/gochuchamchi-ledger/?v=601';
+const INSTALL_URL='https://gochuchamchi-ledger1.github.io/gochuchamchi-ledger/?v=610';
 async function shareInstallLink(){
  const title='고추참치회 장부 앱';
  const text=`고추참치회 장부 앱 설치 링크입니다.\n링크를 연 뒤 설정 → 앱 설치를 눌러주세요.\n\n${INSTALL_URL}`;
@@ -1322,6 +1419,12 @@ function on(id,event,handler){
  else console.warn('[V6.0.1] 선택 요소 없음:',id);
 }
 on('modeBtn','click',toggleAdmin);
+on('authLoginBtn','click',openLogin);
+on('authLogoutBtn','click',logoutAuth);
+on('registerAdminBtn','click',registerCurrentAsAdmin);
+on('loginSubmit','click',()=>submitLogin(false));
+on('signupSubmit','click',()=>submitLogin(true));
+on('loginPassword','keydown',e=>{if(e.key==='Enter')submitLogin(false)});
 on('fab','click',()=>openTx());
 on('saveTx','click',saveTx);
 on('deleteTx','click',deleteTx);

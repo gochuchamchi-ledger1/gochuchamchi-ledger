@@ -1,0 +1,31 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && request.auth.token.email != null
+        && request.auth.token.email
+           in get(/databases/$(database)/documents/groups/gochuchamchi).data.adminEmails;
+    }
+
+    match /groups/gochuchamchi {
+      allow read: if true;
+      allow create: if false;
+      allow update: if isAdmin();
+      allow delete: if false;
+
+      match /app/{document=**} {
+        allow read: if true;
+        allow write: if isAdmin();
+      }
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
