@@ -1,9 +1,9 @@
-const CACHE='gochuchamchi-v5-1-3-layout-fix';
+const CACHE='gochuchamchi-v52-features';
 const CORE=[
  './','./index.html','./manifest.webmanifest',
  './icon-192.png','./icon-512.png','./mascot.png',
  './home-cat.png','./transaction-cat.png','./member-cat.png',
- './report-cat.png','./arrears-cat.png'
+ './report-cat.png','./arrears-cat.png','./report-qr.png'
 ];
 self.addEventListener('install',e=>{
  self.skipWaiting();
