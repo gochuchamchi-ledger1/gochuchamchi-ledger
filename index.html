@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="고추참치회">
-<title>고추참치회 장부 V5.1.1</title>
+<title>고추참치회 장부 V5.1.2</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
@@ -97,7 +97,7 @@ nav{position:fixed;z-index:40;bottom:0;left:0;right:0;background:rgba(255,255,25
 <body>
 <div class="app">
 <header><div class="head">
- <div class="brand"><img class="logo" src="mascot.png"><div><div class="title" id="groupTitle">고추참치회</div><div class="sub">카카오뱅크 · V5.1 보고서 디자인</div></div></div>
+ <div class="brand"><img class="logo" src="mascot.png"><div><div class="title" id="groupTitle">고추참치회</div><div class="sub">카카오뱅크 · V5.1.2 사진저장 안정화</div></div></div>
  <button class="mode" id="modeBtn">조회 모드</button>
 </div></header>
 <main>
@@ -596,64 +596,112 @@ function changeArrearsStart(){
  state.arrearsStartMonth=v;save();render();alert(`${v.replace('-','년 ')}월부터 미수금을 계산합니다.`);
 }
 
-async function imageUrlToDataUrl(url){
- try{
-  const absolute=new URL(url,location.href).href;
-  if(absolute.startsWith('data:'))return absolute;
-  const res=await fetch(absolute,{cache:'force-cache'});
-  const blob=await res.blob();
-  return await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(blob)})
- }catch(e){return url}
+function loadCanvasImage(src){
+ return new Promise(resolve=>{
+  const img=new Image();
+  img.onload=()=>resolve(img);
+  img.onerror=()=>resolve(null);
+  img.src=src;
+ })
 }
-function copyComputedStyles(source,target){
- const computed=getComputedStyle(source);
- let css='';
- for(const prop of computed){
-  const val=computed.getPropertyValue(prop);
-  if(val)css+=`${prop}:${val};`
- }
- target.setAttribute('style',css);
- const sc=source.children,tc=target.children;
- for(let i=0;i<sc.length;i++)copyComputedStyles(sc[i],tc[i])
+function roundRect(ctx,x,y,w,h,r,fill,stroke){
+ ctx.beginPath();ctx.roundRect(x,y,w,h,r);
+ if(fill){ctx.fillStyle=fill;ctx.fill()}
+ if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=2;ctx.stroke()}
 }
-async function reportElementCanvas(type){
- const source=type==='monthly'?$('#monthlyA4'):$('#meetingA4');
- if(!source||source.style.display==='none')return null;
- // 화면에 보이는 A4 디자인을 그대로 복제합니다.
- const rect=source.getBoundingClientRect();
- const clone=source.cloneNode(true);
- copyComputedStyles(source,clone);
- clone.style.width=rect.width+'px';clone.style.height=rect.height+'px';clone.style.minHeight='0';
- clone.style.margin='0';clone.style.borderRadius='0';clone.style.boxShadow='none';clone.style.overflow='hidden';
- const sourceImgs=[...source.querySelectorAll('img')],cloneImgs=[...clone.querySelectorAll('img')];
- await Promise.all(cloneImgs.map(async(img,i)=>{
-  const original=sourceImgs[i];
-  if(original){img.src=await imageUrlToDataUrl(original.currentSrc||original.src);img.removeAttribute('srcset')}
- }));
- const wrapper=document.createElement('div');
- wrapper.setAttribute('xmlns','http://www.w3.org/1999/xhtml');
- wrapper.style.width=rect.width+'px';wrapper.style.height=rect.height+'px';wrapper.style.background='#fff';
- wrapper.appendChild(clone);
- const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${rect.width}" height="${rect.height}" viewBox="0 0 ${rect.width} ${rect.height}"><foreignObject width="100%" height="100%">${new XMLSerializer().serializeToString(wrapper)}</foreignObject></svg>`;
- const blob=new Blob([svg],{type:'image/svg+xml;charset=utf-8'}),url=URL.createObjectURL(blob);
- try{
-  const image=await new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>resolve(im);im.onerror=reject;im.src=url});
-  const canvas=document.createElement('canvas');canvas.width=1240;canvas.height=1754;
-  const ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);
-  ctx.drawImage(image,0,0,canvas.width,canvas.height);return canvas
- }finally{URL.revokeObjectURL(url)}
+function fitText(ctx,text,maxWidth,startSize,minSize=18,weight='700'){
+ let size=startSize;
+ while(size>minSize){ctx.font=`${weight} ${size}px sans-serif`;if(ctx.measureText(String(text)).width<=maxWidth)break;size-=1}
+ return size
+}
+function canvasText(ctx,text,x,y,size=28,weight='400',color='#241b19',align='left'){
+ ctx.font=`${weight} ${size}px sans-serif`;ctx.fillStyle=color;ctx.textAlign=align;ctx.textBaseline='alphabetic';ctx.fillText(String(text),x,y)
+}
+function wrapCanvasText(ctx,text,x,y,maxWidth,lineHeight,maxLines=5){
+ const words=String(text||'').split(/\s+/);let line='',lines=[];
+ for(const word of words){const test=line?line+' '+word:word;if(ctx.measureText(test).width>maxWidth&&line){lines.push(line);line=word}else line=test}
+ if(line)lines.push(line);lines=lines.slice(0,maxLines);lines.forEach((v,i)=>ctx.fillText(v,x,y+i*lineHeight));return lines.length*lineHeight
+}
+function drawHeaderBrand(ctx,title,subtitle,mascot,tuna){
+ roundRect(ctx,28,26,1184,170,26,'#fffaf4','#eaa99b');
+ if(mascot){ctx.save();ctx.beginPath();ctx.arc(105,105,58,0,Math.PI*2);ctx.clip();ctx.drawImage(mascot,47,47,116,116);ctx.restore();ctx.strokeStyle='#d93429';ctx.lineWidth=5;ctx.beginPath();ctx.arc(105,105,58,0,Math.PI*2);ctx.stroke()}
+ canvasText(ctx,'고추참치회 🌶️',180,85,43,'900','#c92720');
+ canvasText(ctx,'함께하는 즐거움, 소중한 인연',182,122,20,'600','#6e554f');
+ const fs=fitText(ctx,title,760,54,34,'900');canvasText(ctx,title,180,177,fs,'900','#341c18');
+ if(tuna)ctx.drawImage(tuna,1025,45,135,115);
+ canvasText(ctx,subtitle,1190,177,20,'600','#735d58','right');
+}
+function drawSectionRibbon(ctx,num,title,x,y,w=1160){
+ roundRect(ctx,x,y,Math.min(w,360),44,8,'#d73529');
+ canvasText(ctx,`${num}. ${title}`,x+18,y+31,23,'900','#fff');
+}
+function drawSummaryCard(ctx,x,y,w,h,icon,label,value,tone='blue'){
+ const fills={blue:'#f6f9ff',green:'#f2fbf2',red:'#fff4f2',orange:'#fff9ef'};
+ const colors={blue:'#173f75',green:'#18723d',red:'#ce2b24',orange:'#8b5b00'};
+ roundRect(ctx,x,y,w,h,18,fills[tone]||'#fff','#ead8d0');
+ canvasText(ctx,icon,x+w/2,y+42,30,'400','#333','center');
+ canvasText(ctx,label,x+w/2,y+72,17,'700','#675752','center');
+ const fs=fitText(ctx,value,w-20,27,20,'900');canvasText(ctx,value,x+w/2,y+112,fs,'900',colors[tone]||'#222','center');
+}
+function drawTable(ctx,x,y,width,headers,rows,colWidths,rowH=40){
+ const total=colWidths.reduce((a,b)=>a+b,0),scale=width/total;let cy=y;
+ roundRect(ctx,x,cy,width,rowH,8,'#fff0e9','#e4cfc8');
+ let cx=x;headers.forEach((h,i)=>{const cw=colWidths[i]*scale;canvasText(ctx,h,cx+cw/2,cy+27,17,'800','#56362f','center');cx+=cw});cy+=rowH;
+ rows.forEach((row,ri)=>{ctx.fillStyle=ri%2?'#fffaf7':'#fff';ctx.fillRect(x,cy,width,rowH);ctx.strokeStyle='#eadbd5';ctx.strokeRect(x,cy,width,rowH);cx=x;row.forEach((v,i)=>{const cw=colWidths[i]*scale;canvasText(ctx,v,i===0?cx+10:cx+cw-10,cy+27,16,ri===rows.length-1?'800':'500',ri===rows.length-1?'#b7251e':'#3e312e',i===0?'left':'right');ctx.strokeStyle='#eadbd5';ctx.beginPath();ctx.moveTo(cx+cw,cy);ctx.lineTo(cx+cw,cy+rowH);ctx.stroke();cx+=cw});cy+=rowH});return cy
+}
+async function drawMonthlyReportCanvas(){
+ const c=document.createElement('canvas');c.width=1240;c.height=1754;const ctx=c.getContext('2d');
+ ctx.fillStyle='#fffaf4';ctx.fillRect(0,0,c.width,c.height);ctx.fillStyle='#d9362b';ctx.fillRect(0,0,c.width,16);
+ const [mascot,tuna]=await Promise.all([loadCanvasImage('mascot.png'),loadCanvasImage('report-cat.png')]);
+ const m=$('#reportMonth').value||nowMonth(),sum=summary(m),snapshot=state.monthlyReports[m],arrearsTotal=state.members.reduce((a,v)=>a+arrears(v,m),0);
+ drawHeaderBrand(ctx,`${m.slice(0,4)}년 ${Number(m.slice(5,7))}월 월 회계보고서`,`${snapshot?'총무 확정':'미확정'} · ${snapshot?.createdDate||reportDateText()}`,mascot,tuna);
+ drawSectionRibbon(ctx,1,'월별 요약',40,220);
+ const cards=[['🪙','전월 이월잔액',won(sum.opening),'blue'],['👥','회비 수입',won(sum.dues),'blue'],['🌱','이자·기타수입',won(sum.interest+sum.otherIn),'green'],['💸','총 지출',won(sum.out),'red'],['👛','월말 잔액',won(sum.closing),'green'],['⚠️','총 미수금',won(arrearsTotal),'red']];
+ cards.forEach((v,i)=>drawSummaryCard(ctx,40+i*193,278,178,125,...v));
+ drawSectionRibbon(ctx,2,'수입 / 지출 내역',40,430,560);drawSectionRibbon(ctx,3,'회원별 회비 납부 현황',630,430,570);
+ const finRows=[['회비 수입',won(sum.dues),'회원 회비'],['이자 수입',won(sum.interest),'카카오뱅크'],['기타 수입',won(sum.otherIn),'-'],['수입 합계',won(sum.dues+sum.interest+sum.otherIn),''],['총 지출',won(sum.out),'-']];
+ drawTable(ctx,40,486,550,['항목','금액','비고'],finRows,[2.2,1.4,1.6],47);
+ const memberRows=state.members.map(mem=>[mem.name,won(mem.fee),won(paidFor(mem,m)),arrears(mem,m)?won(arrears(mem,m)):'완납']);
+ drawTable(ctx,630,486,570,['회원','월 회비','납부액','상태'],memberRows,[1.4,1.4,1.4,1.2],47);
+ drawSectionRibbon(ctx,4,'통장 잔액 현황',40,830,560);drawSectionRibbon(ctx,5,'미수금 현황',630,830,570);
+ const balRows=[['전월 잔액',won(sum.opening)],['금월 수입',won(sum.dues+sum.interest+sum.otherIn)],['금월 지출',won(sum.out)],['금월 잔액',won(sum.closing)]];
+ drawTable(ctx,40,886,550,['구분','금액'],balRows,[1.6,1.4],48);
+ roundRect(ctx,630,886,570,220,18,'#fff','#ecd5cc');canvasText(ctx,'총 미수금',915,942,24,'800','#5f4944','center');canvasText(ctx,won(arrearsTotal),915,1004,47,'900',arrearsTotal?'#cf2822':'#178143','center');canvasText(ctx,`미납 회원 ${state.members.filter(v=>arrears(v,m)>0).length}명`,915,1053,21,'700','#6d5954','center');
+ drawSectionRibbon(ctx,6,'총무 의견',40,1140,1160);roundRect(ctx,40,1198,1160,260,18,'#fff','#ecd5cc');ctx.font='25px sans-serif';ctx.fillStyle='#463632';wrapCanvasText(ctx,snapshot?.memo||'특이사항 없음',70,1250,1100,42,5);
+ canvasText(ctx,`${snapshot?.createdDate||reportDateText()}`,900,1510,22,'600','#66524d');canvasText(ctx,'총무',900,1560,25,'800','#402d29');roundRect(ctx,1010,1500,100,100,50,'#fff0e9','#d73529');canvasText(ctx,'확인',1060,1564,28,'900','#c7251d','center');
+ roundRect(ctx,28,1640,1184,76,0,'#f7d5c9');canvasText(ctx,'🌶️  고추참치회는 서로를 존중하고 함께 즐기는 모임입니다.  🐟',620,1688,22,'800','#b52b23','center');
+ return c
+}
+async function drawMeetingReportCanvas(){
+ const r=(state.meetingReports||[]).find(v=>v.id===selectedMeetingId);if(!r)return null;
+ const c=document.createElement('canvas');c.width=1240;c.height=1754;const ctx=c.getContext('2d');ctx.fillStyle='#fffaf4';ctx.fillRect(0,0,c.width,c.height);ctx.fillStyle='#d9362b';ctx.fillRect(0,0,c.width,16);
+ const [mascot,tuna]=await Promise.all([loadCanvasImage('mascot.png'),loadCanvasImage('report-cat.png')]);
+ const total=sumMeetingExpenses(r),att=(r.attendees||[]).length,before=balanceAt(String(r.start).slice(0,10));
+ drawHeaderBrand(ctx,r.title,`총무 작성 · ${r.createdDate}`,mascot,tuna);
+ drawSectionRibbon(ctx,1,'모임 개요',40,220,550);drawSectionRibbon(ctx,2,'참석자 명단',630,220,570);
+ const infoRows=[['모임 장소',r.place],['시작',String(r.start).replace('T',' ')],['종료',String(r.end).replace('T',' ')],['참석 인원',`${att}명`]];drawTable(ctx,40,276,550,['구분','내용'],infoRows,[1.2,2.5],47);
+ roundRect(ctx,630,276,570,228,18,'#fff','#ead6ce');const people=r.attendees||[];people.forEach((name,i)=>{const col=i%6,row=Math.floor(i/6),cx=675+col*84,cy=310+row*95;roundRect(ctx,cx,cy,62,62,31,'#fff1e6','#e7bfae');canvasText(ctx,'🐱',cx+31,cy+42,34,'400','#333','center');canvasText(ctx,name,cx+31,cy+84,15,'700','#47332f','center')});
+ drawSectionRibbon(ctx,3,'지출 내역',40,540,560);drawSectionRibbon(ctx,4,'모임 결산',630,540,570);
+ const expRows=(r.expenses||[]).map(x=>[x.item,won(x.amount)]);expRows.push(['총 지출',won(total)]);drawTable(ctx,40,596,550,['항목','금액'],expRows,[2,1.2],47);
+ drawSummaryCard(ctx,645,596,170,125,'💰','모임 전 잔액',won(before),'blue');drawSummaryCard(ctx,830,596,170,125,'💸','총 지출',won(total),'red');drawSummaryCard(ctx,1015,596,170,125,'👛','모임 후 잔액',won(before-total),'green');
+ roundRect(ctx,645,740,540,76,14,'#fff9ef','#ecd5b7');canvasText(ctx,'1인당 지출 금액',685,789,21,'700','#6b554f');canvasText(ctx,won(att?Math.round(total/att):0),1150,789,28,'900','#173f75','right');
+ drawSectionRibbon(ctx,5,'모임 내용',40,870,560);drawSectionRibbon(ctx,6,'기타 메모 및 다음 일정',630,870,570);
+ roundRect(ctx,40,928,550,270,18,'#fff','#ead6ce');ctx.font='24px sans-serif';ctx.fillStyle='#493733';wrapCanvasText(ctx,r.agenda||'내용 없음',70,980,490,40,5);
+ roundRect(ctx,630,928,570,270,18,'#fff','#ead6ce');ctx.font='24px sans-serif';ctx.fillStyle='#493733';wrapCanvasText(ctx,r.memo||'메모 없음',660,980,510,40,5);
+ drawSectionRibbon(ctx,7,'사진 첨부',40,1240,1160);[0,1,2].forEach(i=>{roundRect(ctx,40+i*390,1300,360,210,16,'#f5eee9','#dfc9c0');canvasText(ctx,'📷',220+i*390,1390,55,'400','#7d6963','center');canvasText(ctx,`모임 사진 ${i+1}`,220+i*390,1450,21,'700','#7d6963','center')});
+ roundRect(ctx,28,1640,1184,76,0,'#f7d5c9');canvasText(ctx,'🌶️  고추참치회는 서로를 존중하고 함께 즐기는 모임입니다.  🐟',620,1688,22,'800','#b52b23','center');
+ return c
 }
 async function saveReportPng(type,share=false){
  if(!requireAdmin())return;
  try{
-  const c=await reportElementCanvas(type);if(!c)return alert('먼저 보고서를 선택하세요.');
-  const blob=await new Promise(r=>c.toBlob(r,'image/png',1));
-  const m=$('#reportMonth').value||nowMonth();
-  const name=type==='monthly'?`고추참치회_${m}_월회계보고서.png`:`고추참치회_모임보고서.png`;
+  const c=type==='monthly'?await drawMonthlyReportCanvas():await drawMeetingReportCanvas();if(!c)return alert('먼저 보고서를 선택하세요.');
+  const blob=await new Promise((resolve,reject)=>c.toBlob(v=>v?resolve(v):reject(new Error('PNG 변환 실패')),'image/png',0.95));
+  const m=$('#reportMonth').value||nowMonth();const name=type==='monthly'?`고추참치회_${m}_월회계보고서.png`:`고추참치회_모임보고서.png`;
   const file=new File([blob],name,{type:'image/png'});
   if(share&&navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({title:name,files:[file]})}
-  else{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1500)}
- }catch(err){console.error(err);alert('사진 생성 중 오류가 발생했습니다. 페이지를 새로고침한 뒤 다시 시도하세요.')}
+  else{const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.style.display='none';document.body.appendChild(a);a.click();setTimeout(()=>{a.remove();URL.revokeObjectURL(url)},2500)}
+ }catch(err){console.error('PNG 저장 오류',err);alert('사진 저장에 실패했습니다. 브라우저 다운로드 권한을 확인한 뒤 다시 시도하세요.')}
 }
 function printReport(type){
  if(!requireAdmin())return;

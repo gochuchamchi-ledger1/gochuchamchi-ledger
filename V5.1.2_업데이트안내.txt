@@ -1,0 +1,19 @@
+고추참치회 웹앱 V5.1.2
+
+수정 내용
+- Android/Samsung Internet에서 발생하던 사진 생성 오류 수정
+- SVG foreignObject 방식 제거
+- 모바일 호환성이 높은 전용 A4 Canvas 렌더링 적용
+- 월 회계보고서와 모임보고서 모두 1240×1754 PNG 저장
+- 캐릭터, 고추참치 테마, 요약카드, 표, 총무 확인 도장 유지
+- 공유 기능도 동일 PNG 사용
+
+업로드
+1. ZIP 압축 해제
+2. GitHub 저장소 Add file → Upload files
+3. 압축 해제한 파일 전체 업로드
+4. Commit changes
+5. 아래 주소로 확인
+https://gochuchamchi-ledger1.github.io/gochuchamchi-ledger/?v=512
+
+캐시가 남으면 사이트 데이터 삭제 후 다시 접속하세요.

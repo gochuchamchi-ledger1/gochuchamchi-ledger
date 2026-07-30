@@ -1,4 +1,4 @@
-const CACHE='gochuchamchi-v5-1-1-photo-fix';
+const CACHE='gochuchamchi-v512-report-png';
 const CORE=[
  './','./index.html','./manifest.webmanifest',
  './icon-192.png','./icon-512.png','./mascot.png',
