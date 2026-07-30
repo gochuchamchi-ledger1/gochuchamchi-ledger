@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="고추참치회">
-<title>고추참치회 장부 V7.0</title>
+<title>고추참치회 장부 V7.0.1</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
@@ -185,12 +185,16 @@ nav{position:fixed;z-index:40;bottom:0;left:0;right:0;background:rgba(255,255,25
 /* V6.0 Firebase */
 .cloudBadge{display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border-radius:999px;font-size:12px;font-weight:800;background:#eee;color:#555}.cloudBadge.online{background:#e7f7ec;color:#137333}.cloudBadge.syncing{background:#fff4d6;color:#8a5a00}.cloudBadge.error{background:#fde8e7;color:#b3261e}.cloudPanel{border:1px solid #ead2ca;background:#fff;border-radius:16px;padding:14px;margin:12px}.cloudPanel h3{margin:0 0 8px}.cloudActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.cloudNote{font-size:12px;color:#745b54;line-height:1.5}
 
+
+.memberDot .memberAvatar{margin:0 auto}
+.memberDot .memberAvatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+
 </style>
 </head>
 <body>
 <div class="app">
 <header><div class="head">
- <div class="brand"><img class="logo" src="mascot.png"><div><div class="title" id="groupTitle">고추참치회</div><div class="sub">카카오뱅크 · V7.0 총무 PIN·고급 보고서</div></div></div>
+ <div class="brand"><img class="logo" src="mascot.png"><div><div class="title" id="groupTitle">고추참치회</div><div class="sub">카카오뱅크 · V7.0.1 회원 캐릭터 통일</div></div></div>
  <button class="mode" id="modeBtn">조회 모드</button>
 </div></header>
 <main>
@@ -484,7 +488,7 @@ function save(){
  localStorage.setItem(KEY,JSON.stringify(state));
  if(!cloudReady||cloudApplying)return;
  clearTimeout(cloudTimer);setCloudStatus('syncing','동기화 중');
- cloudTimer=setTimeout(async()=>{try{lastCloudWrite=Date.now();await cloudRef.set({state:mediaSafeState(state),updatedAt:firebase.firestore.FieldValue.serverTimestamp(),version:'7.0'},{merge:true});setCloudStatus('online','공유됨','마지막 변경사항이 Firebase에 저장되었습니다.')}catch(e){console.error(e);setCloudStatus('error','저장 실패',e.message||'Firebase 쓰기 실패')}},550)
+ cloudTimer=setTimeout(async()=>{try{lastCloudWrite=Date.now();await cloudRef.set({state:mediaSafeState(state),updatedAt:firebase.firestore.FieldValue.serverTimestamp(),version:'7.0.1'},{merge:true});setCloudStatus('online','공유됨','마지막 변경사항이 Firebase에 저장되었습니다.')}catch(e){console.error(e);setCloudStatus('error','저장 실패',e.message||'Firebase 쓰기 실패')}},550)
 }
 async function initFirebase(){
  try{
@@ -505,7 +509,7 @@ async function initFirebase(){
 async function uploadCurrentToCloud(){
  if(!requireAdmin())return;if(!cloudReady){alert('Firebase가 아직 연결되지 않았습니다.');return}
  if(!confirm('현재 휴대폰의 회원·거래·보고서 데이터를 Firebase 기준 데이터로 올릴까요?'))return;
- try{setCloudStatus('syncing','업로드 중');lastCloudWrite=Date.now();await cloudRef.set({state:mediaSafeState(state),updatedAt:firebase.firestore.FieldValue.serverTimestamp(),version:'7.0'},{merge:true});setCloudStatus('online','업로드 완료','다른 휴대폰에서 같은 주소를 열면 데이터가 표시됩니다.');alert('클라우드 업로드가 완료되었습니다.')}catch(e){alert('업로드 실패: '+e.message);setCloudStatus('error','업로드 실패',e.message)}
+ try{setCloudStatus('syncing','업로드 중');lastCloudWrite=Date.now();await cloudRef.set({state:mediaSafeState(state),updatedAt:firebase.firestore.FieldValue.serverTimestamp(),version:'7.0.1'},{merge:true});setCloudStatus('online','업로드 완료','다른 휴대폰에서 같은 주소를 열면 데이터가 표시됩니다.');alert('클라우드 업로드가 완료되었습니다.')}catch(e){alert('업로드 실패: '+e.message);setCloudStatus('error','업로드 실패',e.message)}
 }
 async function downloadCloudNow(){
  if(!cloudReady){alert('Firebase가 아직 연결되지 않았습니다.');return}
@@ -628,7 +632,7 @@ function renderMonthlyA4(){
  const m=$('#reportMonth').value||nowMonth(),s=summary(m),snapshot=state.monthlyReports[m];
  const arrearsTotal=state.members.reduce((a,x)=>a+arrears(x,m),0), paid=state.members.filter(x=>paidFor(x,m)>=x.fee).length;
  const memberRows=state.members.map(mem=>{const p=paidFor(mem,m),lack=Math.max(0,mem.fee-p);return `<tr><td>${esc(mem.name)}</td><td>${won(mem.fee)}</td><td>${won(p)}</td><td>${lack?won(lack):'완납'}</td></tr>`}).join('');
- const dots=state.members.map(mem=>`<div class="memberDot"><div class="avatar">🐱</div><b>${esc(mem.name)}</b><small>${paidFor(mem,m)>=mem.fee?'● 완납':'○ 미납'}</small></div>`).join('');
+ const dots=state.members.map(mem=>`<div class="memberDot">${memberAvatarHtml(mem,true)}<b>${esc(mem.name)}</b><small>${paidFor(mem,m)>=mem.fee?'● 완납':'○ 미납'}</small></div>`).join('');
  $('#monthlyA4').innerHTML=`
  <div class="a4Header"><div><div class="reportBrand"><img src="mascot.png"><div><div class="reportBrandName">🌶️ ${state.groupName}</div><div class="reportSlogan">함께하는 즐거움, 소중한 인연</div></div></div><h1>${m.slice(0,4)}년 <em>${Number(m.slice(5,7))}월</em> 월 회계보고서</h1><div class="small">작성일 ${snapshot?.createdDate||reportDateText()}　|　총무 작성</div></div><div><span class="reportRibbon">월 회계보고서</span><img class="headerMascot" src="report-cat.png"></div></div>
  <div class="a4Section"><h3>월별 요약</h3><div class="summaryCards"><div class="summaryCard"><div class="ico">🪙</div><span>전월 이월잔액</span><b>${won(s.opening)}</b></div><div class="summaryCard"><div class="ico">👥</div><span>회비 수입</span><b>${won(s.dues)}</b></div><div class="summaryCard"><div class="ico">🌱</div><span>이자·기타수입</span><b>${won(s.interest+s.otherIn)}</b></div><div class="summaryCard bad"><div class="ico">💸</div><span>총 지출</span><b>${won(s.out)}</b></div><div class="summaryCard good" style="grid-column:span 4"><div class="ico">👛</div><span>월말 잔액</span><b>${won(s.closing)}</b></div></div></div>
@@ -1291,7 +1295,7 @@ function backup(){
 async function restore(file){try{const obj=JSON.parse(await file.text());if(!obj.members||!obj.transactions)throw Error();state=obj;save();render();alert('복원이 완료되었습니다.')}catch(e){alert('올바른 백업 파일이 아닙니다.')}}
 function changePin(){if(!requireAdmin())return;const old=prompt('현재 PIN을 입력하세요.');if(old!==state.adminPin)return alert('현재 PIN이 맞지 않습니다.');const p=prompt('새 PIN 4자리 이상');if(!p||p.length<4)return alert('4자리 이상 입력하세요.');state.adminPin=p;save();alert('PIN이 변경되었습니다.')}
 
-const INSTALL_URL='https://gochuchamchi-ledger1.github.io/gochuchamchi-ledger/?v=700';
+const INSTALL_URL='https://gochuchamchi-ledger1.github.io/gochuchamchi-ledger/?v=701';
 async function shareInstallLink(){
  const title='고추참치회 장부 앱';
  const text=`고추참치회 장부 앱 설치 링크입니다.\n링크를 연 뒤 설정 → 앱 설치를 눌러주세요.\n\n${INSTALL_URL}`;

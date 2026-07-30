@@ -1,0 +1,9 @@
+V7.0.1 변경내용
+
+- 회원관리에서 선택한 캐릭터/사진을 결산 보고서의 회원 현황에도 동일하게 표시
+- 이모지 캐릭터와 업로드 사진 모두 연동
+- 총무 PIN 123456 유지
+- Firebase 실시간 공유와 설치 링크 공유 유지
+
+접속 주소
+https://gochuchamchi-ledger1.github.io/gochuchamchi-ledger/?v=701
