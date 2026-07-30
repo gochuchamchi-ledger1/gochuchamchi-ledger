@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="고추참치회">
-<title>고추참치회 장부 V7.0.1</title>
+<title>고추참치회 장부 V7.1</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
@@ -189,12 +189,34 @@ nav{position:fixed;z-index:40;bottom:0;left:0;right:0;background:rgba(255,255,25
 .memberDot .memberAvatar{margin:0 auto}
 .memberDot .memberAvatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 
+
+/* V7.1 PDF 동일 보고서 및 대형 캐릭터 */
+.memberDot{padding:8px 3px;min-height:84px}
+.memberDot .avatar,.memberDot .memberAvatar{width:54px!important;height:54px!important;font-size:34px!important;border-width:2px!important;margin:0 auto!important}
+.memberDot .memberAvatar img,.memberDot .avatar img{width:100%!important;height:100%!important;object-fit:cover!important;border-radius:50%!important}
+.memberDot b{font-size:10px!important;margin-top:5px!important}
+.memberDot small{font-size:9px!important}
+#monthlyA4 .memberDots,#meetingA4 .memberDots{gap:7px}
+.reportPreviewHint{font-size:12px;color:#8a6b62;text-align:center;margin:6px 0 10px}
+@media(max-width:520px){
+ #monthlyPane,#meetingPane{overflow-x:hidden!important}
+ #monthlyA4,#meetingA4{width:200%!important;max-width:none!important;zoom:.5;padding:18px!important;border-radius:18px!important}
+ #monthlyA4 .reportTwoCol,#meetingA4 .reportTwoCol{grid-template-columns:1fr 1.06fr!important}
+ #monthlyA4 .summaryCards{grid-template-columns:repeat(4,1fr)!important}
+ #monthlyA4 .memberDots{grid-template-columns:repeat(6,1fr)!important}
+ #meetingA4 .memberDots{grid-template-columns:repeat(3,1fr)!important}
+ #monthlyA4 .a4Header h1,#meetingA4 .a4Header h1{font-size:25px!important}
+ #monthlyA4 .headerMascot,#meetingA4 .headerMascot{width:105px!important;height:92px!important}
+ #monthlyA4 .reportBrand img,#meetingA4 .reportBrand img{width:68px!important;height:68px!important}
+ #monthlyA4 .reportBrandName,#meetingA4 .reportBrandName{font-size:20px!important}
+}
+
 </style>
 </head>
 <body>
 <div class="app">
 <header><div class="head">
- <div class="brand"><img class="logo" src="mascot.png"><div><div class="title" id="groupTitle">고추참치회</div><div class="sub">카카오뱅크 · V7.0.1 회원 캐릭터 통일</div></div></div>
+ <div class="brand"><img class="logo" src="mascot.png"><div><div class="title" id="groupTitle">고추참치회</div><div class="sub">카카오뱅크 · V7.1 PDF 동일 보고서·대형 캐릭터</div></div></div>
  <button class="mode" id="modeBtn">조회 모드</button>
 </div></header>
 <main>
@@ -249,7 +271,7 @@ nav{position:fixed;z-index:40;bottom:0;left:0;right:0;background:rgba(255,255,25
    <button class="btn line" id="monthlyPrint">PDF·인쇄</button>
    <button class="btn soft" id="monthlyShare">공유</button>
   </div>
-  <div class="a4" id="monthlyA4"></div>
+  <div class="reportPreviewHint">화면 보고서도 저장되는 PNG·PDF와 같은 한 장 형식으로 표시됩니다.</div><div class="a4" id="monthlyA4"></div>
  </div>
 
  <div id="meetingPane" class="reportPane">
@@ -260,7 +282,7 @@ nav{position:fixed;z-index:40;bottom:0;left:0;right:0;background:rgba(255,255,25
    <button class="btn line" id="meetingPrint">PDF·인쇄</button>
    <button class="btn soft" id="meetingShare">공유</button>
   </div>
-  <div class="a4" id="meetingA4" style="display:none"></div>
+  <div class="reportPreviewHint">모임 보고서 사진도 PNG·PDF와 같은 한 장 형식으로 표시됩니다.</div><div class="a4" id="meetingA4" style="display:none"></div>
  </div>
 </section>
 
@@ -488,7 +510,7 @@ function save(){
  localStorage.setItem(KEY,JSON.stringify(state));
  if(!cloudReady||cloudApplying)return;
  clearTimeout(cloudTimer);setCloudStatus('syncing','동기화 중');
- cloudTimer=setTimeout(async()=>{try{lastCloudWrite=Date.now();await cloudRef.set({state:mediaSafeState(state),updatedAt:firebase.firestore.FieldValue.serverTimestamp(),version:'7.0.1'},{merge:true});setCloudStatus('online','공유됨','마지막 변경사항이 Firebase에 저장되었습니다.')}catch(e){console.error(e);setCloudStatus('error','저장 실패',e.message||'Firebase 쓰기 실패')}},550)
+ cloudTimer=setTimeout(async()=>{try{lastCloudWrite=Date.now();await cloudRef.set({state:mediaSafeState(state),updatedAt:firebase.firestore.FieldValue.serverTimestamp(),version:'7.1'},{merge:true});setCloudStatus('online','공유됨','마지막 변경사항이 Firebase에 저장되었습니다.')}catch(e){console.error(e);setCloudStatus('error','저장 실패',e.message||'Firebase 쓰기 실패')}},550)
 }
 async function initFirebase(){
  try{
@@ -509,7 +531,7 @@ async function initFirebase(){
 async function uploadCurrentToCloud(){
  if(!requireAdmin())return;if(!cloudReady){alert('Firebase가 아직 연결되지 않았습니다.');return}
  if(!confirm('현재 휴대폰의 회원·거래·보고서 데이터를 Firebase 기준 데이터로 올릴까요?'))return;
- try{setCloudStatus('syncing','업로드 중');lastCloudWrite=Date.now();await cloudRef.set({state:mediaSafeState(state),updatedAt:firebase.firestore.FieldValue.serverTimestamp(),version:'7.0.1'},{merge:true});setCloudStatus('online','업로드 완료','다른 휴대폰에서 같은 주소를 열면 데이터가 표시됩니다.');alert('클라우드 업로드가 완료되었습니다.')}catch(e){alert('업로드 실패: '+e.message);setCloudStatus('error','업로드 실패',e.message)}
+ try{setCloudStatus('syncing','업로드 중');lastCloudWrite=Date.now();await cloudRef.set({state:mediaSafeState(state),updatedAt:firebase.firestore.FieldValue.serverTimestamp(),version:'7.1'},{merge:true});setCloudStatus('online','업로드 완료','다른 휴대폰에서 같은 주소를 열면 데이터가 표시됩니다.');alert('클라우드 업로드가 완료되었습니다.')}catch(e){alert('업로드 실패: '+e.message);setCloudStatus('error','업로드 실패',e.message)}
 }
 async function downloadCloudNow(){
  if(!cloudReady){alert('Firebase가 아직 연결되지 않았습니다.');return}
@@ -1063,6 +1085,18 @@ async function saveArrearsNotice(memberId){
  }catch(e){console.error(e);alert('미납 안내 이미지 저장에 실패했습니다.')}
 }
 
+
+async function drawMemberAvatarCanvas(ctx,mem,cx,cy,r=42){
+ ctx.save();ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.closePath();ctx.fillStyle='#fff1e8';ctx.fill();ctx.lineWidth=3;ctx.strokeStyle='#e9b9a8';ctx.stroke();ctx.clip();
+ if(mem?.photo){
+  const img=await loadCanvasImage(mem.photo);
+  if(img){const size=r*2,ratio=Math.max(size/img.width,size/img.height),dw=img.width*ratio,dh=img.height*ratio;ctx.drawImage(img,cx-dw/2,cy-dh/2,dw,dh)}
+  ctx.restore();
+ }else{
+  ctx.restore();canvasText(ctx,mem?.avatar||'🐱',cx,cy+r*.38,Math.round(r*1.15),'400','#3b2b27','center');
+ }
+}
+
 async function drawMonthlyReportCanvas(){
  const c=document.createElement('canvas');c.width=1240;c.height=1754;const ctx=c.getContext('2d');
  ctx.fillStyle='#fffaf4';ctx.fillRect(0,0,c.width,c.height);ctx.fillStyle='#d9362b';ctx.fillRect(0,0,c.width,16);
@@ -1071,19 +1105,23 @@ async function drawMonthlyReportCanvas(){
  drawHeaderBrand(ctx,`${m.slice(0,4)}년 ${Number(m.slice(5,7))}월 월 회계보고서`,`${snapshot?'총무 확정':'미확정'} · ${snapshot?.createdDate||reportDateText()}`,mascot,tuna);
  drawSectionRibbon(ctx,1,'월별 요약',40,220);
  const cards=[['🪙','전월 이월잔액',won(sum.opening),'blue'],['👥','회비 수입',won(sum.dues),'blue'],['🌱','이자·기타수입',won(sum.interest+sum.otherIn),'green'],['💸','총 지출',won(sum.out),'red'],['👛','월말 잔액',won(sum.closing),'green'],['⚠️','총 미수금',won(arrearsTotal),'red']];
- cards.forEach((v,i)=>drawSummaryCard(ctx,40+i*193,278,178,125,...v));
- drawSectionRibbon(ctx,2,'수입 / 지출 내역',40,430,560);drawSectionRibbon(ctx,3,'회원별 회비 납부 현황',630,430,570);
+ cards.forEach((v,i)=>drawSummaryCard(ctx,40+i*193,278,178,118,...v));
+ drawSectionRibbon(ctx,2,'수입 / 지출 내역',40,420,560);drawSectionRibbon(ctx,3,'회원별 회비 납부 현황',630,420,570);
  const finRows=[['회비 수입',won(sum.dues),'회원 회비'],['이자 수입',won(sum.interest),'카카오뱅크'],['기타 수입',won(sum.otherIn),'-'],['수입 합계',won(sum.dues+sum.interest+sum.otherIn),''],['총 지출',won(sum.out),'-']];
- drawTable(ctx,40,486,550,['항목','금액','비고'],finRows,[2.2,1.4,1.6],47);
+ drawTable(ctx,40,476,550,['항목','금액','비고'],finRows,[2.2,1.4,1.6],43);
  const memberRows=state.members.map(mem=>[mem.name,won(mem.fee),won(paidFor(mem,m)),arrears(mem,m)?won(arrears(mem,m)):'완납']);
- drawTable(ctx,630,486,570,['회원','월 회비','납부액','상태'],memberRows,[1.4,1.4,1.4,1.2],47);
- drawSectionRibbon(ctx,4,'통장 잔액 현황',40,830,560);drawSectionRibbon(ctx,5,'미수금 현황',630,830,570);
+ drawTable(ctx,630,476,570,['회원','월 회비','납부액','상태'],memberRows,[1.4,1.4,1.4,1.2],43);
+ drawSectionRibbon(ctx,4,`회원 현황 · ${state.members.filter(v=>paidFor(v,m)>=v.fee).length}/${state.members.length}명 완납`,40,770,1160);
+ roundRect(ctx,40,828,1160,190,18,'#fff','#ecd5cc');
+ const count=Math.max(1,state.members.length),gap=1160/count;
+ for(let i=0;i<state.members.length;i++){const mem=state.members[i],cx=40+gap*i+gap/2;await drawMemberAvatarCanvas(ctx,mem,cx,884,48);canvasText(ctx,mem.name,cx,958,20,'800','#402d29','center');const complete=paidFor(mem,m)>=mem.fee;canvasText(ctx,complete?'● 완납':'○ 미납',cx,987,17,'700',complete?'#178143':'#cf2822','center')}
+ drawSectionRibbon(ctx,5,'통장 잔액 현황',40,1050,760);drawSectionRibbon(ctx,6,'미수금 현황',830,1050,370);
  const balRows=[['전월 잔액',won(sum.opening)],['금월 수입',won(sum.dues+sum.interest+sum.otherIn)],['금월 지출',won(sum.out)],['금월 잔액',won(sum.closing)]];
- drawTable(ctx,40,886,550,['구분','금액'],balRows,[1.6,1.4],48);
- roundRect(ctx,630,886,570,220,18,'#fff','#ecd5cc');canvasText(ctx,'총 미수금',915,942,24,'800','#5f4944','center');canvasText(ctx,won(arrearsTotal),915,1004,47,'900',arrearsTotal?'#cf2822':'#178143','center');canvasText(ctx,`미납 회원 ${state.members.filter(v=>arrears(v,m)>0).length}명`,915,1053,21,'700','#6d5954','center');
- drawSectionRibbon(ctx,6,'총무 의견',40,1140,1160);roundRect(ctx,40,1198,1160,260,18,'#fff','#ecd5cc');ctx.font='25px sans-serif';ctx.fillStyle='#463632';wrapCanvasText(ctx,snapshot?.memo||'특이사항 없음',70,1250,1100,42,5);
- canvasText(ctx,`${snapshot?.createdDate||reportDateText()}`,760,1510,22,'600','#66524d');await drawApprovalAssets(ctx,875,1492,!!snapshot);
- roundRect(ctx,28,1640,1184,76,0,'#f7d5c9');canvasText(ctx,'🌶️  고추참치회는 서로를 존중하고 함께 즐기는 모임입니다.  🐟',620,1688,22,'800','#b52b23','center');
+ drawTable(ctx,40,1106,750,['구분','금액'],balRows,[1.6,1.4],43);
+ roundRect(ctx,830,1106,370,205,18,'#fff','#ecd5cc');canvasText(ctx,'총 미수금',1015,1160,22,'800','#5f4944','center');canvasText(ctx,won(arrearsTotal),1015,1220,42,'900',arrearsTotal?'#cf2822':'#178143','center');canvasText(ctx,`미납 회원 ${state.members.filter(v=>arrears(v,m)>0).length}명`,1015,1265,19,'700','#6d5954','center');
+ drawSectionRibbon(ctx,7,'총무 의견',40,1340,1160);roundRect(ctx,40,1398,1160,170,18,'#fff','#ecd5cc');ctx.font='24px sans-serif';ctx.fillStyle='#463632';wrapCanvasText(ctx,snapshot?.memo||'특이사항 없음',70,1450,1080,39,3);
+ canvasText(ctx,`${snapshot?.createdDate||reportDateText()}`,760,1600,21,'600','#66524d');await drawApprovalAssets(ctx,875,1572,!!snapshot);
+ roundRect(ctx,28,1662,1184,64,0,'#f7d5c9');canvasText(ctx,'🌶️  고추참치회는 서로를 존중하고 함께 즐기는 모임입니다.  🐟',620,1703,22,'800','#b52b23','center');
  return c
 }
 async function drawMeetingReportCanvas(){
@@ -1094,7 +1132,7 @@ async function drawMeetingReportCanvas(){
  drawHeaderBrand(ctx,r.title,`총무 작성 · ${r.createdDate}`,mascot,tuna);
  drawSectionRibbon(ctx,1,'모임 개요',40,220,550);drawSectionRibbon(ctx,2,'참석자 명단',630,220,570);
  const infoRows=[['모임 장소',r.place],['시작',String(r.start).replace('T',' ')],['종료',String(r.end).replace('T',' ')],['참석 인원',`${att}명`]];drawTable(ctx,40,276,550,['구분','내용'],infoRows,[1.2,2.5],47);
- roundRect(ctx,630,276,570,228,18,'#fff','#ead6ce');const people=r.attendees||[];people.forEach((name,i)=>{const col=i%6,row=Math.floor(i/6),cx=675+col*84,cy=310+row*95;roundRect(ctx,cx,cy,62,62,31,'#fff1e6','#e7bfae');canvasText(ctx,'🐱',cx+31,cy+42,34,'400','#333','center');canvasText(ctx,name,cx+31,cy+84,15,'700','#47332f','center')});
+ roundRect(ctx,630,276,570,228,18,'#fff','#ead6ce');const people=r.attendees||[];for(let i=0;i<people.length;i++){const name=people[i],mem=state.members.find(v=>v.name===name),col=i%6,row=Math.floor(i/6),cx=706+col*88,cy=342+row*104;await drawMemberAvatarCanvas(ctx,mem||{name,avatar:'🐱'},cx,cy,36);canvasText(ctx,name,cx,cy+58,16,'800','#47332f','center')}
  drawSectionRibbon(ctx,3,'지출 내역',40,540,560);drawSectionRibbon(ctx,4,'모임 결산',630,540,570);
  const expRows=(r.expenses||[]).map(x=>[x.item,won(x.amount)]);expRows.push(['총 지출',won(total)]);drawTable(ctx,40,596,550,['항목','금액'],expRows,[2,1.2],47);
  drawSummaryCard(ctx,645,596,170,125,'💰','모임 전 잔액',won(before),'blue');drawSummaryCard(ctx,830,596,170,125,'💸','총 지출',won(total),'red');drawSummaryCard(ctx,1015,596,170,125,'👛','모임 후 잔액',won(before-total),'green');
@@ -1295,7 +1333,7 @@ function backup(){
 async function restore(file){try{const obj=JSON.parse(await file.text());if(!obj.members||!obj.transactions)throw Error();state=obj;save();render();alert('복원이 완료되었습니다.')}catch(e){alert('올바른 백업 파일이 아닙니다.')}}
 function changePin(){if(!requireAdmin())return;const old=prompt('현재 PIN을 입력하세요.');if(old!==state.adminPin)return alert('현재 PIN이 맞지 않습니다.');const p=prompt('새 PIN 4자리 이상');if(!p||p.length<4)return alert('4자리 이상 입력하세요.');state.adminPin=p;save();alert('PIN이 변경되었습니다.')}
 
-const INSTALL_URL='https://gochuchamchi-ledger1.github.io/gochuchamchi-ledger/?v=701';
+const INSTALL_URL='https://gochuchamchi-ledger1.github.io/gochuchamchi-ledger/?v=710';
 async function shareInstallLink(){
  const title='고추참치회 장부 앱';
  const text=`고추참치회 장부 앱 설치 링크입니다.\n링크를 연 뒤 설정 → 앱 설치를 눌러주세요.\n\n${INSTALL_URL}`;

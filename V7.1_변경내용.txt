@@ -1,0 +1,10 @@
+V7.1 변경내용
+- 화면 보고서를 PNG/PDF와 같은 한 장 형식으로 표시
+- 모바일에서도 PDF와 동일한 2단 구성 유지
+- 회원 캐릭터와 회원사진 크기 확대
+- 월 회계 PNG 보고서에 실제 회원 캐릭터/사진 표시
+- 정기모임 PNG 보고서 참석자에도 실제 캐릭터/사진 표시
+- 총무 PIN 123456 유지
+
+접속 주소
+https://gochuchamchi-ledger1.github.io/gochuchamchi-ledger/?v=710

@@ -1,8 +1,8 @@
 {
-  "name": "고추참치회 장부 V7.0",
+  "name": "고추참치회 장부 V7.1",
   "short_name": "고추참치회",
-  "description": "총무 PIN 전용 수정과 월 회계·정기모임 고급 보고서",
-  "start_url": "./?v=700",
+  "description": "화면·PNG·PDF 동일 형식 보고서와 큰 회원 캐릭터",
+  "start_url": "./?v=710",
   "scope": "./",
   "display": "standalone",
   "background_color": "#fffaf6",
