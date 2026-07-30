@@ -1,10 +1,10 @@
 {
   "id": "./",
-  "name": "고추참치회 장부 V5.2",
+  "name": "고추참치회 장부 V5.3",
   "short_name": "고추참치회",
-  "description": "사진 첨부, QR 코드, 총무 승인 도장이 추가된 회비관리 앱",
+  "description": "총무 서명·승인도장 등록, 사진 순서·대표사진, 저장 안정화",
   "lang": "ko-KR",
-  "start_url": "./?v=52",
+  "start_url": "./?v=53",
   "scope": "./",
   "display": "standalone",
   "background_color": "#fff9f5",

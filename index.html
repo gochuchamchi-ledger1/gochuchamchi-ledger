@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="고추참치회">
-<title>고추참치회 장부 V5.2</title>
+<title>고추참치회 장부 V5.3</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
@@ -136,12 +136,24 @@ nav{position:fixed;z-index:40;bottom:0;left:0;right:0;background:rgba(255,255,25
 .photoHelp{font-size:11px;color:#7d6a65;margin-top:5px}
 @media(max-width:520px){.photoPreviewGrid,.reportPhotos{grid-template-columns:repeat(3,1fr)}.reportQr img{width:48px;height:48px}}
 
+
+/* V5.3 */
+.assetPreview{display:flex;align-items:center;gap:12px;padding:10px;background:#fff;border:1px solid var(--line);border-radius:14px}
+.assetPreview img{width:78px;height:58px;object-fit:contain;background:#fff9f4;border:1px dashed #d9bdb5;border-radius:10px}
+.assetPreview .emptyAsset{width:78px;height:58px;display:flex;align-items:center;justify-content:center;background:#fff9f4;border:1px dashed #d9bdb5;border-radius:10px;font-size:11px;color:#8b7771}
+.photoPreviewItem.representative{outline:3px solid #e14b3e;outline-offset:2px}
+.photoControls{position:absolute;left:4px;right:4px;bottom:4px;display:flex;justify-content:center;gap:3px}
+.photoControls button{position:static;width:27px;height:25px;border-radius:8px;background:rgba(255,255,255,.92);color:#6b3029;border:1px solid #e1b9af;font-size:12px}
+.photoBadge{position:absolute;left:5px;top:5px;background:#e23a2f;color:#fff;border-radius:10px;padding:2px 6px;font-size:9px;font-weight:900}
+.customSignature{max-width:120px;max-height:52px;object-fit:contain}
+.customStamp{width:58px;height:58px;object-fit:contain;transform:rotate(-7deg)}
+
 </style>
 </head>
 <body>
 <div class="app">
 <header><div class="head">
- <div class="brand"><img class="logo" src="mascot.png"><div><div class="title" id="groupTitle">고추참치회</div><div class="sub">카카오뱅크 · V5.2 사진·QR·승인 기능</div></div></div>
+ <div class="brand"><img class="logo" src="mascot.png"><div><div class="title" id="groupTitle">고추참치회</div><div class="sub">카카오뱅크 · V5.3 서명·사진정렬·저장강화</div></div></div>
  <button class="mode" id="modeBtn">조회 모드</button>
 </div></header>
 <main>
@@ -227,6 +239,10 @@ nav{position:fixed;z-index:40;bottom:0;left:0;right:0;background:rgba(255,255,25
  <div class="menuList" style="margin-top:12px">
   <button class="menuItem" id="installMenu"><div class="menuIcon">📲</div><div><b>앱 설치</b><span>고양이 아이콘·주소창 없는 앱 모드</span></div></button>
   <button class="menuItem" id="pinMenu"><div class="menuIcon">🔐</div><div><b>총무 PIN 변경</b><span>현재 PIN을 확인한 뒤 변경</span></div></button>
+  <button class="menuItem" id="signatureMenu"><div class="menuIcon">✍️</div><div><b>총무 서명 등록</b><span>보고서 하단에 자동 표시</span></div></button>
+  <button class="menuItem" id="stampMenu"><div class="menuIcon">🔴</div><div><b>승인 도장 등록</b><span>직접 등록하거나 기본 승인 도장 사용</span></div></button>
+  <input type="file" id="signatureFile" accept="image/*" hidden>
+  <input type="file" id="stampFile" accept="image/*" hidden>
 
   <button class="menuItem" id="arrearsStartMenu"><div class="menuIcon">📅</div><div><b>미수금 계산 시작월</b><span id="arrearsStartLabel">2026년 8월부터 자동 계산</span></div></button>
   <button class="menuItem" id="importHistoryMenu"><div class="menuIcon">📥</div><div><b>최근 업로드 이력</b><span>카카오뱅크 파일 반영 결과 확인</span></div></button>
@@ -326,12 +342,24 @@ nav{position:fixed;z-index:40;bottom:0;left:0;right:0;background:rgba(255,255,25
  <button class="btn danger full" id="deleteMeetingReport" style="display:none;margin-top:8px">보고서 삭제</button>
 </div></div>
 
+
+<div class="modal" id="assetModal"><div class="sheet">
+ <h3 id="assetModalTitle">이미지 등록</h3>
+ <div class="assetPreview" id="assetPreview"></div>
+ <div class="notice" style="margin-top:10px">흰 배경 또는 투명 PNG를 권장합니다. 등록 이미지는 이 기기에 저장되며 보고서와 PNG에 표시됩니다.</div>
+ <div class="actions">
+  <button class="btn line" id="assetDelete">등록 이미지 삭제</button>
+  <button class="btn accent" id="assetChoose">이미지 선택</button>
+ </div>
+ <button class="btn line full" style="margin-top:8px" onclick="closeModal('assetModal')">닫기</button>
+</div></div>
+
 <div id="printArea" style="display:none"></div>
 <script>
 const KEY='gochuchamchi-v5-data';
 const categories=['전체','회비','입출금통장 이자','식사비','모임비','기타수입','기타지출','미분류'];
 const seed={
- groupName:'고추참치회',bank:'카카오뱅크',startBalance:2091253,startMonth:'2026-01',arrearsStartMonth:'2026-08',adminPin:'1234',importHistory:[],monthlyReports:{},meetingReports:[],
+ groupName:'고추참치회',bank:'카카오뱅크',startBalance:2091253,startMonth:'2026-01',arrearsStartMonth:'2026-08',adminPin:'1234',importHistory:[],monthlyReports:{},meetingReports:[],reportAssets:{signature:'',stamp:''},
  members:[
   {id:'m1',name:'정지협',fee:40000,startMonth:'2026-01'},
   {id:'m2',name:'강상구',fee:50000,startMonth:'2026-01'},
@@ -343,7 +371,7 @@ const seed={
 };
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const clone=x=>JSON.parse(JSON.stringify(x)), won=n=>(Number(n)||0).toLocaleString('ko-KR')+'원', ym=d=>String(d).slice(0,7);
-let state=load(),admin=false,editingTx=null,editingMember=null,activeCategory='전체',deferredPrompt=null,pendingImport=[],editingMeetingId=null,selectedMeetingId=null,editingMeetingPhotos=[];
+let state=load(),admin=false,editingTx=null,editingMember=null,activeCategory='전체',deferredPrompt=null,pendingImport=[],editingMeetingId=null,selectedMeetingId=null,editingMeetingPhotos=[],editingRepresentative=0,currentAssetType='signature';
 function load(){
  try{
   const raw=localStorage.getItem(KEY);
@@ -353,6 +381,7 @@ function load(){
   if(!Array.isArray(obj.importHistory))obj.importHistory=[];
   if(!obj.monthlyReports)obj.monthlyReports={};
   if(!Array.isArray(obj.meetingReports))obj.meetingReports=[];
+  if(!obj.reportAssets)obj.reportAssets={signature:'',stamp:''};
   if(!obj.arrearsStartMonth)obj.arrearsStartMonth='2026-08';
   return obj;
  }catch(e){
@@ -482,14 +511,27 @@ function reportNumber(kind,dateText,id=''){
  const tail=String(id||Date.now()).replace(/\D/g,'').slice(-3).padStart(3,'0');
  return `${kind==='monthly'?'M':'G'}-${d}-${tail}`;
 }
-function photoHtml(photos){
- const p=(photos||[]).slice(0,3);
+function photoHtml(photos,representative=0){
+ const all=[...(photos||[])];if(all.length&&representative>0&&representative<all.length){const [main]=all.splice(representative,1);all.unshift(main)}const p=all.slice(0,3);
  if(!p.length)return '<div class="photoPlaceholder">📸</div><div class="photoPlaceholder">🍽️</div><div class="photoPlaceholder">🐱</div>';
  return p.map(src=>`<div class="reportPhoto"><img src="${src}" alt="모임사진"></div>`).join('');
 }
 function renderPhotoPreview(){
- $('#mrPhotoPreview').innerHTML=(editingMeetingPhotos||[]).map((src,i)=>`<div class="photoPreviewItem"><img src="${src}"><button type="button" data-photo-index="${i}">×</button></div>`).join('');
- $$('#mrPhotoPreview [data-photo-index]').forEach(b=>b.onclick=()=>{editingMeetingPhotos.splice(Number(b.dataset.photoIndex),1);renderPhotoPreview()})
+ $('#mrPhotoPreview').innerHTML=(editingMeetingPhotos||[]).map((src,i)=>`<div class="photoPreviewItem ${i===editingRepresentative?'representative':''}">
+  ${i===editingRepresentative?'<span class="photoBadge">대표</span>':''}<img src="${src}">
+  <button type="button" data-photo-delete="${i}">×</button>
+  <div class="photoControls"><button type="button" data-photo-left="${i}">←</button><button type="button" data-photo-main="${i}">★</button><button type="button" data-photo-right="${i}">→</button></div>
+ </div>`).join('');
+ $$('#mrPhotoPreview [data-photo-delete]').forEach(b=>b.onclick=()=>{const i=Number(b.dataset.photoDelete);editingMeetingPhotos.splice(i,1);if(editingRepresentative>=editingMeetingPhotos.length)editingRepresentative=Math.max(0,editingMeetingPhotos.length-1);renderPhotoPreview()});
+ $$('#mrPhotoPreview [data-photo-main]').forEach(b=>b.onclick=()=>{editingRepresentative=Number(b.dataset.photoMain);renderPhotoPreview()});
+ $$('#mrPhotoPreview [data-photo-left]').forEach(b=>b.onclick=()=>moveMeetingPhoto(Number(b.dataset.photoLeft),-1));
+ $$('#mrPhotoPreview [data-photo-right]').forEach(b=>b.onclick=()=>moveMeetingPhoto(Number(b.dataset.photoRight),1));
+}
+function moveMeetingPhoto(i,delta){
+ const ni=i+delta;if(ni<0||ni>=editingMeetingPhotos.length)return;
+ [editingMeetingPhotos[i],editingMeetingPhotos[ni]]=[editingMeetingPhotos[ni],editingMeetingPhotos[i]];
+ if(editingRepresentative===i)editingRepresentative=ni;else if(editingRepresentative===ni)editingRepresentative=i;
+ renderPhotoPreview()
 }
 function compressImage(file,maxW=1200,maxH=900,quality=.78){
  return new Promise((resolve,reject)=>{
@@ -529,7 +571,7 @@ function renderMeetingA4(id){
  <div class="reportTwoCol"><div class="a4Section"><h3>모임 개요</h3><div class="meetingInfo"><div><b>모임명</b>${esc(r.title)}</div><div><b>장소</b>${esc(r.place)}</div><div><b>시작</b>${String(r.start).replace('T',' ')}</div><div><b>종료</b>${String(r.end).replace('T',' ')}</div><div><b>참석</b>${att}명</div><div><b>불참</b>${Math.max(0,state.members.length-att)}명</div></div></div><div class="a4Section"><h3>참석자 명단</h3><div class="memberDots" style="grid-template-columns:repeat(3,1fr)">${dots||'<div class="memoBox">미입력</div>'}</div></div></div>
  <div class="reportTwoCol"><div class="a4Section"><h3>지출 내역</h3><div class="reportBox"><table class="a4Table"><tr><th>No.</th><th>항목</th><th>금액</th></tr>${expenseRows}<tr><td colspan="2">총 지출</td><td>${won(total)}</td></tr></table></div></div><div class="a4Section"><h3>모임 결산</h3><div class="settleCards"><div>모임 전 잔액<b>${won(before)}</b></div><div>총 지출<b>${won(total)}</b></div><div class="green">모임 후 잔액<b>${won(after)}</b></div><div>1인당 지출<b>${won(att?Math.round(total/att):0)}</b></div></div></div></div>
  <div class="reportTwoCol"><div class="a4Section"><h3>모임 내용</h3><div class="memoBox">${esc(r.agenda||'친목 도모 및 회비 관리 현황을 공유했습니다.')}</div></div><div class="a4Section"><h3>기타 메모 및 다음 일정</h3><div class="memoBox">${esc(r.memo||'다음 모임 일정은 추후 공지합니다. 즐거운 시간 보내세요! 😊')}</div></div></div>
- <div class="a4Section"><h3>사진 첨부</h3><div class="reportPhotos">${photoHtml(r.photos)}</div></div>
+ <div class="a4Section"><h3>사진 첨부</h3><div class="reportPhotos">${photoHtml(r.photos,r.representativePhoto||0)}</div></div>
  <div class="a4Foot"><span class="reportFooterBrand">🌶️ ${state.groupName}는 서로를 존중하고 함께 즐기는 모임입니다. ❤️</span><div class="sign">총무<br>확인</div></div>`;
 }
 function r(a,b){return `<div class="row"><span>${a}</span><b>${b}</b></div>`}
@@ -741,6 +783,17 @@ function drawTable(ctx,x,y,width,headers,rows,colWidths,rowH=40){
  let cx=x;headers.forEach((h,i)=>{const cw=colWidths[i]*scale;canvasText(ctx,h,cx+cw/2,cy+27,17,'800','#56362f','center');cx+=cw});cy+=rowH;
  rows.forEach((row,ri)=>{ctx.fillStyle=ri%2?'#fffaf7':'#fff';ctx.fillRect(x,cy,width,rowH);ctx.strokeStyle='#eadbd5';ctx.strokeRect(x,cy,width,rowH);cx=x;row.forEach((v,i)=>{const cw=colWidths[i]*scale;canvasText(ctx,v,i===0?cx+10:cx+cw-10,cy+27,16,ri===rows.length-1?'800':'500',ri===rows.length-1?'#b7251e':'#3e312e',i===0?'left':'right');ctx.strokeStyle='#eadbd5';ctx.beginPath();ctx.moveTo(cx+cw,cy);ctx.lineTo(cx+cw,cy+rowH);ctx.stroke();cx+=cw});cy+=rowH});return cy
 }
+
+async function drawApprovalAssets(ctx,x,y,approved=true){
+ const sigSrc=state.reportAssets?.signature,stampSrc=state.reportAssets?.stamp;
+ if(approved){
+  if(stampSrc){const stamp=await loadCanvasImage(stampSrc);if(stamp)ctx.drawImage(stamp,x,y,92,92)}
+  else{roundRect(ctx,x,y,92,92,46,'#fff0e9','#d73529');canvasText(ctx,'승인',x+46,y+40,22,'900','#c7251d','center');canvasText(ctx,'완료',x+46,y+67,19,'900','#c7251d','center')}
+ }
+ if(sigSrc){const sig=await loadCanvasImage(sigSrc);if(sig)ctx.drawImage(sig,x+115,y+12,190,70)}
+ else{canvasText(ctx,'총무 서명',x+130,y+55,22,'800','#402d29')}
+}
+
 async function drawMonthlyReportCanvas(){
  const c=document.createElement('canvas');c.width=1240;c.height=1754;const ctx=c.getContext('2d');
  ctx.fillStyle='#fffaf4';ctx.fillRect(0,0,c.width,c.height);ctx.fillStyle='#d9362b';ctx.fillRect(0,0,c.width,16);
@@ -760,7 +813,7 @@ async function drawMonthlyReportCanvas(){
  drawTable(ctx,40,886,550,['구분','금액'],balRows,[1.6,1.4],48);
  roundRect(ctx,630,886,570,220,18,'#fff','#ecd5cc');canvasText(ctx,'총 미수금',915,942,24,'800','#5f4944','center');canvasText(ctx,won(arrearsTotal),915,1004,47,'900',arrearsTotal?'#cf2822':'#178143','center');canvasText(ctx,`미납 회원 ${state.members.filter(v=>arrears(v,m)>0).length}명`,915,1053,21,'700','#6d5954','center');
  drawSectionRibbon(ctx,6,'총무 의견',40,1140,1160);roundRect(ctx,40,1198,1160,260,18,'#fff','#ecd5cc');ctx.font='25px sans-serif';ctx.fillStyle='#463632';wrapCanvasText(ctx,snapshot?.memo||'특이사항 없음',70,1250,1100,42,5);
- canvasText(ctx,`${snapshot?.createdDate||reportDateText()}`,900,1510,22,'600','#66524d');canvasText(ctx,'총무',900,1560,25,'800','#402d29');roundRect(ctx,1010,1500,100,100,50,'#fff0e9','#d73529');canvasText(ctx,'확인',1060,1564,28,'900','#c7251d','center');
+ canvasText(ctx,`${snapshot?.createdDate||reportDateText()}`,760,1510,22,'600','#66524d');await drawApprovalAssets(ctx,875,1492,!!snapshot);
  roundRect(ctx,28,1640,1184,76,0,'#f7d5c9');canvasText(ctx,'🌶️  고추참치회는 서로를 존중하고 함께 즐기는 모임입니다.  🐟',620,1688,22,'800','#b52b23','center');
  return c
 }
@@ -780,20 +833,43 @@ async function drawMeetingReportCanvas(){
  drawSectionRibbon(ctx,5,'모임 내용',40,870,560);drawSectionRibbon(ctx,6,'기타 메모 및 다음 일정',630,870,570);
  roundRect(ctx,40,928,550,270,18,'#fff','#ead6ce');ctx.font='24px sans-serif';ctx.fillStyle='#493733';wrapCanvasText(ctx,r.agenda||'내용 없음',70,980,490,40,5);
  roundRect(ctx,630,928,570,270,18,'#fff','#ead6ce');ctx.font='24px sans-serif';ctx.fillStyle='#493733';wrapCanvasText(ctx,r.memo||'메모 없음',660,980,510,40,5);
- drawSectionRibbon(ctx,7,'사진 첨부',40,1240,1160);[0,1,2].forEach(i=>{roundRect(ctx,40+i*390,1300,360,210,16,'#f5eee9','#dfc9c0');canvasText(ctx,'📷',220+i*390,1390,55,'400','#7d6963','center');canvasText(ctx,`모임 사진 ${i+1}`,220+i*390,1450,21,'700','#7d6963','center')});
+ drawSectionRibbon(ctx,7,'사진 첨부',40,1240,1160);
+ const ordered=[...(r.photos||[])];const ri=Number(r.representativePhoto||0);if(ordered.length&&ri>0&&ri<ordered.length){const [main]=ordered.splice(ri,1);ordered.unshift(main)}
+ for(let i=0;i<3;i++){roundRect(ctx,40+i*390,1300,360,210,16,'#f5eee9','#dfc9c0');if(ordered[i]){const ph=await loadCanvasImage(ordered[i]);if(ph){const ratio=Math.max(360/ph.width,210/ph.height),dw=ph.width*ratio,dh=ph.height*ratio;ctx.save();ctx.beginPath();ctx.rect(40+i*390,1300,360,210);ctx.clip();ctx.drawImage(ph,40+i*390+(360-dw)/2,1300+(210-dh)/2,dw,dh);ctx.restore()}}else{canvasText(ctx,'📷',220+i*390,1390,55,'400','#7d6963','center');canvasText(ctx,`모임 사진 ${i+1}`,220+i*390,1450,21,'700','#7d6963','center')}}
+ await drawApprovalAssets(ctx,875,1525,true);
  roundRect(ctx,28,1640,1184,76,0,'#f7d5c9');canvasText(ctx,'🌶️  고추참치회는 서로를 존중하고 함께 즐기는 모임입니다.  🐟',620,1688,22,'800','#b52b23','center');
  return c
 }
+async function canvasToPngBlob(canvas,retries=3){
+ let lastErr;
+ for(let i=0;i<retries;i++){
+  try{
+   const blob=await new Promise((resolve,reject)=>canvas.toBlob(v=>v?resolve(v):reject(new Error('PNG 변환 실패')),'image/png'));
+   if(blob.size>1000)return blob;
+  }catch(e){lastErr=e}
+  await new Promise(r=>setTimeout(r,350*(i+1)));
+ }
+ throw lastErr||new Error('PNG 생성 실패')
+}
 async function saveReportPng(type,share=false){
  if(!requireAdmin())return;
+ const btn=type==='monthly'?$('#monthlyPng'):$('#meetingPng');const oldText=btn?.textContent;
  try{
-  const c=type==='monthly'?await drawMonthlyReportCanvas():await drawMeetingReportCanvas();if(!c)return alert('먼저 보고서를 선택하세요.');
-  const blob=await new Promise((resolve,reject)=>c.toBlob(v=>v?resolve(v):reject(new Error('PNG 변환 실패')),'image/png',0.95));
-  const m=$('#reportMonth').value||nowMonth();const name=type==='monthly'?`고추참치회_${m}_월회계보고서.png`:`고추참치회_모임보고서.png`;
+  if(btn){btn.disabled=true;btn.textContent='사진 생성 중…'}
+  const c=type==='monthly'?await drawMonthlyReportCanvas():await drawMeetingReportCanvas();
+  if(!c)return alert('먼저 보고서를 선택하세요.');
+  const blob=await canvasToPngBlob(c,3);
+  const m=$('#reportMonth').value||nowMonth();
+  const r=(state.meetingReports||[]).find(v=>v.id===selectedMeetingId);
+  const safe=s=>String(s||'보고서').replace(/[\\/:*?"<>|]/g,'_').replace(/\s+/g,'_');
+  const name=type==='monthly'?`고추참치회_${m.replace('-','년')}월_월회계보고서.png`:`고추참치회_${safe(r?.title)}.png`;
   const file=new File([blob],name,{type:'image/png'});
   if(share&&navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({title:name,files:[file]})}
-  else{const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.style.display='none';document.body.appendChild(a);a.click();setTimeout(()=>{a.remove();URL.revokeObjectURL(url)},2500)}
- }catch(err){console.error('PNG 저장 오류',err);alert('사진 저장에 실패했습니다. 브라우저 다운로드 권한을 확인한 뒤 다시 시도하세요.')}
+  else{const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.style.display='none';document.body.appendChild(a);a.click();setTimeout(()=>{a.remove();URL.revokeObjectURL(url)},4000)}
+ }catch(err){
+  console.error('PNG 저장 오류',err);
+  alert('사진 저장에 실패했습니다. 페이지를 새로고침한 뒤 다시 시도하세요. 계속 실패하면 Chrome에서 실행해 주세요.');
+ }finally{if(btn){btn.disabled=false;btn.textContent=oldText}}
 }
 function printReport(type){
  if(!requireAdmin())return;
@@ -834,6 +910,18 @@ function printReport(type){
 .photoHelp{font-size:11px;color:#7d6a65;margin-top:5px}
 @media(max-width:520px){.photoPreviewGrid,.reportPhotos{grid-template-columns:repeat(3,1fr)}.reportQr img{width:48px;height:48px}}
 
+
+/* V5.3 */
+.assetPreview{display:flex;align-items:center;gap:12px;padding:10px;background:#fff;border:1px solid var(--line);border-radius:14px}
+.assetPreview img{width:78px;height:58px;object-fit:contain;background:#fff9f4;border:1px dashed #d9bdb5;border-radius:10px}
+.assetPreview .emptyAsset{width:78px;height:58px;display:flex;align-items:center;justify-content:center;background:#fff9f4;border:1px dashed #d9bdb5;border-radius:10px;font-size:11px;color:#8b7771}
+.photoPreviewItem.representative{outline:3px solid #e14b3e;outline-offset:2px}
+.photoControls{position:absolute;left:4px;right:4px;bottom:4px;display:flex;justify-content:center;gap:3px}
+.photoControls button{position:static;width:27px;height:25px;border-radius:8px;background:rgba(255,255,255,.92);color:#6b3029;border:1px solid #e1b9af;font-size:12px}
+.photoBadge{position:absolute;left:5px;top:5px;background:#e23a2f;color:#fff;border-radius:10px;padding:2px 6px;font-size:9px;font-weight:900}
+.customSignature{max-width:120px;max-height:52px;object-fit:contain}
+.customStamp{width:58px;height:58px;object-fit:contain;transform:rotate(-7deg)}
+
 </style></head><body>${src.outerHTML}<script>window.onload=()=>window.print()<\/script></body></html>`);
  w.document.close()
 }
@@ -851,7 +939,7 @@ function openMeetingEditor(id=null){
  $('#mrStart').value=r?.start||new Date().toISOString().slice(0,16);
  $('#mrEnd').value=r?.end||new Date(Date.now()+3*3600000).toISOString().slice(0,16);
  $('#mrAttendees').value=(r?.attendees||[]).join(', ');
- $('#mrAgenda').value=r?.agenda||'';$('#mrMemo').value=r?.memo||'';editingMeetingPhotos=[...(r?.photos||[])];renderPhotoPreview();
+ $('#mrAgenda').value=r?.agenda||'';$('#mrMemo').value=r?.memo||'';editingMeetingPhotos=[...(r?.photos||[])];editingRepresentative=Number(r?.representativePhoto||0);renderPhotoPreview();
  $('#expenseRows').innerHTML='';(r?.expenses?.length?r.expenses:[{item:'식사비',amount:''}]).forEach(x=>addExpenseRow(x.item,x.amount));
  $('#deleteMeetingReport').style.display=r?'block':'none';$('#meetingModal').classList.add('show')
 }
@@ -860,7 +948,7 @@ function saveMeeting(){
  const title=$('#mrTitle').value.trim(),place=$('#mrPlace').value.trim(),start=$('#mrStart').value,end=$('#mrEnd').value;
  if(!title||!place||!start||!end)return alert('제목, 장소, 모임기간을 입력하세요.');
  const expenses=$$('#expenseRows .expenseRow').map(row=>({item:row.querySelector('.exItem').value.trim(),amount:Number(row.querySelector('.exAmount').value)||0})).filter(x=>x.item);
- const newId=editingMeetingId||'mr'+Date.now();const old=state.meetingReports.find(x=>x.id===editingMeetingId);const obj={id:newId,title,place,start,end,attendees:$('#mrAttendees').value.split(',').map(x=>x.trim()).filter(Boolean),agenda:$('#mrAgenda').value.trim(),expenses,memo:$('#mrMemo').value.trim(),photos:[...editingMeetingPhotos],createdDate:old?.createdDate||reportDateText(),approved:true,reportNo:old?.reportNo||reportNumber('meeting',start,newId)};
+ const newId=editingMeetingId||'mr'+Date.now();const old=state.meetingReports.find(x=>x.id===editingMeetingId);const obj={id:newId,title,place,start,end,attendees:$('#mrAttendees').value.split(',').map(x=>x.trim()).filter(Boolean),agenda:$('#mrAgenda').value.trim(),expenses,memo:$('#mrMemo').value.trim(),photos:[...editingMeetingPhotos],representativePhoto:editingRepresentative,createdDate:old?.createdDate||reportDateText(),approved:true,reportNo:old?.reportNo||reportNumber('meeting',start,newId)};
  const i=state.meetingReports.findIndex(x=>x.id===editingMeetingId);if(i>=0)state.meetingReports[i]=obj;else state.meetingReports.push(obj);
  selectedMeetingId=obj.id;save();closeModal('meetingModal');render();renderMeetingA4(obj.id)
 }
@@ -868,6 +956,26 @@ function deleteMeeting(){
  if(!editingMeetingId||!confirm('이 모임보고서를 삭제할까요?'))return;
  state.meetingReports=state.meetingReports.filter(x=>x.id!==editingMeetingId);if(selectedMeetingId===editingMeetingId)selectedMeetingId=null;
  save();closeModal('meetingModal');$('#meetingA4').style.display='none';$('#meetingActions').style.display='none';render()
+}
+
+
+function openAssetManager(type){
+ if(!requireAdmin())return;currentAssetType=type;
+ $('#assetModalTitle').textContent=type==='signature'?'총무 서명 등록':'승인 도장 등록';
+ const src=state.reportAssets?.[type]||'';
+ $('#assetPreview').innerHTML=src?`<img src="${src}"><div><b>${type==='signature'?'총무 서명':'승인 도장'}</b><div class="small">현재 등록된 이미지</div></div>`:`<div class="emptyAsset">미등록</div><div><b>${type==='signature'?'총무 서명':'승인 도장'}</b><div class="small">이미지를 선택해 등록하세요.</div></div>`;
+ $('#assetModal').classList.add('show')
+}
+async function saveAssetFile(file,type){
+ try{
+  const data=await compressImage(file,type==='signature'?900:500,type==='signature'?350:500,.86);
+  state.reportAssets=state.reportAssets||{signature:'',stamp:''};state.reportAssets[type]=data;save();render();openAssetManager(type);
+  alert(type==='signature'?'총무 서명이 등록되었습니다.':'승인 도장이 등록되었습니다.');
+ }catch(e){alert('이미지 등록에 실패했습니다. 다른 사진으로 다시 시도하세요.')}
+}
+function deleteAsset(){
+ if(!requireAdmin())return;
+ state.reportAssets=state.reportAssets||{signature:'',stamp:''};state.reportAssets[currentAssetType]='';save();render();openAssetManager(currentAssetType)
 }
 
 function backup(){
@@ -893,7 +1001,7 @@ $('#arrearsStartMenu').onclick=changeArrearsStart;$('#importHistoryMenu').onclic
 $$('#report .reportTab').forEach(b=>b.onclick=()=>{$$('#report .reportTab').forEach(x=>x.classList.remove('active'));$$('.reportPane').forEach(x=>x.classList.remove('active'));b.classList.add('active');$('#'+b.dataset.reportPane).classList.add('active')});
 $('#finalizeMonthly').onclick=finalizeMonthly;$('#monthlyPng').onclick=()=>saveReportPng('monthly');$('#monthlyShare').onclick=()=>saveReportPng('monthly',true);$('#monthlyPrint').onclick=()=>printReport('monthly');
 $('#newMeetingReport').onclick=()=>openMeetingEditor();$('#addExpense').onclick=()=>addExpenseRow();$('#saveMeetingReport').onclick=saveMeeting;$('#deleteMeetingReport').onclick=deleteMeeting;$('#chooseMeetingPhotos').onclick=()=>$('#mrPhotos').click();$('#mrPhotos').onchange=e=>{loadMeetingPhotos(e.target.files);e.target.value=''};
-$('#meetingPng').onclick=()=>saveReportPng('meeting');$('#meetingShare').onclick=()=>saveReportPng('meeting',true);$('#meetingPrint').onclick=()=>printReport('meeting');$('#installBtn').onclick=installApp;$('#installMenu').onclick=installApp;$('#pinMenu').onclick=changePin;$('#backupMenu').onclick=backup;$('#restoreMenu').onclick=()=>$('#restoreFile').click();$('#restoreFile').onchange=e=>e.target.files[0]&&restore(e.target.files[0]);
+$('#meetingPng').onclick=()=>saveReportPng('meeting');$('#meetingShare').onclick=()=>saveReportPng('meeting',true);$('#meetingPrint').onclick=()=>printReport('meeting');$('#installBtn').onclick=installApp;$('#installMenu').onclick=installApp;$('#pinMenu').onclick=changePin;$('#signatureMenu').onclick=()=>openAssetManager('signature');$('#stampMenu').onclick=()=>openAssetManager('stamp');$('#assetChoose').onclick=()=>$(currentAssetType==='signature'?'#signatureFile':'#stampFile').click();$('#assetDelete').onclick=deleteAsset;$('#signatureFile').onchange=e=>{if(e.target.files[0])saveAssetFile(e.target.files[0],'signature');e.target.value=''};$('#stampFile').onchange=e=>{if(e.target.files[0])saveAssetFile(e.target.files[0],'stamp');e.target.value=''};$('#backupMenu').onclick=backup;$('#restoreMenu').onclick=()=>$('#restoreFile').click();$('#restoreFile').onchange=e=>e.target.files[0]&&restore(e.target.files[0]);
 $('#resetMenu').onclick=()=>{if(confirm('현재 데이터를 모두 초기화할까요?')){state=clone(seed);save();render()}};
 document.querySelectorAll('.modal').forEach(m=>m.onclick=e=>{if(e.target===m)m.classList.remove('show')});
 if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js'));
