@@ -1,8 +1,8 @@
 {
-  "name": "고추참치회 장부 V6.1",
+  "name": "고추참치회 장부 V7.0",
   "short_name": "고추참치회",
-  "description": "Firebase 로그인과 총무·회원 권한 분리",
-  "start_url": "./?v=610",
+  "description": "총무 PIN 전용 수정과 월 회계·정기모임 고급 보고서",
+  "start_url": "./?v=700",
   "scope": "./",
   "display": "standalone",
   "background_color": "#fffaf6",
