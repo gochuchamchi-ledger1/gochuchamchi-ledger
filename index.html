@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="고추참치회">
-<title>고추참치회 장부 V5.1.2</title>
+<title>고추참치회 장부 V5.1.3</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
@@ -92,12 +92,38 @@ nav{position:fixed;z-index:40;bottom:0;left:0;right:0;background:rgba(255,255,25
 .meetingInfo{display:grid;grid-template-columns:1fr 1fr;gap:5px}.meetingInfo div{background:#fff;border:1px solid #eed8d0;border-radius:9px;padding:7px;font-size:9px}.meetingInfo b{color:#c82c22;margin-right:4px}.settleCards{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}.settleCards div{text-align:center;background:#fff;border:1px solid #ead7cf;border-radius:11px;padding:8px 3px;font-size:8px}.settleCards b{display:block;font-size:12px;margin-top:4px}.settleCards .green b{color:#16723d}.photoPlaceholders{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.photoPlaceholder{height:72px;border-radius:10px;background:linear-gradient(135deg,#f1d3bd,#ffe7d8);display:flex;align-items:center;justify-content:center;font-size:25px;border:1px solid #e7c5b7}.reportActions .btn{box-shadow:0 4px 12px rgba(89,42,34,.08)}
 @media(max-width:520px){.a4{padding:10px;min-height:720px}.a4Header h1{font-size:18px}.headerMascot{width:74px!important;height:68px!important}.reportBrand img{width:46px;height:46px}.reportBrandName{font-size:15px}.summaryCard{padding:5px 2px;min-height:57px}.summaryCard b{font-size:10px}.a4Meta{grid-template-columns:1fr 1fr}.reportTwoCol{grid-template-columns:1fr}.photoPlaceholder{height:48px}}
 
+
+/* V5.1.3 모바일 보고서 잘림 방지 */
+#report,#monthlyPane,#meetingPane{overflow:visible!important;}
+#monthlyA4,#meetingA4,.a4{
+  height:auto!important;
+  max-height:none!important;
+  min-height:0!important;
+  aspect-ratio:auto!important;
+  overflow:visible!important;
+  contain:none!important;
+}
+#monthlyA4{padding-bottom:22px!important;}
+.memberDots{grid-auto-rows:auto!important;}
+.a4Section,.reportTwoCol,.reportBox,.memberDots,.memberDot,.memoBox,.a4Foot{
+  break-inside:avoid;
+  page-break-inside:avoid;
+}
+@media(max-width:520px){
+  main{overflow:visible!important;}
+  .screen.active{overflow:visible!important;}
+  #monthlyA4,#meetingA4,.a4{height:auto!important;min-height:0!important;overflow:visible!important;padding-bottom:26px!important;}
+  .memberDots{grid-template-columns:repeat(3,1fr)!important;}
+  .memberDot{min-height:76px!important;}
+  .a4Foot{margin-bottom:4px!important;}
+}
+
 </style>
 </head>
 <body>
 <div class="app">
 <header><div class="head">
- <div class="brand"><img class="logo" src="mascot.png"><div><div class="title" id="groupTitle">고추참치회</div><div class="sub">카카오뱅크 · V5.1.2 사진저장 안정화</div></div></div>
+ <div class="brand"><img class="logo" src="mascot.png"><div><div class="title" id="groupTitle">고추참치회</div><div class="sub">카카오뱅크 · V5.1.3 레이아웃 잘림 수정</div></div></div>
  <button class="mode" id="modeBtn">조회 모드</button>
 </div></header>
 <main>
