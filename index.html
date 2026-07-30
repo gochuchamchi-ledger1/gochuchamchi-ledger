@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f4b400">
+<title>고추참치회 장부</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="고추참치회 장부">
+
+<style>
+:root{--bg:#f5f6f8;--card:#fff;--text:#17191c;--muted:#6b7280;--line:#e5e7eb;--accent:#f4b400;--accent2:#fff6d8;--danger:#dc2626;--green:#15803d;--blue:#2563eb}
+*{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif;background:var(--bg);color:var(--text)}
+button,input,select,textarea{font:inherit}.app{max-width:720px;margin:0 auto;min-height:100vh;padding-bottom:88px}
+header{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:14px 16px}
+.headrow{display:flex;align-items:center;justify-content:space-between}.brand{display:flex;align-items:center;gap:10px}.mascot{width:46px;height:46px;border-radius:14px;object-fit:cover;border:2px solid #f3b2aa;background:#fde8e3}.title{font-size:20px;font-weight:800}.subtitle{font-size:12px;color:var(--muted);margin-top:3px}
+.badge{font-size:12px;padding:6px 9px;border-radius:999px;background:var(--accent2);font-weight:700}
+main{padding:14px}.screen{display:none}.screen.active{display:block}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,.03)}
+.kpi .label{font-size:12px;color:var(--muted)}.kpi .value{font-size:22px;font-weight:850;margin-top:5px}.green{color:var(--green)}.red{color:var(--danger)}.blue{color:var(--blue)}
+.section-title{display:flex;align-items:center;justify-content:space-between;margin:18px 2px 10px;font-size:16px;font-weight:800}
+.btn{border:0;border-radius:12px;padding:11px 13px;font-weight:800;background:#111827;color:#fff}.btn.secondary{background:#fff;color:#111;border:1px solid var(--line)}.btn.accent{background:var(--accent);color:#1f2937}.btn.danger{background:var(--danger)}
+.filters{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}.field{width:100%;border:1px solid var(--line);background:#fff;border-radius:12px;padding:11px}
+.tx{padding:12px 0;border-bottom:1px solid var(--line)}.tx:last-child{border-bottom:0}.tx-top{display:flex;justify-content:space-between;gap:10px}.tx-title{font-weight:750}.tx-amt{font-weight:850;white-space:nowrap}.tx-meta{font-size:12px;color:var(--muted);margin-top:5px;display:flex;gap:7px;flex-wrap:wrap}.chip{padding:3px 7px;border-radius:999px;background:#f3f4f6}.chip.warn{background:#fff1f2;color:#be123c}.chip.ok{background:#ecfdf5;color:#166534}
+.member-row{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.progress{height:9px;background:#eee;border-radius:99px;overflow:hidden;margin-top:7px}.progress>i{display:block;height:100%;background:var(--accent)}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:20;background:#fff;border-top:1px solid var(--line);padding:8px max(8px,env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left))}
+.navinner{max-width:720px;margin:auto;display:grid;grid-template-columns:repeat(5,1fr)}.navbtn{border:0;background:none;padding:7px 3px;color:var(--muted);font-size:11px}.navbtn b{display:block;font-size:20px;line-height:1.1;margin-bottom:3px}.navbtn.active{color:#111;font-weight:800}
+.fab{position:fixed;right:18px;bottom:88px;width:56px;height:56px;border-radius:50%;border:0;background:var(--accent);font-size:28px;font-weight:900;box-shadow:0 8px 20px rgba(0,0,0,.2)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:flex-end;z-index:50}.modal.show{display:flex}.sheet{background:#fff;width:100%;max-width:720px;margin:auto;border-radius:22px 22px 0 0;padding:18px;max-height:92vh;overflow:auto}.sheet h3{margin:0 0 14px}.formgrid{display:grid;gap:10px}.label{font-size:12px;color:var(--muted);margin-bottom:4px}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}.report{background:#fff;border-radius:18px;padding:18px;border:1px solid var(--line)}.report h2{margin:0}.report-line{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line)}.notice{background:#fff7ed;border:1px solid #fed7aa;border-radius:14px;padding:12px;color:#9a3412;font-size:13px}
+.small{font-size:12px;color:var(--muted)}.right{text-align:right}
+@media(min-width:600px){.grid{grid-template-columns:repeat(4,1fr)}}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+ <div class="headrow"><div class="brand"><img src="mascot.png" class="mascot" alt="고추참치회 고양이 마스코트"><div><div class="title" id="appTitle">고추참치회</div><div class="subtitle" id="appSub">카카오뱅크 · 2026년부터 관리</div></div></div><div class="badge" id="adminBadge">조회 모드</div></div>
+</header>
+<main>
+<section id="dashboard" class="screen active">
+ <div class="grid">
+  <div class="card kpi"><div class="label">현재 잔액</div><div class="value" id="kBalance">0원</div></div>
+  <div class="card kpi"><div class="label">이번 달 회비</div><div class="value green" id="kDues">0원</div></div>
+  <div class="card kpi"><div class="label">이번 달 지출</div><div class="value red" id="kOut">0원</div></div>
+  <div class="card kpi"><div class="label">확인 필요</div><div class="value blue" id="kReview">0건</div></div>
+ </div>
+ <div class="section-title"><span>회원 납부 현황</span><input id="dashMonth" type="month" class="field" style="width:150px"></div>
+ <div class="card" id="memberStatus"></div>
+ <div class="section-title"><span>최근 거래</span></div>
+ <div class="card" id="recentTx"></div>
+</section>
+
+<section id="transactions" class="screen">
+ <div class="filters"><input id="txMonth" type="month" class="field"><input id="txSearch" placeholder="이름·내용 검색" class="field"></div>
+ <div class="card" id="txList"></div>
+ <button class="fab" id="addBtn">+</button>
+</section>
+
+<section id="members" class="screen">
+ <div class="section-title"><span>회원별 월회비</span></div>
+ <div class="card" id="memberList"></div>
+</section>
+
+<section id="report" class="screen">
+ <div class="filters"><input id="reportMonth" type="month" class="field"><button class="btn accent" id="saveReport">결산 이미지 저장</button></div>
+ <div id="reportCard" class="report"></div>
+</section>
+
+<section id="settings" class="screen">
+ <div class="card" style="margin-top:12px">
+  <div class="section-title" style="margin-top:0"><span>앱 설치</span></div>
+  <div class="small">크롬에서 실행한 뒤 설치 버튼을 누르면 홈 화면에 앱 아이콘이 생성됩니다.</div>
+  <button class="btn accent" id="installBtn" style="width:100%;margin-top:10px;display:none">고추참치회 장부 설치</button>
+  <div class="small" id="installHelp" style="margin-top:9px">설치 버튼이 보이지 않으면 오른쪽 위 메뉴에서 ‘홈 화면에 추가’를 선택하세요.</div>
+ </div>
+
+ <div class="card">
+  <div class="section-title" style="margin-top:0"><span>총무 모드</span></div>
+  <div class="small">수정·추가·삭제는 총무 PIN 입력 후 가능합니다. 초기 PIN은 <b>1234</b>입니다.</div>
+  <div class="actions"><button class="btn accent" id="adminLogin">총무 모드 켜기</button><button class="btn secondary" id="adminLogout">조회 모드 전환</button></div>
+ </div>
+ <div class="card" style="margin-top:12px">
+  <div class="section-title" style="margin-top:0"><span>데이터 관리</span></div>
+  <div class="actions"><button class="btn secondary" id="backupBtn">백업 저장</button><button class="btn secondary" id="restoreBtn">백업 불러오기</button></div>
+  <input id="restoreFile" type="file" accept=".json" hidden>
+  <button class="btn danger" id="resetBtn" style="width:100%;margin-top:10px">초기 데이터로 되돌리기</button>
+ </div>
+</section>
+</main>
+<nav><div class="navinner">
+<button class="navbtn active" data-screen="dashboard"><b>⌂</b>홈</button>
+<button class="navbtn" data-screen="transactions"><b>≡</b>거래</button>
+<button class="navbtn" data-screen="members"><b>♙</b>회원</button>
+<button class="navbtn" data-screen="report"><b>▤</b>결산</button>
+<button class="navbtn" data-screen="settings"><b>⚙</b>설정</button>
+</div></nav>
+</div>
+
+<div id="editModal" class="modal"><div class="sheet">
+<h3 id="modalTitle">거래 수정</h3>
+<div class="formgrid">
+ <div><div class="label">거래일시</div><input id="fDate" type="datetime-local" class="field"></div>
+ <div class="filters"><div><div class="label">입출금</div><select id="fType" class="field"><option>입금</option><option>출금</option></select></div><div><div class="label">금액</div><input id="fAmount" type="number" class="field"></div></div>
+ <div><div class="label">거래내용</div><input id="fDesc" class="field"></div>
+ <div class="filters"><div><div class="label">분류</div><select id="fCategory" class="field"><option>회비</option><option>입출금통장 이자</option><option>모임비</option><option>식사비</option><option>경조사비</option><option>선물비</option><option>기타수입</option><option>기타지출</option><option>개인 선입금</option><option>환불</option><option>미분류</option></select></div><div><div class="label">회원</div><select id="fMember" class="field"></select></div></div>
+ <div><div class="label">검토상태</div><select id="fStatus" class="field"><option>자동확정</option><option>확인완료</option><option>확인필요</option><option>금액확인</option><option>복수개월확인</option></select></div>
+ <div><div class="label">총무 메모</div><textarea id="fMemo" rows="3" class="field"></textarea></div>
+</div>
+<div class="actions"><button class="btn secondary" id="cancelEdit">취소</button><button class="btn accent" id="saveEdit">저장</button></div>
+<button class="btn danger" id="deleteTx" style="width:100%;margin-top:8px">거래 삭제</button>
+</div></div>
+
+<script>
+const SEED = {"groupName": "고추참치회", "bank": "카카오뱅크", "managementStart": "2026-01-01", "startBalance": 2091253, "members": [{"name": "정지협", "fee": 40000, "people": 2}, {"name": "강상구", "fee": 50000, "people": 4}, {"name": "이상진", "fee": 50000, "people": 3}, {"name": "이주현", "fee": 40000, "people": 2}, {"name": "김명균", "fee": 50000, "people": 3}, {"name": "강광욱", "fee": 30000, "people": 1}], "transactions": [{"id": "seed-1", "datetime": "2026-01-01T09:56", "type": "입금", "amount": 50000, "balance": 2141253, "bankType": "일반입금", "description": "강상구", "originalMemo": "25", "category": "회비", "member": "강상구", "status": "자동확정", "managerMemo": ""}, {"id": "seed-2", "datetime": "2026-01-01T10:00", "type": "입금", "amount": 50000, "balance": 2191253, "bankType": "일반입금", "description": "이상진", "originalMemo": "25", "category": "회비", "member": "이상진", "status": "자동확정", "managerMemo": ""}, {"id": "seed-3", "datetime": "2026-01-01T10:02", "type": "입금", "amount": 30000, "balance": 2221253, "bankType": "일반입금", "description": "이주현", "originalMemo": "25", "category": "회비", "member": "이주현", "status": "금액확인", "managerMemo": "기준 회비 40,000원"}, {"id": "seed-4", "datetime": "2026-01-01T10:04", "type": "입금", "amount": 30000, "balance": 2251253, "bankType": "일반입금", "description": "강광욱", "originalMemo": "25", "category": "회비", "member": "강광욱", "status": "자동확정", "managerMemo": ""}, {"id": "seed-5", "datetime": "2026-01-01T10:19", "type": "입금", "amount": 50000, "balance": 2301253, "bankType": "일반입금", "description": "김명균", "originalMemo": "25", "category": "회비", "member": "김명균", "status": "자동확정", "managerMemo": ""}, {"id": "seed-6", "datetime": "2026-01-02T08:19", "type": "입금", "amount": 40000, "balance": 2341253, "bankType": "일반입금", "description": "정지협", "originalMemo": "25", "category": "회비", "member": "정지협", "status": "자동확정", "managerMemo": ""}, {"id": "seed-7", "datetime": "2026-01-12T12:07", "type": "입금", "amount": 160, "balance": 2341413, "bankType": "캐시백", "description": "프렌즈 체크카드 캐시백", "originalMemo": "25", "category": "미분류", "member": "", "status": "확인필요", "managerMemo": ""}, {"id": "seed-8", "datetime": "2026-01-22T00:01", "type": "출금", "amount": 38000, "balance": 2303413, "bankType": "체크카드결제", "description": "주식회사 카카오모빌", "originalMemo": "25", "category": "미분류", "member": "", "status": "확인필요", "managerMemo": ""}, {"id": "seed-9", "datetime": "2026-01-24T05:19", "type": "입금", "amount": 155, "balance": 2303568, "bankType": "예금이자", "description": "입출금통장 이자", "originalMemo": "25", "category": "입출금통장 이자", "member": "", "status": "자동확정", "managerMemo": ""}, {"id": "seed-10", "datetime": "2026-01-30T20:38", "type": "입금", "amount": 38000, "balance": 2341568, "bankType": "일반입금", "description": "이상진", "originalMemo": "25", "category": "회비", "member": "이상진", "status": "금액확인", "managerMemo": "기준 회비 50,000원"}, {"id": "seed-11", "datetime": "2026-02-01T10:01", "type": "입금", "amount": 50000, "balance": 2391568, "bankType": "일반입금", "description": "이상진", "originalMemo": "25", "category": "회비", "member": "이상진", "status": "자동확정", "managerMemo": ""}, {"id": "seed-12", "datetime": "2026-02-01T10:02", "type": "입금", "amount": 40000, "balance": 2431568, "bankType": "일반입금", "description": "이주현", "originalMemo": "25", "category": "회비", "member": "이주현", "status": "자동확정", "managerMemo": ""}, {"id": "seed-13", "datetime": "2026-02-01T10:03", "type": "입금", "amount": 40000, "balance": 2471568, "bankType": "일반입금", "description": "정지협", "originalMemo": "25", "category": "회비", "member": "정지협", "status": "자동확정", "managerMemo": ""}, {"id": "seed-14", "datetime": "2026-02-01T10:04", "type": "입금", "amount": 30000, "balance": 2501568, "bankType": "일반입금", "description": "강광욱", "originalMemo": "25", "category": "회비", "member": "강광욱", "status": "자동확정", "managerMemo": ""}, {"id": "seed-15", "datetime": "2026-02-01T10:12", "type": "입금", "amount": 50000, "balance": 2551568, "bankType": "일반입금", "description": "강상구", "originalMemo": "25", "category": "회비", "member": "강상구", "status": "자동확정", "managerMemo": ""}, {"id": "seed-16", "datetime": "2026-02-08T09:30", "type": "입금", "amount": 50000, "balance": 2601568, "bankType": "일반입금", "description": "김명균", "originalMemo": "25", "category": "회비", "member": "김명균", "status": "자동확정", "managerMemo": ""}, {"id": "seed-17", "datetime": "2026-02-10T11:30", "type": "입금", "amount": 76, "balance": 2601644, "bankType": "캐시백", "description": "프렌즈 체크카드 캐시백", "originalMemo": "25", "category": "미분류", "member": "", "status": "확인필요", "managerMemo": ""}, {"id": "seed-18", "datetime": "2026-02-28T05:43", "type": "입금", "amount": 212, "balance": 2601856, "bankType": "예금이자", "description": "입출금통장 이자", "originalMemo": "25", "category": "입출금통장 이자", "member": "", "status": "자동확정", "managerMemo": ""}, {"id": "seed-19", "datetime": "2026-03-01T07:35", "type": "입금", "amount": 40000, "balance": 2641856, "bankType": "일반입금", "description": "정지협", "originalMemo": "25", "category": "회비", "member": "정지협", "status": "자동확정", "managerMemo": ""}, {"id": "seed-20", "datetime": "2026-03-01T08:31", "type": "입금", "amount": 50000, "balance": 2691856, "bankType": "일반입금", "description": "김명균", "originalMemo": "25", "category": "회비", "member": "김명균", "status": "자동확정", "managerMemo": ""}, {"id": "seed-21", "datetime": "2026-03-01T10:02", "type": "입금", "amount": 40000, "balance": 2731856, "bankType": "일반입금", "description": "이주현", "originalMemo": "25", "category": "회비", "member": "이주현", "status": "자동확정", "managerMemo": ""}, {"id": "seed-22", "datetime": "2026-03-01T10:03", "type": "입금", "amount": 50000, "balance": 2781856, "bankType": "일반입금", "description": "강상구", "originalMemo": "25", "category": "회비", "member": "강상구", "status": "자동확정", "managerMemo": ""}, {"id": "seed-23", "datetime": "2026-03-01T10:04", "type": "입금", "amount": 30000, "balance": 2811856, "bankType": "일반입금", "description": "강광욱", "originalMemo": "25", "category": "회비", "member": "강광욱", "status": "자동확정", "managerMemo": ""}, {"id": "seed-24", "datetime": "2026-03-01T13:57", "type": "출금", "amount": 50000, "balance": 2761856, "bankType": "일반이체", "description": "이상진", "originalMemo": "25", "category": "미분류", "member": "", "status": "확인필요", "managerMemo": ""}, {"id": "seed-25", "datetime": "2026-03-01T13:57", "type": "입금", "amount": 100000, "balance": 2861856, "bankType": "일반입금", "description": "이상진", "originalMemo": "25", "category": "회비", "member": "이상진", "status": "복수개월확인", "managerMemo": "2개월분 가능"}, {"id": "seed-26", "datetime": "2026-03-01T18:01", "type": "입금", "amount": 50000, "balance": 2911856, "bankType": "일반입금", "description": "이상진", "originalMemo": "25", "category": "회비", "member": "이상진", "status": "자동확정", "managerMemo": ""}, {"id": "seed-27", "datetime": "2026-03-03T09:51", "type": "출금", "amount": 50000, "balance": 2861856, "bankType": "일반이체", "description": "이상진", "originalMemo": "25", "category": "미분류", "member": "", "status": "확인필요", "managerMemo": ""}, {"id": "seed-28", "datetime": "2026-03-28T05:27", "type": "입금", "amount": 189, "balance": 2862045, "bankType": "예금이자", "description": "입출금통장 이자", "originalMemo": "25", "category": "입출금통장 이자", "member": "", "status": "자동확정", "managerMemo": ""}, {"id": "seed-29", "datetime": "2026-04-01T09:42", "type": "입금", "amount": 40000, "balance": 2902045, "bankType": "일반입금", "description": "정지협", "originalMemo": "25", "category": "회비", "member": "정지협", "status": "자동확정", "managerMemo": ""}, {"id": "seed-30", "datetime": "2026-04-01T10:04", "type": "입금", "amount": 50000, "balance": 2952045, "bankType": "일반입금", "description": "이상진", "originalMemo": "25", "category": "회비", "member": "이상진", "status": "자동확정", "managerMemo": ""}, {"id": "seed-31", "datetime": "2026-04-01T10:06", "type": "입금", "amount": 40000, "balance": 2992045, "bankType": "일반입금", "description": "이주현", "originalMemo": "25", "category": "회비", "member": "이주현", "status": "자동확정", "managerMemo": ""}, {"id": "seed-32", "datetime": "2026-04-01T10:09", "type": "입금", "amount": 30000, "balance": 3022045, "bankType": "일반입금", "description": "강광욱", "originalMemo": "25", "category": "회비", "member": "강광욱", "status": "자동확정", "managerMemo": ""}, {"id": "seed-33", "datetime": "2026-04-01T11:13", "type": "입금", "amount": 50000, "balance": 3072045, "bankType": "일반입금", "description": "강상구", "originalMemo": "25", "category": "회비", "member": "강상구", "status": "자동확정", "managerMemo": ""}, {"id": "seed-34", "datetime": "2026-04-14T12:33", "type": "입금", "amount": 50000, "balance": 3122045, "bankType": "일반입금", "description": "김명균", "originalMemo": "25", "category": "회비", "member": "김명균", "status": "자동확정", "managerMemo": ""}, {"id": "seed-35", "datetime": "2026-04-25T05:27", "type": "입금", "amount": 204, "balance": 3122249, "bankType": "예금이자", "description": "입출금통장 이자", "originalMemo": "25", "category": "입출금통장 이자", "member": "", "status": "자동확정", "managerMemo": ""}, {"id": "seed-36", "datetime": "2026-05-01T10:02", "type": "입금", "amount": 50000, "balance": 3172249, "bankType": "일반입금", "description": "이상진", "originalMemo": "25", "category": "회비", "member": "이상진", "status": "자동확정", "managerMemo": ""}, {"id": "seed-37", "datetime": "2026-05-01T10:02", "type": "입금", "amount": 40000, "balance": 3212249, "bankType": "일반입금", "description": "이주현", "originalMemo": "25", "category": "회비", "member": "이주현", "status": "자동확정", "managerMemo": ""}, {"id": "seed-38", "datetime": "2026-05-01T10:04", "type": "입금", "amount": 40000, "balance": 3252249, "bankType": "일반입금", "description": "정지협", "originalMemo": "25", "category": "회비", "member": "정지협", "status": "자동확정", "managerMemo": ""}, {"id": "seed-39", "datetime": "2026-05-01T10:06", "type": "입금", "amount": 30000, "balance": 3282249, "bankType": "일반입금", "description": "강광욱", "originalMemo": "25", "category": "회비", "member": "강광욱", "status": "자동확정", "managerMemo": ""}, {"id": "seed-40", "datetime": "2026-05-01T10:08", "type": "입금", "amount": 50000, "balance": 3332249, "bankType": "일반입금", "description": "강상구", "originalMemo": "25", "category": "회비", "member": "강상구", "status": "자동확정", "managerMemo": ""}, {"id": "seed-41", "datetime": "2026-05-01T18:05", "type": "입금", "amount": 50000, "balance": 3382249, "bankType": "일반입금", "description": "김명균", "originalMemo": "25", "category": "회비", "member": "김명균", "status": "자동확정", "managerMemo": ""}, {"id": "seed-42", "datetime": "2026-05-09T22:02", "type": "출금", "amount": 60000, "balance": 3322249, "bankType": "일반이체", "description": "이승윤", "originalMemo": "25", "category": "미분류", "member": "", "status": "확인필요", "managerMemo": ""}, {"id": "seed-43", "datetime": "2026-05-23T05:39", "type": "입금", "amount": 222, "balance": 3322471, "bankType": "예금이자", "description": "입출금통장 이자", "originalMemo": "25", "category": "입출금통장 이자", "member": "", "status": "자동확정", "managerMemo": ""}, {"id": "seed-44", "datetime": "2026-06-01T09:07", "type": "입금", "amount": 50000, "balance": 3372471, "bankType": "일반입금", "description": "강상구", "originalMemo": "25", "category": "회비", "member": "강상구", "status": "자동확정", "managerMemo": ""}, {"id": "seed-45", "datetime": "2026-06-01T09:11", "type": "입금", "amount": 50000, "balance": 3422471, "bankType": "일반입금", "description": "김명균", "originalMemo": "25", "category": "회비", "member": "김명균", "status": "자동확정", "managerMemo": ""}, {"id": "seed-46", "datetime": "2026-06-01T09:17", "type": "입금", "amount": 40000, "balance": 3462471, "bankType": "일반입금", "description": "정지협", "originalMemo": "25", "category": "회비", "member": "정지협", "status": "자동확정", "managerMemo": ""}, {"id": "seed-47", "datetime": "2026-06-01T10:07", "type": "입금", "amount": 50000, "balance": 3512471, "bankType": "일반입금", "description": "이상진", "originalMemo": "25", "category": "회비", "member": "이상진", "status": "자동확정", "managerMemo": ""}, {"id": "seed-48", "datetime": "2026-06-01T10:08", "type": "입금", "amount": 40000, "balance": 3552471, "bankType": "일반입금", "description": "이주현", "originalMemo": "25", "category": "회비", "member": "이주현", "status": "자동확정", "managerMemo": ""}, {"id": "seed-49", "datetime": "2026-06-01T10:11", "type": "입금", "amount": 30000, "balance": 3582471, "bankType": "일반입금", "description": "강광욱", "originalMemo": "25", "category": "회비", "member": "강광욱", "status": "자동확정", "managerMemo": ""}, {"id": "seed-50", "datetime": "2026-06-27T05:40", "type": "입금", "amount": 297, "balance": 3582768, "bankType": "예금이자", "description": "입출금통장 이자", "originalMemo": "25", "category": "입출금통장 이자", "member": "", "status": "자동확정", "managerMemo": ""}, {"id": "seed-51", "datetime": "2026-07-01T08:06", "type": "입금", "amount": 40000, "balance": 3622768, "bankType": "일반입금", "description": "정지협", "originalMemo": "25", "category": "회비", "member": "정지협", "status": "자동확정", "managerMemo": ""}, {"id": "seed-52", "datetime": "2026-07-01T08:40", "type": "입금", "amount": 50000, "balance": 3672768, "bankType": "일반입금", "description": "김명균", "originalMemo": "25", "category": "회비", "member": "김명균", "status": "자동확정", "managerMemo": ""}, {"id": "seed-53", "datetime": "2026-07-01T09:00", "type": "입금", "amount": 50000, "balance": 3722768, "bankType": "일반입금", "description": "강상구", "originalMemo": "25", "category": "회비", "member": "강상구", "status": "자동확정", "managerMemo": ""}, {"id": "seed-54", "datetime": "2026-07-01T10:04", "type": "입금", "amount": 50000, "balance": 3772768, "bankType": "일반입금", "description": "이상진", "originalMemo": "25", "category": "회비", "member": "이상진", "status": "자동확정", "managerMemo": ""}, {"id": "seed-55", "datetime": "2026-07-01T10:06", "type": "입금", "amount": 40000, "balance": 3812768, "bankType": "일반입금", "description": "이주현", "originalMemo": "25", "category": "회비", "member": "이주현", "status": "자동확정", "managerMemo": ""}, {"id": "seed-56", "datetime": "2026-07-01T10:09", "type": "입금", "amount": 30000, "balance": 3842768, "bankType": "일반입금", "description": "강광욱", "originalMemo": "25", "category": "회비", "member": "강광욱", "status": "자동확정", "managerMemo": ""}, {"id": "seed-57", "datetime": "2026-07-25T05:39", "type": "입금", "amount": 251, "balance": 3843019, "bankType": "예금이자", "description": "입출금통장 이자", "originalMemo": "25", "category": "입출금통장 이자", "member": "", "status": "자동확정", "managerMemo": ""}], "adminPin": "1234"};
+const KEY='gochuchamchi-ledger-v1';
+let state=load();
+let admin=false;
+let editingId=null;
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const won=n=>(Number(n)||0).toLocaleString('ko-KR')+'원';
+const ym=d=>String(d).slice(0,7);
+function clone(x){return JSON.parse(JSON.stringify(x))}
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||clone(SEED)}catch(e){return clone(SEED)}}
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function sorted(){return [...state.transactions].sort((a,b)=>a.datetime.localeCompare(b.datetime))}
+function recomputeBalances(){
+ let bal=Number(state.startBalance);
+ for(const t of sorted()){bal += t.type==='입금'?Number(t.amount):-Number(t.amount); t.balance=bal}
+ save()
+}
+function monthNow(){return '2026-07'}
+function currentBalance(){const a=sorted();return a.length?a[a.length-1].balance:state.startBalance}
+function monthTx(m){return sorted().filter(t=>ym(t.datetime)===m)}
+function monthSummary(m){
+ const a=monthTx(m), before=sorted().filter(t=>ym(t.datetime)<m);
+ const opening=before.length?before[before.length-1].balance:state.startBalance;
+ const dues=a.filter(t=>t.type==='입금'&&t.category==='회비').reduce((s,t)=>s+Number(t.amount),0);
+ const interest=a.filter(t=>t.type==='입금'&&t.category==='입출금통장 이자').reduce((s,t)=>s+Number(t.amount),0);
+ const otherIn=a.filter(t=>t.type==='입금'&&!['회비','입출금통장 이자'].includes(t.category)).reduce((s,t)=>s+Number(t.amount),0);
+ const out=a.filter(t=>t.type==='출금').reduce((s,t)=>s+Number(t.amount),0);
+ const closing=opening+dues+interest+otherIn-out;
+ const review=a.filter(t=>!['자동확정','확인완료'].includes(t.status)).length;
+ return {opening,dues,interest,otherIn,out,closing,review}
+}
+function render(){
+ $('#appTitle').textContent=state.groupName;
+ $('#appSub').textContent=state.bank+' · 2026년부터 관리';
+ $('#adminBadge').textContent=admin?'총무 모드':'조회 모드';
+ $('#adminBadge').style.background=admin?'#dcfce7':'#fff6d8';
+ const m=$('#dashMonth').value||monthNow(), s=monthSummary(m);
+ $('#kBalance').textContent=won(currentBalance()); $('#kDues').textContent=won(s.dues); $('#kOut').textContent=won(s.out); $('#kReview').textContent=s.review+'건';
+ renderMemberStatus(m); renderRecent(); renderTransactions(); renderMembers(); renderReport();
+ $('#addBtn').style.display=admin?'block':'none';
+}
+function renderMemberStatus(m){
+ const tx=monthTx(m).filter(t=>t.type==='입금'&&t.category==='회비');
+ $('#memberStatus').innerHTML=state.members.map(mem=>{
+  const paid=tx.filter(t=>t.member===mem.name).reduce((s,t)=>s+Number(t.amount),0);
+  const pct=Math.min(100,Math.round(paid/mem.fee*100));
+  return `<div class="member-row"><div><b>${mem.name}</b><div class="progress"><i style="width:${pct}%"></i></div></div><div class="right"><b>${won(paid)}</b><div class="small">/ ${won(mem.fee)}</div></div><div>${paid>=mem.fee?'✅':'미납'}</div></div>`
+ }).join('')
+}
+function txHtml(t){
+ const sign=t.type==='입금'?'+':'-'; const cls=t.type==='입금'?'green':'red'; const warn=!['자동확정','확인완료'].includes(t.status);
+ return `<div class="tx" data-id="${t.id}"><div class="tx-top"><div><div class="tx-title">${esc(t.description||t.category)}</div><div class="tx-meta"><span>${t.datetime.slice(0,10)}</span><span class="chip">${esc(t.category)}</span>${t.member?`<span class="chip">${esc(t.member)}</span>`:''}<span class="chip ${warn?'warn':'ok'}">${esc(t.status)}</span></div></div><div class="tx-amt ${cls}">${sign}${won(t.amount)}</div></div></div>`
+}
+function renderRecent(){ $('#recentTx').innerHTML=sorted().slice(-5).reverse().map(txHtml).join('')||'<div class="small">거래가 없습니다.</div>'}
+function renderTransactions(){
+ const m=$('#txMonth').value||monthNow(), q=($('#txSearch').value||'').trim().toLowerCase();
+ const arr=sorted().filter(t=>ym(t.datetime)===m).filter(t=>(t.description+' '+t.member+' '+t.category).toLowerCase().includes(q)).reverse();
+ $('#txList').innerHTML=arr.map(txHtml).join('')||'<div class="small">해당 거래가 없습니다.</div>';
+ $$('#txList .tx').forEach(el=>el.onclick=()=>admin?openEdit(el.dataset.id):alert('총무 모드에서만 수정할 수 있습니다.'));
+}
+function renderMembers(){
+ $('#memberList').innerHTML=state.members.map(m=>`<div class="member-row"><div><b>${m.name}</b><div class="small">${m.people}명 기준</div></div><div><b>${won(m.fee)}</b></div><div>매월</div></div>`).join('')
+}
+function renderReport(){
+ const m=$('#reportMonth').value||monthNow(), s=monthSummary(m);
+ const tx=monthTx(m).filter(t=>t.category==='회비');
+ const paid=state.members.filter(mem=>tx.some(t=>t.member===mem.name)).length;
+ $('#reportCard').innerHTML=`<h2>${state.groupName} ${m.replace('-','년 ')}월 결산</h2><div class="small" style="margin:5px 0 12px">${state.bank}</div>
+ ${line('전월 이월잔액',won(s.opening))}${line('회비 입금',won(s.dues))}${line('통장 이자',won(s.interest))}${line('기타 입금',won(s.otherIn))}${line('지출',won(s.out))}${line('월말 잔액',won(s.closing))}
+ <div class="report-line"><span>회원 납부</span><b>${paid}/${state.members.length}명</b></div>
+ ${s.review?`<div class="notice" style="margin-top:12px">확인 필요한 거래가 ${s.review}건 있습니다.</div>`:''}`;
+}
+function line(a,b){return `<div class="report-line"><span>${a}</span><b>${b}</b></div>`}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function openEdit(id){
+ editingId=id; const t=state.transactions.find(x=>x.id===id);
+ $('#modalTitle').textContent=t?'거래 수정':'거래 추가';
+ $('#fDate').value=t?.datetime||new Date().toISOString().slice(0,16); $('#fType').value=t?.type||'입금'; $('#fAmount').value=t?.amount||'';
+ $('#fDesc').value=t?.description||''; $('#fCategory').value=t?.category||'미분류'; $('#fMember').value=t?.member||''; $('#fStatus').value=t?.status||'확인필요'; $('#fMemo').value=t?.managerMemo||'';
+ $('#deleteTx').style.display=t?'block':'none'; $('#editModal').classList.add('show')
+}
+function closeEdit(){$('#editModal').classList.remove('show')}
+function saveEdit(){
+ if(!admin)return;
+ const obj={id:editingId||('u-'+Date.now()),datetime:$('#fDate').value,type:$('#fType').value,amount:Number($('#fAmount').value),balance:0,bankType:'수기입력',description:$('#fDesc').value,originalMemo:'',category:$('#fCategory').value,member:$('#fMember').value,status:$('#fStatus').value,managerMemo:$('#fMemo').value};
+ if(!obj.datetime||!obj.amount)return alert('날짜와 금액을 입력하세요.');
+ const i=state.transactions.findIndex(x=>x.id===editingId); if(i>=0)state.transactions[i]=obj;else state.transactions.push(obj);
+ recomputeBalances();closeEdit();render()
+}
+function exportReportPng(){
+ const m=$('#reportMonth').value||monthNow(), s=monthSummary(m); const tx=monthTx(m).filter(t=>t.category==='회비'); const paid=state.members.filter(mem=>tx.some(t=>t.member===mem.name)).length;
+ const c=document.createElement('canvas');c.width=1080;c.height=1350;const x=c.getContext('2d');
+ x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.fillStyle='#111827';x.font='bold 54px sans-serif';x.fillText(state.groupName+' 월결산 보고',70,100);
+ x.font='30px sans-serif';x.fillStyle='#6b7280';x.fillText(m.replace('-','년 ')+'월 · '+state.bank,70,155);
+ const rows=[['전월 이월잔액',won(s.opening)],['회비 입금',won(s.dues)],['통장 이자',won(s.interest)],['기타 입금',won(s.otherIn)],['지출',won(s.out)],['월말 잔액',won(s.closing)],['회원 납부',paid+'/'+state.members.length+'명'],['확인 필요',s.review+'건']];
+ let y=250;x.font='34px sans-serif';
+ rows.forEach((r,i)=>{x.fillStyle='#f3f4f6';x.fillRect(60,y-55,960,82);x.fillStyle='#374151';x.fillText(r[0],90,y);x.font='bold 36px sans-serif';x.textAlign='right';x.fillStyle=i===5?'#111827':(i===4?'#dc2626':'#111827');x.fillText(r[1],990,y);x.textAlign='left';x.font='34px sans-serif';y+=105});
+ x.fillStyle='#9ca3af';x.font='24px sans-serif';x.fillText('고추참치회 모바일 장부에서 생성',70,1280);
+ const a=document.createElement('a');a.href=c.toDataURL('image/png');a.download=`고추참치회_${m}_월결산.png`;a.click()
+}
+$$('.navbtn').forEach(b=>b.onclick=()=>{$$('.navbtn').forEach(x=>x.classList.remove('active'));b.classList.add('active');$$('.screen').forEach(x=>x.classList.remove('active'));$('#'+b.dataset.screen).classList.add('active');render()});
+['dashMonth','txMonth','reportMonth'].forEach(id=>$('#'+id).value=monthNow());
+$('#dashMonth').onchange=render;$('#txMonth').onchange=render;$('#txSearch').oninput=renderTransactions;$('#reportMonth').onchange=renderReport;
+$('#addBtn').onclick=()=>openEdit(null);$('#cancelEdit').onclick=closeEdit;$('#saveEdit').onclick=saveEdit;
+$('#deleteTx').onclick=()=>{if(confirm('이 거래를 삭제할까요?')){state.transactions=state.transactions.filter(x=>x.id!==editingId);recomputeBalances();closeEdit();render()}};
+$('#adminLogin').onclick=()=>{const p=prompt('총무 PIN을 입력하세요.');if(p===state.adminPin){admin=true;render()}else alert('PIN이 맞지 않습니다.')};
+$('#adminLogout').onclick=()=>{admin=false;render()};
+$('#saveReport').onclick=exportReportPng;
+$('#backupBtn').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(state,null,2)],{type:'application/json'}));a.download='고추참치회_장부백업.json';a.click()};
+$('#restoreBtn').onclick=()=>$('#restoreFile').click();
+$('#restoreFile').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{state=JSON.parse(r.result);save();render();alert('복원했습니다.')}catch(e){alert('올바른 백업 파일이 아닙니다.')}};r.readAsText(f)};
+$('#resetBtn').onclick=()=>{if(confirm('모든 수정 내용을 지우고 초기 데이터로 되돌릴까요?')){state=clone(SEED);save();admin=false;render()}};
+$('#fMember').innerHTML='<option value="">해당 없음</option>'+state.members.map(m=>`<option>${m.name}</option>`).join('');
+$('#editModal').onclick=e=>{if(e.target.id==='editModal')closeEdit()};
+recomputeBalances();render();
+
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault(); deferredPrompt=e;
+  const b=document.getElementById('installBtn'); if(b)b.style.display='block';
+});
+window.addEventListener('appinstalled',()=>{
+  const b=document.getElementById('installBtn'); if(b)b.style.display='none';
+  const h=document.getElementById('installHelp'); if(h)h.textContent='앱 설치가 완료되었습니다.';
+});
+document.addEventListener('DOMContentLoaded',()=>{
+  const b=document.getElementById('installBtn');
+  if(b)b.addEventListener('click',async()=>{
+    if(!deferredPrompt){alert('크롬 메뉴에서 홈 화면에 추가를 선택해 주세요.');return;}
+    deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt=null; b.style.display='none';
+  });
+});
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js'));
+}
+
+</script>
+</body></html>

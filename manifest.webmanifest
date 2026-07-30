@@ -1,0 +1,26 @@
+{
+  "name": "고추참치회 계모임 관리장부",
+  "short_name": "고추참치회 장부",
+  "description": "회비, 거래내역, 미수금, 월결산을 관리하는 고추참치회 설치형 장부 앱",
+  "lang": "ko-KR",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#FDE8E3",
+  "theme_color": "#E85B50",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
