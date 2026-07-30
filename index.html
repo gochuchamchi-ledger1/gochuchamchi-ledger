@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="고추참치회">
-<title>고추참치회 장부 V4</title>
+<title>고추참치회 장부 V5</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
@@ -52,12 +52,36 @@ nav{position:fixed;z-index:40;bottom:0;left:0;right:0;background:rgba(255,255,25
 .historyItem{padding:11px 0;border-bottom:1px solid var(--line)}.historyItem:last-child{border:0}
 @media(max-width:480px){.previewStats{grid-template-columns:1fr 1fr}}
 
+
+.reportTabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.reportTab{border:1px solid var(--line);background:#fff;border-radius:14px;padding:11px;font-weight:850}
+.reportTab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.reportPane{display:none}.reportPane.active{display:block}
+.a4{width:100%;aspect-ratio:210/297;min-height:780px;background:white;border:1px solid var(--line);border-radius:8px;padding:24px;box-shadow:var(--shadow);color:#211a18;overflow:hidden}
+.a4Header{display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--accent);padding-bottom:12px;margin-bottom:14px}
+.a4Header h1{font-size:22px;margin:0}.a4Header img{width:72px;height:72px;border-radius:18px;object-fit:cover}
+.a4Meta{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:13px}
+.a4Meta div{border:1px solid #eadbd7;border-radius:8px;padding:7px 9px;font-size:12px}
+.a4Section{margin-top:13px}.a4Section h3{font-size:14px;margin:0 0 6px;padding:5px 8px;background:#fff0ec;border-left:4px solid var(--accent)}
+.a4Table{width:100%;border-collapse:collapse;font-size:11px}.a4Table th,.a4Table td{border:1px solid #e5d8d4;padding:6px;text-align:right}.a4Table th:first-child,.a4Table td:first-child{text-align:left;position:static;background:inherit}
+.a4Summary{display:grid;grid-template-columns:1fr 1fr;gap:6px}.a4Summary div{display:flex;justify-content:space-between;border-bottom:1px dotted #cbb8b2;padding:6px;font-size:12px}.a4Summary b{font-size:13px}
+.a4Foot{margin-top:15px;display:flex;justify-content:space-between;font-size:11px;color:#6f605c}.sign{border-top:1px solid #555;width:130px;text-align:center;padding-top:5px}
+.reportActions{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:10px 0}
+.meetingCard{padding:13px 0;border-bottom:1px solid var(--line)}.meetingCard:last-child{border-bottom:0}.meetingCardTop{display:flex;justify-content:space-between;gap:10px}
+.expenseRow{display:grid;grid-template-columns:1fr 110px 42px;gap:7px;margin-bottom:7px}
+@media print{
+ body{background:#fff}.app,nav,header,.modal{display:none!important}
+ #printArea{display:block!important;width:210mm;height:297mm;padding:10mm}
+ .a4{box-shadow:none;border:0;width:100%;height:100%;min-height:0}
+}
+@media(max-width:520px){.a4{min-height:720px;padding:14px}.a4Header h1{font-size:18px}.reportActions{grid-template-columns:1fr 1fr}}
+
 </style>
 </head>
 <body>
 <div class="app">
 <header><div class="head">
- <div class="brand"><img class="logo" src="mascot.png"><div><div class="title" id="groupTitle">고추참치회</div><div class="sub">카카오뱅크 · V4 업로드검증·미수금자동</div></div></div>
+ <div class="brand"><img class="logo" src="mascot.png"><div><div class="title" id="groupTitle">고추참치회</div><div class="sub">카카오뱅크 · V5 총무보고서</div></div></div>
  <button class="mode" id="modeBtn">조회 모드</button>
 </div></header>
 <main>
@@ -99,9 +123,32 @@ nav{position:fixed;z-index:40;bottom:0;left:0;right:0;background:rgba(255,255,25
 </section>
 
 <section id="report" class="screen">
- <div class="hero"><img src="report-cat.png"><div><h2>월별 결산 🧮</h2><p>월 수입·지출·미수금을 정리하고 이미지로 저장하거나 공유해요.</p></div></div>
- <div class="filters" style="margin-top:12px"><input id="reportMonth" type="month" class="field"><button class="btn accent" id="shareReport">저장·공유</button></div>
- <div class="report" id="reportCard"></div>
+ <div class="hero"><img src="report-cat.png"><div><h2>총무 보고서 📄</h2><p>총무 권한으로 A4 월 회계보고서와 모임보고서를 작성·저장·공유합니다.</p></div></div>
+ <div class="reportTabs">
+  <button class="reportTab active" data-report-pane="monthlyPane">월 회계보고서</button>
+  <button class="reportTab" data-report-pane="meetingPane">모임보고서</button>
+ </div>
+
+ <div id="monthlyPane" class="reportPane active">
+  <div class="filters"><input id="reportMonth" type="month" class="field"><button class="btn accent" id="finalizeMonthly">총무 작성·확정</button></div>
+  <div class="reportActions">
+   <button class="btn line" id="monthlyPng">PNG 저장</button>
+   <button class="btn line" id="monthlyPrint">PDF·인쇄</button>
+   <button class="btn soft" id="monthlyShare">공유</button>
+  </div>
+  <div class="a4" id="monthlyA4"></div>
+ </div>
+
+ <div id="meetingPane" class="reportPane">
+  <div class="section"><h3>모임보고서 이력</h3><button class="btn accent" id="newMeetingReport">새 보고서</button></div>
+  <div class="card" id="meetingReportList"></div>
+  <div class="reportActions" id="meetingActions" style="display:none">
+   <button class="btn line" id="meetingPng">PNG 저장</button>
+   <button class="btn line" id="meetingPrint">PDF·인쇄</button>
+   <button class="btn soft" id="meetingShare">공유</button>
+  </div>
+  <div class="a4" id="meetingA4" style="display:none"></div>
+ </div>
 </section>
 
 
@@ -193,11 +240,32 @@ nav{position:fixed;z-index:40;bottom:0;left:0;right:0;background:rgba(255,255,25
  <button class="btn line full" style="margin-top:12px" onclick="closeModal('importHistoryModal')">닫기</button>
 </div></div>
 
+
+<div class="modal" id="meetingModal"><div class="sheet">
+ <h3 id="meetingModalTitle">모임보고서 작성</h3>
+ <div class="form">
+  <div><div class="label">보고서 제목</div><input id="mrTitle" class="field" placeholder="예: 2026년 8월 정기모임"></div>
+  <div><div class="label">모임 장소</div><input id="mrPlace" class="field" placeholder="예: 부산 서면 ○○식당"></div>
+  <div class="filters">
+   <div><div class="label">시작 일시</div><input id="mrStart" type="datetime-local" class="field"></div>
+   <div><div class="label">종료 일시</div><input id="mrEnd" type="datetime-local" class="field"></div>
+  </div>
+  <div><div class="label">참석자 (쉼표로 구분)</div><input id="mrAttendees" class="field" placeholder="정지협, 강상구, 이상진"></div>
+  <div><div class="label">모임 내용 / 주요 안건</div><textarea id="mrAgenda" class="field" rows="3"></textarea></div>
+  <div class="section" style="margin-top:6px"><h3>지출내역</h3><button type="button" class="btn soft" id="addExpense">항목 추가</button></div>
+  <div id="expenseRows"></div>
+  <div><div class="label">기타 메모 / 다음 일정</div><textarea id="mrMemo" class="field" rows="3"></textarea></div>
+ </div>
+ <div class="actions"><button class="btn line" onclick="closeModal('meetingModal')">취소</button><button class="btn accent" id="saveMeetingReport">저장</button></div>
+ <button class="btn danger full" id="deleteMeetingReport" style="display:none;margin-top:8px">보고서 삭제</button>
+</div></div>
+
+<div id="printArea" style="display:none"></div>
 <script>
-const KEY='gochuchamchi-v4-data';
+const KEY='gochuchamchi-v5-data';
 const categories=['전체','회비','입출금통장 이자','식사비','모임비','기타수입','기타지출','미분류'];
 const seed={
- groupName:'고추참치회',bank:'카카오뱅크',startBalance:2091253,startMonth:'2026-01',arrearsStartMonth:'2026-08',adminPin:'1234',importHistory:[],
+ groupName:'고추참치회',bank:'카카오뱅크',startBalance:2091253,startMonth:'2026-01',arrearsStartMonth:'2026-08',adminPin:'1234',importHistory:[],monthlyReports:{},meetingReports:[],
  members:[
   {id:'m1',name:'정지협',fee:40000,startMonth:'2026-01'},
   {id:'m2',name:'강상구',fee:50000,startMonth:'2026-01'},
@@ -209,7 +277,7 @@ const seed={
 };
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const clone=x=>JSON.parse(JSON.stringify(x)), won=n=>(Number(n)||0).toLocaleString('ko-KR')+'원', ym=d=>String(d).slice(0,7);
-let state=load(),admin=false,editingTx=null,editingMember=null,activeCategory='전체',deferredPrompt=null,pendingImport=[];
+let state=load(),admin=false,editingTx=null,editingMember=null,activeCategory='전체',deferredPrompt=null,pendingImport=[],editingMeetingId=null,selectedMeetingId=null;
 function load(){
  try{
   const raw=localStorage.getItem(KEY);
@@ -217,6 +285,8 @@ function load(){
   const obj=JSON.parse(raw);
   if(!obj || !Array.isArray(obj.members) || !Array.isArray(obj.transactions)) return clone(seed);
   if(!Array.isArray(obj.importHistory))obj.importHistory=[];
+  if(!obj.monthlyReports)obj.monthlyReports={};
+  if(!Array.isArray(obj.meetingReports))obj.meetingReports=[];
   if(!obj.arrearsStartMonth)obj.arrearsStartMonth='2026-08';
   return obj;
  }catch(e){
@@ -276,7 +346,7 @@ function render(){
  $('#groupTitle').textContent=state.groupName;$('#modeBtn').textContent=admin?'총무 모드':'조회 모드';$('#modeBtn').style.background=admin?'#dcfce7':'#fff0ca';
  $('#kBalance').textContent=won(totalBalance());$('#kDues').textContent=won(s.dues);$('#kOut').textContent=won(s.out);$('#kReview').textContent=s.review+'건';
  renderPayments(m);renderRecent();renderTransactions();renderMembers();renderFeeHistory();renderReport();renderArrears();renderImportHistory();$('#arrearsStartLabel').textContent=(state.arrearsStartMonth||'2026-08').replace('-','년 ')+'월부터 자동 계산';
- $('#fab').style.display=admin?'block':'none';$('#addMemberBtn').style.display=admin?'block':'none';
+ $('#fab').style.display=admin?'block':'none';$('#addMemberBtn').style.display=admin?'block':'none';$('#finalizeMonthly').style.display=admin?'block':'none';$('#newMeetingReport').style.display=admin?'block':'none';
  fillSelects();
 }
 function renderPayments(m){
@@ -299,10 +369,71 @@ function renderMembers(){
  $('#memberList').innerHTML=state.members.map(m=>`<div class="member" data-id="${m.id}"><div class="memberTop"><div><b>${esc(m.name)}</b><div class="small">${m.startMonth}부터 관리</div></div><div style="text-align:right"><b>${won(m.fee)}</b><div class="small">월 회비</div></div><div style="text-align:right"><b class="${arrears(m,through)>0?'red':'green'}">${won(arrears(m,through))}</b><div class="small">누적 미수</div></div></div></div>`).join('');
  $$('#memberList .member').forEach(el=>el.onclick=()=>admin?openMember(el.dataset.id):null)
 }
+
+function balanceAt(dateText){
+ const cutoff=String(dateText||'9999-12-31').slice(0,10);
+ let b=state.startBalance;
+ for(const t of sorted()){if(String(t.datetime).slice(0,10)<=cutoff)b+=t.type==='입금'?Number(t.amount):-Number(t.amount)}
+ return b
+}
+function reportDateText(){return new Date().toLocaleDateString('ko-KR')}
 function renderReport(){
- const m=$('#reportMonth').value||nowMonth(),s=summary(m),paid=state.members.filter(x=>paidFor(x,m)>=x.fee).length,miss=state.members.reduce((a,x)=>a+arrears(x,m),0);
- $('#reportCard').innerHTML=`<div class="reportHead"><img src="mascot.png"><div><h2>${state.groupName} ${m.replace('-','년 ')}월 결산</h2><div class="small">${state.bank} · 자동 생성 보고서</div></div></div>
- <div style="margin-top:12px">${r('전월 이월잔액',won(s.opening))}${r('회비 입금',won(s.dues))}${r('통장 이자',won(s.interest))}${r('기타 입금',won(s.otherIn))}${r('지출',won(s.out))}${r('월말 잔액',won(s.closing))}${r('회원 납부',paid+'/'+state.members.length+'명')}${r('누적 미수금',won(miss))}${r('확인 필요',s.review+'건')}</div>`;
+ renderMonthlyA4();
+ renderMeetingList();
+ if(selectedMeetingId)renderMeetingA4(selectedMeetingId);
+}
+function renderMonthlyA4(){
+ const m=$('#reportMonth').value||nowMonth(),s=summary(m);
+ const paid=state.members.filter(x=>paidFor(x,m)>=x.fee).length;
+ const arrearsTotal=state.members.reduce((a,x)=>a+arrears(x,m),0);
+ const memberRows=state.members.map(mem=>{
+  const paidAmt=paidFor(mem,m),lack=Math.max(0,mem.fee-paidAmt);
+  return `<tr><td>${esc(mem.name)}</td><td>${won(mem.fee)}</td><td>${won(paidAmt)}</td><td>${lack?won(lack):'완납'}</td></tr>`
+ }).join('');
+ const snapshot=state.monthlyReports[m];
+ $('#monthlyA4').innerHTML=`
+  <div class="a4Header"><div><h1>${state.groupName} 월 회계보고서</h1><div class="small">${m.replace('-','년 ')}월 · ${snapshot?'총무 확정본':'자동 집계 미확정'}</div></div><img src="mascot.png"></div>
+  <div class="a4Meta"><div><b>보고기간</b> ${m}-01 ~ ${m}-${new Date(Number(m.slice(0,4)),Number(m.slice(5,7)),0).getDate()}</div><div><b>작성일</b> ${snapshot?.createdDate||reportDateText()}</div><div><b>은행</b> ${state.bank}</div><div><b>작성권한</b> 총무</div></div>
+  <div class="a4Section"><h3>월 회계 요약</h3><div class="a4Summary">
+   <div><span>전월 이월잔액</span><b>${won(s.opening)}</b></div><div><span>회비 입금</span><b>${won(s.dues)}</b></div>
+   <div><span>통장 이자</span><b>${won(s.interest)}</b></div><div><span>기타 입금</span><b>${won(s.otherIn)}</b></div>
+   <div><span>총 지출</span><b>${won(s.out)}</b></div><div><span>월말 잔액</span><b>${won(s.closing)}</b></div>
+   <div><span>총 미수금</span><b>${won(arrearsTotal)}</b></div><div><span>확인 필요</span><b>${s.review}건</b></div>
+  </div></div>
+  <div class="a4Section"><h3>회원 회비 납부현황 (${paid}/${state.members.length}명 완납)</h3><table class="a4Table"><tr><th>회원</th><th>기준 회비</th><th>납부액</th><th>미납</th></tr>${memberRows}</table></div>
+  <div class="a4Section"><h3>총무 의견</h3><div style="border:1px solid #e5d8d4;min-height:55px;padding:8px;font-size:12px">${esc(snapshot?.memo||'특이사항 없음')}</div></div>
+  <div class="a4Foot"><span>본 보고서는 고추참치회 장부 V5에서 작성되었습니다.</span><div class="sign">총무 서명</div></div>`;
+}
+function finalizeMonthly(){
+ if(!requireAdmin())return;
+ const m=$('#reportMonth').value||nowMonth();
+ const memo=prompt('총무 의견 또는 특이사항을 입력하세요.','특이사항 없음');
+ if(memo===null)return;
+ state.monthlyReports[m]={createdDate:reportDateText(),memo,confirmed:true};
+ save();renderMonthlyA4();alert(`${m.replace('-','년 ')}월 회계보고서를 확정했습니다.`);
+}
+function renderMeetingList(){
+ const list=[...(state.meetingReports||[])].sort((a,b)=>String(b.start).localeCompare(String(a.start)));
+ $('#meetingReportList').innerHTML=list.length?list.map(r=>`<div class="meetingCard" data-meeting-id="${r.id}"><div class="meetingCardTop"><div><b>${esc(r.title)}</b><div class="small">${esc(r.place)} · ${String(r.start).replace('T',' ')}</div></div><div style="text-align:right"><b>${won(sumMeetingExpenses(r))}</b><div class="small">총 지출</div></div></div></div>`).join(''):'<div class="empty">작성된 모임보고서가 없습니다.</div>';
+ $$('#meetingReportList [data-meeting-id]').forEach(el=>{el.onclick=()=>{selectedMeetingId=el.dataset.meetingId;renderMeetingA4(selectedMeetingId)};el.ondblclick=()=>admin&&openMeetingEditor(el.dataset.meetingId)})
+}
+function sumMeetingExpenses(r){return (r.expenses||[]).reduce((s,x)=>s+Number(x.amount||0),0)}
+function renderMeetingA4(id){
+ const r=(state.meetingReports||[]).find(x=>x.id===id);if(!r)return;
+ const total=sumMeetingExpenses(r),att=(r.attendees||[]).length;
+ const before=balanceAt(String(r.start).slice(0,10));
+ const after=before-total;
+ const expenseRows=(r.expenses||[]).map((x,i)=>`<tr><td>${i+1}. ${esc(x.item)}</td><td>${won(x.amount)}</td></tr>`).join('')||'<tr><td>지출 없음</td><td>0원</td></tr>';
+ $('#meetingA4').style.display='block';$('#meetingActions').style.display='grid';
+ $('#meetingA4').innerHTML=`
+  <div class="a4Header"><div><h1>${esc(r.title)}</h1><div class="small">${state.groupName} 모임보고서</div></div><img src="mascot.png"></div>
+  <div class="a4Meta"><div><b>모임 장소</b> ${esc(r.place)}</div><div><b>작성일</b> ${esc(r.createdDate)}</div><div><b>모임 시작</b> ${String(r.start).replace('T',' ')}</div><div><b>모임 종료</b> ${String(r.end).replace('T',' ')}</div><div><b>참석인원</b> ${att}명</div><div><b>1인당 지출</b> ${won(att?Math.round(total/att):0)}</div></div>
+  <div class="a4Section"><h3>참석자</h3><div style="font-size:12px;padding:7px;border:1px solid #e5d8d4">${esc((r.attendees||[]).join(', ')||'미입력')}</div></div>
+  <div class="a4Section"><h3>모임 내용 / 주요 안건</h3><div style="font-size:12px;min-height:55px;padding:7px;border:1px solid #e5d8d4">${esc(r.agenda||'')}</div></div>
+  <div class="a4Section"><h3>지출내역</h3><table class="a4Table"><tr><th>지출 항목</th><th>금액</th></tr>${expenseRows}<tr><th>총 지출</th><th>${won(total)}</th></tr></table></div>
+  <div class="a4Section"><h3>잔액 현황</h3><div class="a4Summary"><div><span>모임 전 장부잔액</span><b>${won(before)}</b></div><div><span>모임 총 지출</span><b>${won(total)}</b></div><div><span>모임 후 예상잔액</span><b>${won(after)}</b></div><div><span>참석인원</span><b>${att}명</b></div></div></div>
+  <div class="a4Section"><h3>기타 메모 / 다음 일정</h3><div style="font-size:12px;min-height:50px;padding:7px;border:1px solid #e5d8d4">${esc(r.memo||'')}</div></div>
+  <div class="a4Foot"><span>고추참치회 장부 V5 모임보고서</span><div class="sign">총무 서명</div></div>`;
 }
 function r(a,b){return `<div class="row"><span>${a}</span><b>${b}</b></div>`}
 function fillSelects(){
@@ -459,19 +590,93 @@ function changeArrearsStart(){
  if(!/^\d{4}-\d{2}$/.test(v))return alert('예: 2026-08 형식으로 입력하세요.');
  state.arrearsStartMonth=v;save();render();alert(`${v.replace('-','년 ')}월부터 미수금을 계산합니다.`);
 }
-function makeReportCanvas(){
- const m=$('#reportMonth').value||nowMonth(),s=summary(m),paid=state.members.filter(x=>paidFor(x,m)>=x.fee).length,miss=state.members.reduce((a,x)=>a+arrears(x,m),0);
- const c=document.createElement('canvas');c.width=1080;c.height=1500;const x=c.getContext('2d');x.fillStyle='#fff7f5';x.fillRect(0,0,c.width,c.height);x.fillStyle='#e85b50';x.fillRect(0,0,1080,22);
- x.fillStyle='#241b19';x.font='bold 58px sans-serif';x.fillText('고추참치회 월결산',70,105);x.font='30px sans-serif';x.fillStyle='#786b68';x.fillText(m.replace('-','년 ')+'월 · 카카오뱅크',70,160);
- const rows=[['전월 이월잔액',won(s.opening)],['회비 입금',won(s.dues)],['통장 이자',won(s.interest)],['기타 입금',won(s.otherIn)],['지출',won(s.out)],['월말 잔액',won(s.closing)],['회원 납부',paid+'/'+state.members.length+'명'],['누적 미수금',won(miss)],['확인 필요',s.review+'건']];
- let y=270;for(let i=0;i<rows.length;i++){x.fillStyle='#fff';x.beginPath();x.roundRect(55,y-65,970,92,18);x.fill();x.fillStyle='#5f514e';x.font='32px sans-serif';x.textAlign='left';x.fillText(rows[i][0],85,y);x.fillStyle=i===4||i===7?'#d42c2c':'#241b19';x.font='bold 35px sans-serif';x.textAlign='right';x.fillText(rows[i][1],990,y);y+=112}
- x.textAlign='left';x.fillStyle='#9b8884';x.font='25px sans-serif';x.fillText('고추참치회 장부 V4에서 생성',70,1430);return c
+
+function textLines(ctx,text,maxWidth){
+ const words=String(text||'').split(/\s+/),lines=[];let line='';
+ for(const w of words){const test=line?line+' '+w:w;if(ctx.measureText(test).width>maxWidth&&line){lines.push(line);line=w}else line=test}
+ if(line)lines.push(line);return lines
 }
-async function shareReport(){
- const c=makeReportCanvas(),blob=await new Promise(r=>c.toBlob(r,'image/png'));const m=$('#reportMonth').value||nowMonth(),file=new File([blob],`고추참치회_${m}_결산.png`,{type:'image/png'});
- if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({title:'고추참치회 월결산',text:`${m} 월결산`,files:[file]})}
- else{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=file.name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+function drawA4Canvas(type){
+ const c=document.createElement('canvas');c.width=1240;c.height=1754;const x=c.getContext('2d');
+ x.fillStyle='#fffdfb';x.fillRect(0,0,c.width,c.height);x.fillStyle='#e65f54';x.fillRect(0,0,c.width,24);
+ x.fillStyle='#241b19';x.textAlign='left';
+ if(type==='monthly'){
+  const m=$('#reportMonth').value||nowMonth(),s=summary(m),snapshot=state.monthlyReports[m];
+  const arrearsTotal=state.members.reduce((a,v)=>a+arrears(v,m),0);
+  x.font='bold 52px sans-serif';x.fillText(`${state.groupName} 월 회계보고서`,70,100);
+  x.font='28px sans-serif';x.fillStyle='#786b68';x.fillText(`${m.replace('-','년 ')}월 · ${snapshot?'총무 확정본':'미확정'}`,70,150);
+  const rows=[['전월 이월잔액',won(s.opening)],['회비 입금',won(s.dues)],['통장 이자',won(s.interest)],['기타 입금',won(s.otherIn)],['총 지출',won(s.out)],['월말 잔액',won(s.closing)],['총 미수금',won(arrearsTotal)],['확인 필요',s.review+'건']];
+  let y=245;x.font='bold 30px sans-serif';x.fillStyle='#241b19';x.fillText('월 회계 요약',70,y);y+=35;
+  for(const [a,b] of rows){x.fillStyle='#fff4f0';x.fillRect(65,y,1110,72);x.fillStyle='#5f514e';x.font='27px sans-serif';x.fillText(a,90,y+47);x.textAlign='right';x.font='bold 29px sans-serif';x.fillStyle='#241b19';x.fillText(b,1145,y+47);x.textAlign='left';y+=84}
+  y+=25;x.font='bold 30px sans-serif';x.fillText('회원 회비 납부현황',70,y);y+=50;
+  x.font='25px sans-serif';
+  for(const mem of state.members){const paid=paidFor(mem,m);x.fillText(mem.name,90,y);x.textAlign='right';x.fillText(`${won(paid)} / ${won(mem.fee)}`,1145,y);x.textAlign='left';y+=48}
+  y+=20;x.font='bold 27px sans-serif';x.fillText('총무 의견',70,y);y+=40;x.font='24px sans-serif';for(const line of textLines(x,snapshot?.memo||'특이사항 없음',1080)){x.fillText(line,80,y);y+=34}
+ }else{
+  const r=(state.meetingReports||[]).find(v=>v.id===selectedMeetingId);if(!r)return null;
+  const total=sumMeetingExpenses(r),att=(r.attendees||[]).length,before=balanceAt(String(r.start).slice(0,10));
+  x.font='bold 50px sans-serif';x.fillText(r.title,70,100);x.font='27px sans-serif';x.fillStyle='#786b68';x.fillText(`${state.groupName} 모임보고서`,70,145);
+  const infos=[['장소',r.place],['기간',`${r.start.replace('T',' ')} ~ ${r.end.replace('T',' ')}`],['참석자',(r.attendees||[]).join(', ')],['모임 내용',r.agenda||'']];
+  let y=225;
+  for(const [a,b] of infos){x.fillStyle='#241b19';x.font='bold 28px sans-serif';x.fillText(a,70,y);y+=38;x.font='24px sans-serif';x.fillStyle='#5f514e';for(const line of textLines(x,b,1080)){x.fillText(line,80,y);y+=34}y+=18}
+  x.fillStyle='#241b19';x.font='bold 30px sans-serif';x.fillText('지출내역',70,y);y+=45;
+  for(const e of r.expenses||[]){x.font='26px sans-serif';x.fillText(e.item,90,y);x.textAlign='right';x.font='bold 27px sans-serif';x.fillText(won(e.amount),1145,y);x.textAlign='left';y+=45}
+  y+=15;const rows=[['총 지출',won(total)],['모임 전 잔액',won(before)],['모임 후 예상잔액',won(before-total)],['참석인원',att+'명'],['1인당 지출',won(att?Math.round(total/att):0)]];
+  for(const [a,b] of rows){x.fillStyle='#fff4f0';x.fillRect(65,y,1110,65);x.fillStyle='#5f514e';x.font='25px sans-serif';x.fillText(a,90,y+43);x.textAlign='right';x.font='bold 27px sans-serif';x.fillStyle='#241b19';x.fillText(b,1145,y+43);x.textAlign='left';y+=76}
+  y+=20;x.font='bold 27px sans-serif';x.fillText('기타 메모 / 다음 일정',70,y);y+=40;x.font='24px sans-serif';for(const line of textLines(x,r.memo||'',1080)){x.fillText(line,80,y);y+=34}
+ }
+ x.fillStyle='#9b8884';x.font='22px sans-serif';x.fillText('고추참치회 장부 V5에서 생성',70,1680);return c
 }
+async function saveReportPng(type,share=false){
+ if(!requireAdmin())return;
+ const c=drawA4Canvas(type);if(!c)return;
+ const blob=await new Promise(r=>c.toBlob(r,'image/png'));
+ const name=type==='monthly'?`고추참치회_${$('#reportMonth').value}_월회계보고서.png`:`고추참치회_모임보고서.png`;
+ const file=new File([blob],name,{type:'image/png'});
+ if(share&&navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({title:name,files:[file]})}
+ else{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+}
+function printReport(type){
+ if(!requireAdmin())return;
+ const src=type==='monthly'?$('#monthlyA4'):$('#meetingA4');
+ if(!src||src.style.display==='none')return alert('먼저 보고서를 선택하세요.');
+ const w=window.open('','_blank');
+ w.document.write(`<html><head><meta charset="utf-8"><title>고추참치회 보고서</title><style>body{margin:0;font-family:Arial,"Noto Sans KR",sans-serif}.a4{width:190mm;min-height:277mm;padding:10mm}.a4Header{display:flex;justify-content:space-between;border-bottom:3px solid #e65f54}.a4Header img{width:65px}.a4Meta{display:grid;grid-template-columns:1fr 1fr;gap:6px}.a4Meta div,.a4Section div{padding:6px}.a4Table{width:100%;border-collapse:collapse}.a4Table th,.a4Table td{border:1px solid #bbb;padding:6px}.a4Summary{display:grid;grid-template-columns:1fr 1fr}.a4Summary div{display:flex;justify-content:space-between}.a4Section h3{background:#fff0ec;padding:6px}.a4Foot{display:flex;justify-content:space-between;margin-top:20px}.sign{border-top:1px solid #333;width:120px;text-align:center}@page{size:A4;margin:10mm}</style></head><body>${src.outerHTML}<script>window.onload=()=>window.print()<\/script></body></html>`);
+ w.document.close()
+}
+
+function expenseRowHtml(item='',amount=''){
+ return `<div class="expenseRow"><input class="field exItem" placeholder="지출 항목" value="${esc(item)}"><input class="field exAmount" type="number" placeholder="금액" value="${amount||''}"><button type="button" class="btn danger exDelete">×</button></div>`
+}
+function bindExpenseDeletes(){$$('#expenseRows .exDelete').forEach(b=>b.onclick=()=>b.parentElement.remove())}
+function addExpenseRow(item='',amount=''){$('#expenseRows').insertAdjacentHTML('beforeend',expenseRowHtml(item,amount));bindExpenseDeletes()}
+function openMeetingEditor(id=null){
+ if(!requireAdmin())return;editingMeetingId=id;
+ const r=(state.meetingReports||[]).find(x=>x.id===id);
+ $('#meetingModalTitle').textContent=r?'모임보고서 수정':'모임보고서 작성';
+ $('#mrTitle').value=r?.title||'';$('#mrPlace').value=r?.place||'';
+ $('#mrStart').value=r?.start||new Date().toISOString().slice(0,16);
+ $('#mrEnd').value=r?.end||new Date(Date.now()+3*3600000).toISOString().slice(0,16);
+ $('#mrAttendees').value=(r?.attendees||[]).join(', ');
+ $('#mrAgenda').value=r?.agenda||'';$('#mrMemo').value=r?.memo||'';
+ $('#expenseRows').innerHTML='';(r?.expenses?.length?r.expenses:[{item:'식사비',amount:''}]).forEach(x=>addExpenseRow(x.item,x.amount));
+ $('#deleteMeetingReport').style.display=r?'block':'none';$('#meetingModal').classList.add('show')
+}
+function saveMeeting(){
+ if(!requireAdmin())return;
+ const title=$('#mrTitle').value.trim(),place=$('#mrPlace').value.trim(),start=$('#mrStart').value,end=$('#mrEnd').value;
+ if(!title||!place||!start||!end)return alert('제목, 장소, 모임기간을 입력하세요.');
+ const expenses=$$('#expenseRows .expenseRow').map(row=>({item:row.querySelector('.exItem').value.trim(),amount:Number(row.querySelector('.exAmount').value)||0})).filter(x=>x.item);
+ const obj={id:editingMeetingId||'mr'+Date.now(),title,place,start,end,attendees:$('#mrAttendees').value.split(',').map(x=>x.trim()).filter(Boolean),agenda:$('#mrAgenda').value.trim(),expenses,memo:$('#mrMemo').value.trim(),createdDate:reportDateText()};
+ const i=state.meetingReports.findIndex(x=>x.id===editingMeetingId);if(i>=0)state.meetingReports[i]=obj;else state.meetingReports.push(obj);
+ selectedMeetingId=obj.id;save();closeModal('meetingModal');render();renderMeetingA4(obj.id)
+}
+function deleteMeeting(){
+ if(!editingMeetingId||!confirm('이 모임보고서를 삭제할까요?'))return;
+ state.meetingReports=state.meetingReports.filter(x=>x.id!==editingMeetingId);if(selectedMeetingId===editingMeetingId)selectedMeetingId=null;
+ save();closeModal('meetingModal');$('#meetingA4').style.display='none';$('#meetingActions').style.display='none';render()
+}
+
 function backup(){
  const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='고추참치회_장부백업.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)
 }
@@ -492,7 +697,10 @@ $$('#categoryTabs button').forEach(b=>b.onclick=()=>{$$('#categoryTabs button').
 $('#importBtn').onclick=()=>requireAdmin()&&$('#excelFile').click();$('#excelFile').onchange=e=>{if(e.target.files[0])importExcel(e.target.files[0]);e.target.value=''};
 $('#cancelImport').onclick=()=>{pendingImport=[];closeModal('importModal')};$('#confirmImport').onclick=confirmImport;
 $('#arrearsStartMenu').onclick=changeArrearsStart;$('#importHistoryMenu').onclick=()=>{renderImportHistory();$('#importHistoryModal').classList.add('show')};
-$('#shareReport').onclick=shareReport;$('#installBtn').onclick=installApp;$('#installMenu').onclick=installApp;$('#pinMenu').onclick=changePin;$('#backupMenu').onclick=backup;$('#restoreMenu').onclick=()=>$('#restoreFile').click();$('#restoreFile').onchange=e=>e.target.files[0]&&restore(e.target.files[0]);
+$$('#report .reportTab').forEach(b=>b.onclick=()=>{$$('#report .reportTab').forEach(x=>x.classList.remove('active'));$$('.reportPane').forEach(x=>x.classList.remove('active'));b.classList.add('active');$('#'+b.dataset.reportPane).classList.add('active')});
+$('#finalizeMonthly').onclick=finalizeMonthly;$('#monthlyPng').onclick=()=>saveReportPng('monthly');$('#monthlyShare').onclick=()=>saveReportPng('monthly',true);$('#monthlyPrint').onclick=()=>printReport('monthly');
+$('#newMeetingReport').onclick=()=>openMeetingEditor();$('#addExpense').onclick=()=>addExpenseRow();$('#saveMeetingReport').onclick=saveMeeting;$('#deleteMeetingReport').onclick=deleteMeeting;
+$('#meetingPng').onclick=()=>saveReportPng('meeting');$('#meetingShare').onclick=()=>saveReportPng('meeting',true);$('#meetingPrint').onclick=()=>printReport('meeting');$('#installBtn').onclick=installApp;$('#installMenu').onclick=installApp;$('#pinMenu').onclick=changePin;$('#backupMenu').onclick=backup;$('#restoreMenu').onclick=()=>$('#restoreFile').click();$('#restoreFile').onchange=e=>e.target.files[0]&&restore(e.target.files[0]);
 $('#resetMenu').onclick=()=>{if(confirm('현재 데이터를 모두 초기화할까요?')){state=clone(seed);save();render()}};
 document.querySelectorAll('.modal').forEach(m=>m.onclick=e=>{if(e.target===m)m.classList.remove('show')});
 if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js'));

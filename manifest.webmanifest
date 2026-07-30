@@ -1,72 +1,27 @@
 {
-  "id": "/",
-  "name": "고추참치회 장부 V4",
+  "id": "./",
+  "name": "고추참치회 장부 V5",
   "short_name": "고추참치회",
-  "description": "카카오뱅크 업로드 미리보기, 중복검사, 8월 이후 미수금 자동 계산",
+  "description": "총무 전용 A4 월 회계보고서와 모임보고서 작성·저장·공유",
   "lang": "ko-KR",
   "start_url": "./?source=pwa",
   "scope": "./",
   "display": "standalone",
-  "display_override": [
-    "window-controls-overlay",
-    "standalone",
-    "minimal-ui"
-  ],
-  "background_color": "#fff7f5",
-  "theme_color": "#e85b50",
+  "background_color": "#fffaf6",
+  "theme_color": "#e65f54",
   "orientation": "portrait-primary",
-  "categories": [
-    "finance",
-    "productivity"
-  ],
   "icons": [
     {
       "src": "icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     },
     {
       "src": "icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable"
-    },
-    {
-      "src": "icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "거래 추가",
-      "short_name": "거래 추가",
-      "url": "./?action=add",
-      "icons": [
-        {
-          "src": "icon-192.png",
-          "sizes": "192x192"
-        }
-      ]
-    },
-    {
-      "name": "월결산",
-      "short_name": "월결산",
-      "url": "./?screen=report",
-      "icons": [
-        {
-          "src": "icon-192.png",
-          "sizes": "192x192"
-        }
-      ]
+      "purpose": "any maskable"
     }
   ]
 }
