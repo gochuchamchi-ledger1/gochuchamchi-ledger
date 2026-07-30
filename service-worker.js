@@ -1,4 +1,4 @@
-const CACHE='gochuchamchi-v541-runtime-stable';
+const CACHE='gochuchamchi-v551-receipt-attendance-arrears';
 const CORE=[
  './','./index.html','./manifest.webmanifest',
  './icon-192.png','./icon-512.png','./mascot.png',

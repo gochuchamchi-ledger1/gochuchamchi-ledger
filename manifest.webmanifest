@@ -1,10 +1,10 @@
 {
   "id": "./",
-  "name": "고추참치회 장부 V5.4.1",
+  "name": "고추참치회 장부 V5.5.1",
   "short_name": "고추참치회",
-  "description": "V5.4 기능 유지 및 초기 실행 오류 안정화",
+  "description": "영수증 첨부, 회원 참석 체크, 미납 안내 이미지",
   "lang": "ko-KR",
-  "start_url": "./?v=541",
+  "start_url": "./?v=551",
   "scope": "./",
   "display": "standalone",
   "background_color": "#fff9f5",

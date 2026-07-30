@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="고추참치회">
-<title>고추참치회 장부 V5.4.1</title>
+<title>고추참치회 장부 V5.5.1</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
@@ -167,12 +167,26 @@ nav{position:fixed;z-index:40;bottom:0;left:0;right:0;background:rgba(255,255,25
 .autoClassBadge{font-size:10px;padding:3px 7px;border-radius:999px;background:#e8f7ed;color:#16703b;font-weight:850}
 .reviewTools{display:flex;gap:7px;flex-wrap:wrap;margin:8px 0}
 
+
+/* V5.5.1 */
+.receiptBox{border:1px solid #efd2c8;background:#fff8f4;border-radius:14px;padding:10px}
+.receiptPreview{margin-top:8px;display:flex;align-items:center;gap:10px}
+.receiptPreview img{width:96px;height:96px;object-fit:cover;border-radius:12px;border:1px solid #e4c6bd;background:#fff}
+.attendanceGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.attendanceItem{display:flex;align-items:center;gap:8px;padding:9px;border:1px solid #ead2ca;border-radius:12px;background:#fff}
+.attendanceItem input{width:20px;height:20px}
+.attendanceItem .memberAvatar{width:34px;height:34px;font-size:20px}
+.arrearsShareBtn{margin-top:7px}
+.receiptThumb{width:54px;height:54px;border-radius:9px;object-fit:cover;border:1px solid #e4c9c0}
+.reportReceipts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.reportReceipts img{width:100%;height:120px;object-fit:cover;border-radius:10px;border:1px solid #dfc7be}
+
 </style>
 </head>
 <body>
 <div class="app">
 <header><div class="head">
- <div class="brand"><img class="logo" src="mascot.png"><div><div class="title" id="groupTitle">고추참치회</div><div class="sub">카카오뱅크 · V5.4.1 초기실행 안정화</div></div></div>
+ <div class="brand"><img class="logo" src="mascot.png"><div><div class="title" id="groupTitle">고추참치회</div><div class="sub">카카오뱅크 · V5.5.1 영수증·참석체크·미납안내</div></div></div>
  <button class="mode" id="modeBtn">조회 모드</button>
 </div></header>
 <main>
@@ -250,7 +264,7 @@ nav{position:fixed;z-index:40;bottom:0;left:0;right:0;background:rgba(255,255,25
   <div class="card kpi"><div class="lbl">총 미수금</div><div class="val red" id="aTotal">0원</div></div>
   <div class="card kpi"><div class="lbl">미납 회원</div><div class="val blue" id="aMembers">0명</div></div>
  </div>
- <div class="card" id="arrearsList" style="margin-top:12px"></div>
+ <div class="notice">회원별 미납 안내 이미지를 저장하거나 카카오톡으로 공유할 수 있습니다.</div><div class="card" id="arrearsList" style="margin-top:12px"></div>
 </section>
 
 <section id="settings" class="screen">
@@ -294,6 +308,14 @@ nav{position:fixed;z-index:40;bottom:0;left:0;right:0;background:rgba(255,255,25
   <div class="filters"><div><div class="label">분류</div><select id="fCategory" class="field"></select></div><div><div class="label">회원</div><select id="fMember" class="field"></select></div></div>
   <div><div class="label">상태</div><select id="fStatus" class="field"><option>자동확정</option><option>확인완료</option><option>확인필요</option><option>금액확인</option></select></div>
   <div><div class="label">총무 메모</div><textarea id="fMemo" class="field" rows="2"></textarea></div>
+  
+  <div class="receiptBox">
+   <div class="section" style="margin:0"><h3>영수증 사진</h3><button type="button" class="btn soft" id="chooseReceipt">사진 선택</button></div>
+   <input id="receiptFile" type="file" accept="image/*" capture="environment" hidden>
+   <div class="small">지출 거래에 영수증 사진 1장을 첨부할 수 있습니다.</div>
+   <div id="receiptPreview" class="receiptPreview"></div>
+  </div>
+
   <div id="allocationPreview" class="allocationBox" style="display:none">
    <b>다개월 회비 자동 배분</b>
    <div class="small">입금액을 회원의 월 회비 기준으로 연속 월에 배분합니다.</div>
@@ -363,7 +385,11 @@ nav{position:fixed;z-index:40;bottom:0;left:0;right:0;background:rgba(255,255,25
    <div><div class="label">시작 일시</div><input id="mrStart" type="datetime-local" class="field"></div>
    <div><div class="label">종료 일시</div><input id="mrEnd" type="datetime-local" class="field"></div>
   </div>
-  <div><div class="label">참석자 (쉼표로 구분)</div><input id="mrAttendees" class="field" placeholder="정지협, 강상구, 이상진"></div>
+  <div>
+   <div class="label">회원 참석 체크</div>
+   <div id="attendanceGrid" class="attendanceGrid"></div>
+   <input id="mrAttendees" type="hidden">
+  </div>
   <div><div class="label">모임 내용 / 주요 안건</div><textarea id="mrAgenda" class="field" rows="3"></textarea></div>
   <div class="section" style="margin-top:6px"><h3>지출내역</h3><button type="button" class="btn soft" id="addExpense">항목 추가</button></div>
   <div id="expenseRows"></div>
@@ -408,7 +434,7 @@ const seed={
 };
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const clone=x=>JSON.parse(JSON.stringify(x)), won=n=>(Number(n)||0).toLocaleString('ko-KR')+'원', ym=d=>String(d).slice(0,7);
-let state=load(),admin=false,editingTx=null,editingMember=null,activeCategory='전체',deferredPrompt=null,pendingImport=[],editingMeetingId=null,selectedMeetingId=null,editingMeetingPhotos=[],editingRepresentative=0,currentAssetType='signature',editingMemberPhoto='',editingMemberAvatar='🐱';
+let state=load(),admin=false,editingTx=null,editingMember=null,activeCategory='전체',deferredPrompt=null,pendingImport=[],editingMeetingId=null,selectedMeetingId=null,editingMeetingPhotos=[],editingRepresentative=0,currentAssetType='signature',editingMemberPhoto='',editingMemberAvatar='🐱',editingReceipt='';
 function load(){
  try{
   const raw=localStorage.getItem(KEY);
@@ -422,6 +448,7 @@ function load(){
   if(!obj.closedMonths)obj.closedMonths={};
   if(!Array.isArray(obj.classificationRules))obj.classificationRules=[];
   obj.members=(obj.members||[]).map((m,i)=>({...m,avatar:m.avatar||['🐱','😺','😸','😻','😽','🐯'][i%6],photo:m.photo||''}));
+  obj.transactions=(obj.transactions||[]).map(t=>({...t,receipt:t.receipt||''}));
   if(!obj.arrearsStartMonth)obj.arrearsStartMonth='2026-08';
   return obj;
  }catch(e){
@@ -490,11 +517,9 @@ function renderFeeHistory(){
 }
 
 function renderArrears(){
- const m=$('#arrearsMonth').value||nowMonth();
- const rows=state.members.map(mem=>({mem,amount:arrears(mem,m)})).filter(x=>x.amount>0);
- $('#aTotal').textContent=won(rows.reduce((s,x)=>s+x.amount,0));
- $('#aMembers').textContent=rows.length+'명';
- $('#arrearsList').innerHTML=rows.length?rows.map(x=>`<div class="member"><div class="memberTop"><div class="memberIdentity">${memberAvatarHtml(x.mem,true)}<div><b>${esc(x.mem.name)}</b><div class="small">${x.mem.startMonth}부터 누적</div></div></div><div style="text-align:right"><b class="red">${won(x.amount)}</b><div class="small">누적 미수</div></div><div>⚠️</div></div></div>`).join(''):'<div class="empty">미수금이 없습니다. 🎉</div>';
+ const through=$('#arrearsMonth').value||nowMonth(),rows=state.members.map(mem=>({mem,amount:arrears(mem,through)})).filter(x=>x.amount>0).sort((a,b)=>b.amount-a.amount);
+ $('#arrearsList').innerHTML=rows.length?rows.map(x=>`<div class="member"><div class="memberTop"><div class="memberIdentity">${memberAvatarHtml(x.mem,true)}<div><b>${esc(x.mem.name)}</b><div class="small">${x.mem.startMonth}부터 누적</div></div></div><div style="text-align:right"><b class="red">${won(x.amount)}</b><div class="small">누적 미수</div><button class="btn soft arrearsShareBtn" data-arrears-share="${x.mem.id}">안내 이미지</button></div><div>⚠️</div></div></div>`).join(''):'<div class="empty">미수금이 없습니다. 🎉</div>';
+ $$('#arrearsList [data-arrears-share]').forEach(b=>b.onclick=()=>saveArrearsNotice(b.dataset.arrearsShare))
 }
 
 function render(){
@@ -655,14 +680,14 @@ function renderMeetingA4(id){
  const r=(state.meetingReports||[]).find(x=>x.id===id);if(!r)return;
  const total=sumMeetingExpenses(r),att=(r.attendees||[]).length,before=balanceAt(String(r.start).slice(0,10)),after=before-total;
  const expenseRows=(r.expenses||[]).map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.item)}</td><td>${won(x.amount)}</td></tr>`).join('')||'<tr><td>1</td><td>지출 없음</td><td>0원</td></tr>';
- const dots=(r.attendees||[]).map(n=>`<div class="memberDot"><div class="avatar">🐱</div><b>${esc(n)}</b><small>✓ 참석</small></div>`).join('');
+ const dots=(r.attendees||[]).map(n=>{const mem=state.members.find(m=>m.name===n);return `<div class="memberDot">${mem?memberAvatarHtml(mem,true):'<div class="avatar">🐱</div>'}<b>${esc(n)}</b><small>✓ 참석</small></div>`}).join('');
  $('#meetingA4').style.display='block';$('#meetingActions').style.display='grid';
  $('#meetingA4').innerHTML=`
  <div class="a4Header"><div><div class="reportBrand"><img src="mascot.png"><div><div class="reportBrandName">🌶️ ${state.groupName}</div><div class="reportSlogan">함께하는 즐거움, 소중한 인연</div></div></div><h1><em>${String(r.start).slice(0,7).replace('-','년 ')}월</em> 정기모임 보고서</h1><div class="small">작성일 ${esc(r.createdDate)}　|　총무 작성</div></div><div><span class="reportRibbon">정기모임 보고서</span><img class="headerMascot" src="mascot.png"></div></div>
  <div class="reportTwoCol"><div class="a4Section"><h3>모임 개요</h3><div class="meetingInfo"><div><b>모임명</b>${esc(r.title)}</div><div><b>장소</b>${esc(r.place)}</div><div><b>시작</b>${String(r.start).replace('T',' ')}</div><div><b>종료</b>${String(r.end).replace('T',' ')}</div><div><b>참석</b>${att}명</div><div><b>불참</b>${Math.max(0,state.members.length-att)}명</div></div></div><div class="a4Section"><h3>참석자 명단</h3><div class="memberDots" style="grid-template-columns:repeat(3,1fr)">${dots||'<div class="memoBox">미입력</div>'}</div></div></div>
  <div class="reportTwoCol"><div class="a4Section"><h3>지출 내역</h3><div class="reportBox"><table class="a4Table"><tr><th>No.</th><th>항목</th><th>금액</th></tr>${expenseRows}<tr><td colspan="2">총 지출</td><td>${won(total)}</td></tr></table></div></div><div class="a4Section"><h3>모임 결산</h3><div class="settleCards"><div>모임 전 잔액<b>${won(before)}</b></div><div>총 지출<b>${won(total)}</b></div><div class="green">모임 후 잔액<b>${won(after)}</b></div><div>1인당 지출<b>${won(att?Math.round(total/att):0)}</b></div></div></div></div>
  <div class="reportTwoCol"><div class="a4Section"><h3>모임 내용</h3><div class="memoBox">${esc(r.agenda||'친목 도모 및 회비 관리 현황을 공유했습니다.')}</div></div><div class="a4Section"><h3>기타 메모 및 다음 일정</h3><div class="memoBox">${esc(r.memo||'다음 모임 일정은 추후 공지합니다. 즐거운 시간 보내세요! 😊')}</div></div></div>
- <div class="a4Section"><h3>사진 첨부</h3><div class="reportPhotos">${photoHtml(r.photos,r.representativePhoto||0)}</div></div>
+ <div class="reportTwoCol"><div class="a4Section"><h3>모임 사진</h3><div class="reportPhotos">${photoHtml(r.photos,r.representativePhoto||0)}</div></div><div class="a4Section"><h3>관련 영수증</h3><div class="reportReceipts">${state.transactions.filter(t=>t.type==='출금'&&t.receipt&&String(t.datetime).slice(0,10)===String(r.start).slice(0,10)).slice(0,3).map(t=>`<img src="${t.receipt}" alt="영수증">`).join('')||'<div class="memoBox">첨부된 영수증 없음</div>'}</div></div></div>
  <div class="a4Foot"><span class="reportFooterBrand">🌶️ ${state.groupName}는 서로를 존중하고 함께 즐기는 모임입니다. ❤️</span><div class="sign">총무<br>확인</div></div>`;
 }
 function r(a,b){return `<div class="row"><span>${a}</span><b>${b}</b></div>`}
@@ -678,6 +703,17 @@ async function toggleAdmin(){
  const pin=prompt('총무 PIN을 입력하세요.');if(pin===state.adminPin){admin=true;render()}else if(pin!==null)alert('PIN이 맞지 않습니다.')
 }
 
+
+function renderReceiptPreview(){
+ const box=$('#receiptPreview');if(!box)return;
+ box.innerHTML=editingReceipt?`<img src="${editingReceipt}" alt="영수증"><div style="flex:1"><b>영수증 첨부됨</b><div class="small">거래 저장 시 함께 보관됩니다.</div><button type="button" class="btn line full" id="removeReceipt" style="margin-top:6px">영수증 제거</button></div>`:'<div class="small">첨부된 영수증이 없습니다.</div>';
+ const rm=$('#removeReceipt');if(rm)rm.onclick=()=>{editingReceipt='';renderReceiptPreview()}
+}
+async function loadReceipt(file){
+ try{editingReceipt=await compressImage(file,1000,1400,.8);renderReceiptPreview()}
+ catch(e){alert('영수증 사진을 불러오지 못했습니다.')}
+}
+
 function updateAllocationPreview(){
  const amount=Number($('#fAmount').value||0),member=$('#fMember').value,category=$('#fCategory').value,start=String($('#fDate').value||'').slice(0,7);
  const box=$('#allocationPreview');
@@ -689,13 +725,13 @@ function updateAllocationPreview(){
 
 function openTx(id=null){
  if(!requireAdmin())return;editingTx=id;const t=state.transactions.find(x=>x.id===id);if(t&&!ensureMonthEditable(ym(t.datetime)))return;
- $('#txModalTitle').textContent=t?'거래 수정':'거래 추가';$('#fDate').value=t?.datetime||new Date().toISOString().slice(0,16);$('#fType').value=t?.type||'입금';$('#fAmount').value=t?.amount||'';$('#fDesc').value=t?.description||'';fillSelects();$('#fCategory').value=t?.category||'미분류';$('#fMember').value=t?.member||'';$('#fStatus').value=t?.status||'확인필요';$('#fMemo').value=t?.memo||'';$('#deleteTx').style.display=t?'block':'none';updateAllocationPreview();$('#txModal').classList.add('show')
+ $('#txModalTitle').textContent=t?'거래 수정':'거래 추가';$('#fDate').value=t?.datetime||new Date().toISOString().slice(0,16);$('#fType').value=t?.type||'입금';$('#fAmount').value=t?.amount||'';$('#fDesc').value=t?.description||'';fillSelects();$('#fCategory').value=t?.category||'미분류';$('#fMember').value=t?.member||'';$('#fStatus').value=t?.status||'확인필요';$('#fMemo').value=t?.memo||'';editingReceipt=t?.receipt||'';renderReceiptPreview();$('#deleteTx').style.display=t?'block':'none';updateAllocationPreview();$('#txModal').classList.add('show')
 }
 function saveTx(){
  const amount=Number($('#fAmount').value),dt=$('#fDate').value;if(!dt||!amount)return alert('날짜와 금액을 입력하세요.');
  if(!ensureMonthEditable(ym(dt)))return;
  const category=$('#fCategory').value,member=$('#fMember').value;
- const obj={id:editingTx||'u'+Date.now(),datetime:dt,type:$('#fType').value,amount,description:$('#fDesc').value.trim(),category,member,status:$('#fStatus').value,memo:$('#fMemo').value};
+ const obj={id:editingTx||'u'+Date.now(),datetime:dt,type:$('#fType').value,amount,description:$('#fDesc').value.trim(),category,member,status:$('#fStatus').value,memo:$('#fMemo').value,receipt:editingReceipt||''};
  if(obj.type==='입금'&&category==='회비'&&member)obj.allocations=buildAllocations(member,amount,ym(dt));
  const old=state.transactions.find(x=>x.id===editingTx);
  if(old&&ym(old.datetime)!==ym(dt)&&!ensureMonthEditable(ym(old.datetime)))return;
@@ -938,6 +974,36 @@ async function drawApprovalAssets(ctx,x,y,approved=true){
  else{canvasText(ctx,'총무 서명',x+130,y+55,22,'800','#402d29')}
 }
 
+
+async function drawArrearsNotice(member,through){
+ const amount=arrears(member,through),c=document.createElement('canvas');c.width=1080;c.height=1350;const ctx=c.getContext('2d');
+ ctx.fillStyle='#fff8f2';ctx.fillRect(0,0,c.width,c.height);
+ ctx.fillStyle='#e74336';ctx.fillRect(0,0,c.width,210);
+ ctx.textAlign='center';ctx.fillStyle='#fff';ctx.font='900 64px sans-serif';ctx.fillText('🌶️ 고추참치회 회비 안내',540,105);
+ ctx.font='600 28px sans-serif';ctx.fillText(`${through.replace('-','년 ')}월 기준`,540,160);
+ if(member.photo){const img=await loadCanvasImage(member.photo);if(img){ctx.save();ctx.beginPath();ctx.arc(540,355,105,0,Math.PI*2);ctx.clip();ctx.drawImage(img,435,250,210,210);ctx.restore()}}
+ else{ctx.font='120px sans-serif';ctx.fillStyle='#fff0e8';ctx.beginPath();ctx.arc(540,355,110,0,Math.PI*2);ctx.fill();ctx.fillStyle='#4c302a';ctx.fillText(member.avatar||'🐱',540,395)}
+ ctx.fillStyle='#3f2c28';ctx.font='900 54px sans-serif';ctx.fillText(`${member.name} 회원님`,540,545);
+ ctx.font='600 34px sans-serif';ctx.fillText('미납 회비를 안내드립니다.',540,605);
+ ctx.fillStyle='#fff';roundRect(ctx,115,685,850,260,30,'#fff','#efc7bc');
+ ctx.fillStyle='#73534b';ctx.font='700 32px sans-serif';ctx.fillText('누적 미납 금액',540,765);
+ ctx.fillStyle='#d93127';ctx.font='900 78px sans-serif';ctx.fillText(won(amount),540,865);
+ ctx.fillStyle='#4f3a35';ctx.font='700 31px sans-serif';ctx.fillText(`입금은행: ${state.bank}`,540,1040);
+ ctx.font='500 25px sans-serif';ctx.fillStyle='#7a625b';ctx.fillText('입금 후 총무에게 알려주시면 확인하겠습니다.',540,1100);
+ ctx.font='700 26px sans-serif';ctx.fillStyle='#e74336';ctx.fillText('함께하는 즐거움, 소중한 인연 ❤️',540,1230);
+ return c
+}
+async function saveArrearsNotice(memberId){
+ if(!requireAdmin())return;
+ const member=state.members.find(m=>m.id===memberId),through=$('#arrearsMonth').value||nowMonth();if(!member)return;
+ try{
+  const canvas=await drawArrearsNotice(member,through),blob=await canvasToPngBlob(canvas,3);
+  const file=new File([blob],`고추참치회_${member.name}_${through}_미납안내.png`,{type:'image/png'});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({title:'고추참치회 회비 안내',files:[file]})}
+  else{const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=file.name;a.click();setTimeout(()=>URL.revokeObjectURL(u),3000)}
+ }catch(e){console.error(e);alert('미납 안내 이미지 저장에 실패했습니다.')}
+}
+
 async function drawMonthlyReportCanvas(){
  const c=document.createElement('canvas');c.width=1240;c.height=1754;const ctx=c.getContext('2d');
  ctx.fillStyle='#fffaf4';ctx.fillRect(0,0,c.width,c.height);ctx.fillStyle='#d9362b';ctx.fillRect(0,0,c.width,16);
@@ -1085,8 +1151,31 @@ function printReport(type){
 .autoClassBadge{font-size:10px;padding:3px 7px;border-radius:999px;background:#e8f7ed;color:#16703b;font-weight:850}
 .reviewTools{display:flex;gap:7px;flex-wrap:wrap;margin:8px 0}
 
+
+/* V5.5.1 */
+.receiptBox{border:1px solid #efd2c8;background:#fff8f4;border-radius:14px;padding:10px}
+.receiptPreview{margin-top:8px;display:flex;align-items:center;gap:10px}
+.receiptPreview img{width:96px;height:96px;object-fit:cover;border-radius:12px;border:1px solid #e4c6bd;background:#fff}
+.attendanceGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.attendanceItem{display:flex;align-items:center;gap:8px;padding:9px;border:1px solid #ead2ca;border-radius:12px;background:#fff}
+.attendanceItem input{width:20px;height:20px}
+.attendanceItem .memberAvatar{width:34px;height:34px;font-size:20px}
+.arrearsShareBtn{margin-top:7px}
+.receiptThumb{width:54px;height:54px;border-radius:9px;object-fit:cover;border:1px solid #e4c9c0}
+.reportReceipts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.reportReceipts img{width:100%;height:120px;object-fit:cover;border-radius:10px;border:1px solid #dfc7be}
+
 </style></head><body>${src.outerHTML}<script>window.onload=()=>window.print()<\/script></body></html>`);
  w.document.close()
+}
+
+
+function renderAttendanceGrid(selected=[]){
+ const chosen=new Set(selected||[]);
+ $('#attendanceGrid').innerHTML=state.members.map(m=>`<label class="attendanceItem">${memberAvatarHtml(m,true)}<input type="checkbox" data-attendee="${esc(m.name)}" ${chosen.has(m.name)?'checked':''}><span><b>${esc(m.name)}</b><div class="small">참석</div></span></label>`).join('');
+}
+function selectedAttendees(){
+ return $$('#attendanceGrid [data-attendee]:checked').map(x=>x.dataset.attendee)
 }
 
 function expenseRowHtml(item='',amount=''){
@@ -1101,7 +1190,7 @@ function openMeetingEditor(id=null){
  $('#mrTitle').value=r?.title||'';$('#mrPlace').value=r?.place||'';
  $('#mrStart').value=r?.start||new Date().toISOString().slice(0,16);
  $('#mrEnd').value=r?.end||new Date(Date.now()+3*3600000).toISOString().slice(0,16);
- $('#mrAttendees').value=(r?.attendees||[]).join(', ');
+ renderAttendanceGrid(r?.attendees||[]);$('#mrAttendees').value=(r?.attendees||[]).join(', ');
  $('#mrAgenda').value=r?.agenda||'';$('#mrMemo').value=r?.memo||'';editingMeetingPhotos=[...(r?.photos||[])];editingRepresentative=Number(r?.representativePhoto||0);renderPhotoPreview();
  $('#expenseRows').innerHTML='';(r?.expenses?.length?r.expenses:[{item:'식사비',amount:''}]).forEach(x=>addExpenseRow(x.item,x.amount));
  $('#deleteMeetingReport').style.display=r?'block':'none';$('#meetingModal').classList.add('show')
@@ -1111,7 +1200,7 @@ function saveMeeting(){
  const title=$('#mrTitle').value.trim(),place=$('#mrPlace').value.trim(),start=$('#mrStart').value,end=$('#mrEnd').value;
  if(!title||!place||!start||!end)return alert('제목, 장소, 모임기간을 입력하세요.');
  const expenses=$$('#expenseRows .expenseRow').map(row=>({item:row.querySelector('.exItem').value.trim(),amount:Number(row.querySelector('.exAmount').value)||0})).filter(x=>x.item);
- const newId=editingMeetingId||'mr'+Date.now();const old=state.meetingReports.find(x=>x.id===editingMeetingId);const obj={id:newId,title,place,start,end,attendees:$('#mrAttendees').value.split(',').map(x=>x.trim()).filter(Boolean),agenda:$('#mrAgenda').value.trim(),expenses,memo:$('#mrMemo').value.trim(),photos:[...editingMeetingPhotos],representativePhoto:editingRepresentative,createdDate:old?.createdDate||reportDateText(),approved:true,reportNo:old?.reportNo||reportNumber('meeting',start,newId)};
+ const newId=editingMeetingId||'mr'+Date.now();const old=state.meetingReports.find(x=>x.id===editingMeetingId);const obj={id:newId,title,place,start,end,attendees:selectedAttendees(),agenda:$('#mrAgenda').value.trim(),expenses,memo:$('#mrMemo').value.trim(),photos:[...editingMeetingPhotos],representativePhoto:editingRepresentative,createdDate:old?.createdDate||reportDateText(),approved:true,reportNo:old?.reportNo||reportNumber('meeting',start,newId)};
  const i=state.meetingReports.findIndex(x=>x.id===editingMeetingId);if(i>=0)state.meetingReports[i]=obj;else state.meetingReports.push(obj);
  selectedMeetingId=obj.id;save();closeModal('meetingModal');render();renderMeetingA4(obj.id)
 }
@@ -1155,12 +1244,14 @@ $$('.navbtn').forEach(b=>b.onclick=()=>go(b.dataset.screen));
 function on(id,event,handler){
  const el=$('#'+id);
  if(el)el.addEventListener(event,handler);
- else console.warn('[V5.4.1] 선택 요소 없음:',id);
+ else console.warn('[V5.5.1] 선택 요소 없음:',id);
 }
 on('modeBtn','click',toggleAdmin);
 on('fab','click',()=>openTx());
 on('saveTx','click',saveTx);
 on('deleteTx','click',deleteTx);
+on('chooseReceipt','click',()=>$('#receiptFile')?.click());
+on('receiptFile','change',e=>{if(e.target.files?.[0])loadReceipt(e.target.files[0]);e.target.value=''});
 ['fAmount','fDate','fCategory','fMember'].forEach(id=>on(id,'change',updateAllocationPreview));
 
 on('addMemberBtn','click',()=>openMember());
