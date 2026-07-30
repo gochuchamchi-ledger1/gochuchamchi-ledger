@@ -1,8 +1,8 @@
 {
   "id": "./",
-  "name": "고추참치회 장부 V5",
+  "name": "고추참치회 장부 V5.1",
   "short_name": "고추참치회",
-  "description": "총무 전용 A4 월 회계보고서와 모임보고서 작성·저장·공유",
+  "description": "고추참치 캐릭터 A4 보고서 디자인 리뉴얼",
   "lang": "ko-KR",
   "start_url": "./?source=pwa",
   "scope": "./",

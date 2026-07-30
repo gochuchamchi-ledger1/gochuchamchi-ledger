@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="고추참치회">
-<title>고추참치회 장부 V5</title>
+<title>고추참치회 장부 V5.1</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
@@ -76,12 +76,28 @@ nav{position:fixed;z-index:40;bottom:0;left:0;right:0;background:rgba(255,255,25
 }
 @media(max-width:520px){.a4{min-height:720px;padding:14px}.a4Header h1{font-size:18px}.reportActions{grid-template-columns:1fr 1fr}}
 
+
+/* V5.1 REPORT DESIGN */
+.a4{background:linear-gradient(180deg,#fffdfa,#fff9f3);border:1px solid #efb8aa;border-radius:18px;padding:18px;box-shadow:0 14px 40px rgba(139,42,28,.14);position:relative;font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif}
+.a4:before{content:"";position:absolute;inset:0;border:7px solid rgba(230,95,84,.045);border-radius:18px;pointer-events:none}
+.reportBrand{display:flex;align-items:center;gap:10px}.reportBrand img{width:68px;height:68px;border-radius:50%;border:3px solid #d9362b;object-fit:cover;background:#fff}.reportBrandName{font-size:20px;font-weight:950;color:#c6251d}.reportSlogan{font-size:10px;color:#79625c;margin-top:2px}
+.a4Header{border:0;padding:0 0 10px;margin-bottom:9px;align-items:flex-start}.a4Header h1{font-size:25px;letter-spacing:-1px;color:#361c18}.a4Header h1 em{font-style:normal;color:#d52e24}.headerMascot{width:105px!important;height:92px!important;border:0!important;border-radius:20px!important;object-fit:cover!important}.reportRibbon{display:inline-block;background:linear-gradient(135deg,#d72d22,#f0614d);color:#fff;padding:5px 14px;border-radius:4px 16px 4px 16px;font-size:12px;font-weight:900;box-shadow:0 4px 10px #e75b4a44}
+.a4Meta{grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:9px}.a4Meta div{background:#fff;border:1px solid #f0d3ca;border-radius:10px;padding:6px 7px;font-size:9px}.a4Meta b{display:block;color:#c72c23;font-size:9px;margin-bottom:2px}
+.a4Section{margin-top:9px;position:relative}.a4Section h3{display:inline-block;font-size:12px;color:#fff;background:linear-gradient(90deg,#ce3025,#ec5a45);border:0;border-radius:5px 13px 3px 5px;padding:5px 15px 5px 9px;margin:0 0 6px;box-shadow:0 3px 8px #db493333}.a4Section h3:before{content:"🌶️";font-size:10px;margin-right:4px}
+.summaryCards{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}.summaryCard{background:#fff;border:1px solid #ecd8d0;border-radius:11px;padding:8px 5px;text-align:center;min-height:66px}.summaryCard .ico{font-size:18px}.summaryCard span{display:block;font-size:9px;color:#6f5d58;margin:2px 0}.summaryCard b{font-size:13px;color:#173f75}.summaryCard.good{background:#f4fbf3}.summaryCard.good b{color:#16713d}.summaryCard.bad{background:#fff4f2}.summaryCard.bad b{color:#cf2822}
+.reportTwoCol{display:grid;grid-template-columns:1fr 1.06fr;gap:7px}.reportBox{background:#fff;border:1px solid #efd9d1;border-radius:11px;padding:7px}.a4Table{font-size:9px;border-radius:8px;overflow:hidden}.a4Table th,.a4Table td{padding:4px;border:1px solid #eadbd5}.a4Table th{background:#fff0e9;color:#60342c}.a4Table tr:last-child{font-weight:900;background:#fff6f1}.a4Table th:first-child,.a4Table td:first-child{position:static}
+.memberDots{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}.memberDot{text-align:center;background:#fff;border:1px solid #efd8cf;border-radius:12px;padding:6px 2px}.memberDot .avatar{width:34px;height:34px;border-radius:50%;margin:auto;background:#fff1e6;display:flex;align-items:center;justify-content:center;font-size:21px;border:1px solid #efc9ba}.memberDot b{display:block;font-size:8px;margin-top:3px}.memberDot small{font-size:8px;color:#178043}
+.memoBox{background:linear-gradient(135deg,#fff,#fff3e9);border:1px solid #efd6c9;border-radius:11px;min-height:50px;padding:8px;font-size:10px;line-height:1.55}.balanceStrip{display:grid;grid-template-columns:repeat(4,1fr);background:#fff;border:1px solid #e7d2ca;border-radius:10px;overflow:hidden}.balanceStrip div{text-align:center;padding:7px 3px;border-right:1px solid #eadbd5;font-size:8px}.balanceStrip div:last-child{border:0}.balanceStrip b{display:block;font-size:11px;margin-top:3px}.balanceStrip .last b{color:#168048}
+.a4Foot{border-top:1px dashed #e4bfb4;padding-top:8px;margin-top:10px;align-items:center}.reportFooterBrand{font-weight:850;color:#d03327}.sign{border:0;width:auto;background:#fff0e9;border-radius:50%;width:48px;height:48px;display:flex;align-items:center;justify-content:center;color:#c92720;font-weight:900;transform:rotate(-8deg);outline:2px solid #d84a3e;outline-offset:-5px;padding:0}
+.meetingInfo{display:grid;grid-template-columns:1fr 1fr;gap:5px}.meetingInfo div{background:#fff;border:1px solid #eed8d0;border-radius:9px;padding:7px;font-size:9px}.meetingInfo b{color:#c82c22;margin-right:4px}.settleCards{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}.settleCards div{text-align:center;background:#fff;border:1px solid #ead7cf;border-radius:11px;padding:8px 3px;font-size:8px}.settleCards b{display:block;font-size:12px;margin-top:4px}.settleCards .green b{color:#16723d}.photoPlaceholders{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.photoPlaceholder{height:72px;border-radius:10px;background:linear-gradient(135deg,#f1d3bd,#ffe7d8);display:flex;align-items:center;justify-content:center;font-size:25px;border:1px solid #e7c5b7}.reportActions .btn{box-shadow:0 4px 12px rgba(89,42,34,.08)}
+@media(max-width:520px){.a4{padding:10px;min-height:720px}.a4Header h1{font-size:18px}.headerMascot{width:74px!important;height:68px!important}.reportBrand img{width:46px;height:46px}.reportBrandName{font-size:15px}.summaryCard{padding:5px 2px;min-height:57px}.summaryCard b{font-size:10px}.a4Meta{grid-template-columns:1fr 1fr}.reportTwoCol{grid-template-columns:1fr}.photoPlaceholder{height:48px}}
+
 </style>
 </head>
 <body>
 <div class="app">
 <header><div class="head">
- <div class="brand"><img class="logo" src="mascot.png"><div><div class="title" id="groupTitle">고추참치회</div><div class="sub">카카오뱅크 · V5 총무보고서</div></div></div>
+ <div class="brand"><img class="logo" src="mascot.png"><div><div class="title" id="groupTitle">고추참치회</div><div class="sub">카카오뱅크 · V5.1 보고서 디자인</div></div></div>
  <button class="mode" id="modeBtn">조회 모드</button>
 </div></header>
 <main>
@@ -383,26 +399,18 @@ function renderReport(){
  if(selectedMeetingId)renderMeetingA4(selectedMeetingId);
 }
 function renderMonthlyA4(){
- const m=$('#reportMonth').value||nowMonth(),s=summary(m);
- const paid=state.members.filter(x=>paidFor(x,m)>=x.fee).length;
- const arrearsTotal=state.members.reduce((a,x)=>a+arrears(x,m),0);
- const memberRows=state.members.map(mem=>{
-  const paidAmt=paidFor(mem,m),lack=Math.max(0,mem.fee-paidAmt);
-  return `<tr><td>${esc(mem.name)}</td><td>${won(mem.fee)}</td><td>${won(paidAmt)}</td><td>${lack?won(lack):'완납'}</td></tr>`
- }).join('');
- const snapshot=state.monthlyReports[m];
+ const m=$('#reportMonth').value||nowMonth(),s=summary(m),snapshot=state.monthlyReports[m];
+ const arrearsTotal=state.members.reduce((a,x)=>a+arrears(x,m),0), paid=state.members.filter(x=>paidFor(x,m)>=x.fee).length;
+ const memberRows=state.members.map(mem=>{const p=paidFor(mem,m),lack=Math.max(0,mem.fee-p);return `<tr><td>${esc(mem.name)}</td><td>${won(mem.fee)}</td><td>${won(p)}</td><td>${lack?won(lack):'완납'}</td></tr>`}).join('');
+ const dots=state.members.map(mem=>`<div class="memberDot"><div class="avatar">🐱</div><b>${esc(mem.name)}</b><small>${paidFor(mem,m)>=mem.fee?'● 완납':'○ 미납'}</small></div>`).join('');
  $('#monthlyA4').innerHTML=`
-  <div class="a4Header"><div><h1>${state.groupName} 월 회계보고서</h1><div class="small">${m.replace('-','년 ')}월 · ${snapshot?'총무 확정본':'자동 집계 미확정'}</div></div><img src="mascot.png"></div>
-  <div class="a4Meta"><div><b>보고기간</b> ${m}-01 ~ ${m}-${new Date(Number(m.slice(0,4)),Number(m.slice(5,7)),0).getDate()}</div><div><b>작성일</b> ${snapshot?.createdDate||reportDateText()}</div><div><b>은행</b> ${state.bank}</div><div><b>작성권한</b> 총무</div></div>
-  <div class="a4Section"><h3>월 회계 요약</h3><div class="a4Summary">
-   <div><span>전월 이월잔액</span><b>${won(s.opening)}</b></div><div><span>회비 입금</span><b>${won(s.dues)}</b></div>
-   <div><span>통장 이자</span><b>${won(s.interest)}</b></div><div><span>기타 입금</span><b>${won(s.otherIn)}</b></div>
-   <div><span>총 지출</span><b>${won(s.out)}</b></div><div><span>월말 잔액</span><b>${won(s.closing)}</b></div>
-   <div><span>총 미수금</span><b>${won(arrearsTotal)}</b></div><div><span>확인 필요</span><b>${s.review}건</b></div>
-  </div></div>
-  <div class="a4Section"><h3>회원 회비 납부현황 (${paid}/${state.members.length}명 완납)</h3><table class="a4Table"><tr><th>회원</th><th>기준 회비</th><th>납부액</th><th>미납</th></tr>${memberRows}</table></div>
-  <div class="a4Section"><h3>총무 의견</h3><div style="border:1px solid #e5d8d4;min-height:55px;padding:8px;font-size:12px">${esc(snapshot?.memo||'특이사항 없음')}</div></div>
-  <div class="a4Foot"><span>본 보고서는 고추참치회 장부 V5에서 작성되었습니다.</span><div class="sign">총무 서명</div></div>`;
+ <div class="a4Header"><div><div class="reportBrand"><img src="mascot.png"><div><div class="reportBrandName">🌶️ ${state.groupName}</div><div class="reportSlogan">함께하는 즐거움, 소중한 인연</div></div></div><h1>${m.slice(0,4)}년 <em>${Number(m.slice(5,7))}월</em> 월 회계보고서</h1><div class="small">작성일 ${snapshot?.createdDate||reportDateText()}　|　총무 작성</div></div><div><span class="reportRibbon">월 회계보고서</span><img class="headerMascot" src="report-cat.png"></div></div>
+ <div class="a4Section"><h3>월별 요약</h3><div class="summaryCards"><div class="summaryCard"><div class="ico">🪙</div><span>전월 이월잔액</span><b>${won(s.opening)}</b></div><div class="summaryCard"><div class="ico">👥</div><span>회비 수입</span><b>${won(s.dues)}</b></div><div class="summaryCard"><div class="ico">🌱</div><span>이자·기타수입</span><b>${won(s.interest+s.otherIn)}</b></div><div class="summaryCard bad"><div class="ico">💸</div><span>총 지출</span><b>${won(s.out)}</b></div><div class="summaryCard good" style="grid-column:span 4"><div class="ico">👛</div><span>월말 잔액</span><b>${won(s.closing)}</b></div></div></div>
+ <div class="reportTwoCol"><div><div class="a4Section"><h3>수입 / 지출 내역</h3><div class="reportBox"><table class="a4Table"><tr><th>구분</th><th>항목</th><th>금액</th></tr><tr><td>수입</td><td>회비</td><td>${won(s.dues)}</td></tr><tr><td>수입</td><td>이자·기타</td><td>${won(s.interest+s.otherIn)}</td></tr><tr><td>지출</td><td>총 지출</td><td>${won(s.out)}</td></tr><tr><td colspan="2">당월 증감</td><td>${won(s.dues+s.interest+s.otherIn-s.out)}</td></tr></table></div></div></div><div><div class="a4Section"><h3>회원별 회비 납부 현황</h3><div class="reportBox"><table class="a4Table"><tr><th>회원</th><th>월회비</th><th>납부액</th><th>상태</th></tr>${memberRows}</table></div></div></div></div>
+ <div class="a4Section"><h3>회원 현황 · ${paid}/${state.members.length}명 완납</h3><div class="memberDots">${dots}</div></div>
+ <div class="a4Section"><h3>통장 잔액 현황</h3><div class="balanceStrip"><div>전월 잔액<b>${won(s.opening)}</b></div><div>금월 수입<b>${won(s.dues+s.interest+s.otherIn)}</b></div><div>금월 지출<b>${won(s.out)}</b></div><div class="last">금월 잔액<b>${won(s.closing)}</b></div></div></div>
+ <div class="reportTwoCol"><div class="a4Section"><h3>미수금 현황</h3><div class="summaryCards" style="grid-template-columns:1fr 1fr"><div class="summaryCard bad"><span>총 미수금</span><b>${won(arrearsTotal)}</b></div><div class="summaryCard good"><span>미납 회원</span><b>${state.members.length-paid}명</b></div></div></div><div class="a4Section"><h3>총무 의견</h3><div class="memoBox">${esc(snapshot?.memo||'회비 입금 및 장부 내역을 확인했습니다. 즐거운 모임을 준비하겠습니다. 😊')}</div></div></div>
+ <div class="a4Foot"><span class="reportFooterBrand">🌶️ ${state.groupName}는 서로를 존중하고 함께 즐기는 모임입니다.</span><div class="sign">총무<br>확인</div></div>`;
 }
 function finalizeMonthly(){
  if(!requireAdmin())return;
@@ -420,20 +428,17 @@ function renderMeetingList(){
 function sumMeetingExpenses(r){return (r.expenses||[]).reduce((s,x)=>s+Number(x.amount||0),0)}
 function renderMeetingA4(id){
  const r=(state.meetingReports||[]).find(x=>x.id===id);if(!r)return;
- const total=sumMeetingExpenses(r),att=(r.attendees||[]).length;
- const before=balanceAt(String(r.start).slice(0,10));
- const after=before-total;
- const expenseRows=(r.expenses||[]).map((x,i)=>`<tr><td>${i+1}. ${esc(x.item)}</td><td>${won(x.amount)}</td></tr>`).join('')||'<tr><td>지출 없음</td><td>0원</td></tr>';
+ const total=sumMeetingExpenses(r),att=(r.attendees||[]).length,before=balanceAt(String(r.start).slice(0,10)),after=before-total;
+ const expenseRows=(r.expenses||[]).map((x,i)=>`<tr><td>${i+1}</td><td>${esc(x.item)}</td><td>${won(x.amount)}</td></tr>`).join('')||'<tr><td>1</td><td>지출 없음</td><td>0원</td></tr>';
+ const dots=(r.attendees||[]).map(n=>`<div class="memberDot"><div class="avatar">🐱</div><b>${esc(n)}</b><small>✓ 참석</small></div>`).join('');
  $('#meetingA4').style.display='block';$('#meetingActions').style.display='grid';
  $('#meetingA4').innerHTML=`
-  <div class="a4Header"><div><h1>${esc(r.title)}</h1><div class="small">${state.groupName} 모임보고서</div></div><img src="mascot.png"></div>
-  <div class="a4Meta"><div><b>모임 장소</b> ${esc(r.place)}</div><div><b>작성일</b> ${esc(r.createdDate)}</div><div><b>모임 시작</b> ${String(r.start).replace('T',' ')}</div><div><b>모임 종료</b> ${String(r.end).replace('T',' ')}</div><div><b>참석인원</b> ${att}명</div><div><b>1인당 지출</b> ${won(att?Math.round(total/att):0)}</div></div>
-  <div class="a4Section"><h3>참석자</h3><div style="font-size:12px;padding:7px;border:1px solid #e5d8d4">${esc((r.attendees||[]).join(', ')||'미입력')}</div></div>
-  <div class="a4Section"><h3>모임 내용 / 주요 안건</h3><div style="font-size:12px;min-height:55px;padding:7px;border:1px solid #e5d8d4">${esc(r.agenda||'')}</div></div>
-  <div class="a4Section"><h3>지출내역</h3><table class="a4Table"><tr><th>지출 항목</th><th>금액</th></tr>${expenseRows}<tr><th>총 지출</th><th>${won(total)}</th></tr></table></div>
-  <div class="a4Section"><h3>잔액 현황</h3><div class="a4Summary"><div><span>모임 전 장부잔액</span><b>${won(before)}</b></div><div><span>모임 총 지출</span><b>${won(total)}</b></div><div><span>모임 후 예상잔액</span><b>${won(after)}</b></div><div><span>참석인원</span><b>${att}명</b></div></div></div>
-  <div class="a4Section"><h3>기타 메모 / 다음 일정</h3><div style="font-size:12px;min-height:50px;padding:7px;border:1px solid #e5d8d4">${esc(r.memo||'')}</div></div>
-  <div class="a4Foot"><span>고추참치회 장부 V5 모임보고서</span><div class="sign">총무 서명</div></div>`;
+ <div class="a4Header"><div><div class="reportBrand"><img src="mascot.png"><div><div class="reportBrandName">🌶️ ${state.groupName}</div><div class="reportSlogan">함께하는 즐거움, 소중한 인연</div></div></div><h1><em>${String(r.start).slice(0,7).replace('-','년 ')}월</em> 정기모임 보고서</h1><div class="small">작성일 ${esc(r.createdDate)}　|　총무 작성</div></div><div><span class="reportRibbon">정기모임 보고서</span><img class="headerMascot" src="mascot.png"></div></div>
+ <div class="reportTwoCol"><div class="a4Section"><h3>모임 개요</h3><div class="meetingInfo"><div><b>모임명</b>${esc(r.title)}</div><div><b>장소</b>${esc(r.place)}</div><div><b>시작</b>${String(r.start).replace('T',' ')}</div><div><b>종료</b>${String(r.end).replace('T',' ')}</div><div><b>참석</b>${att}명</div><div><b>불참</b>${Math.max(0,state.members.length-att)}명</div></div></div><div class="a4Section"><h3>참석자 명단</h3><div class="memberDots" style="grid-template-columns:repeat(3,1fr)">${dots||'<div class="memoBox">미입력</div>'}</div></div></div>
+ <div class="reportTwoCol"><div class="a4Section"><h3>지출 내역</h3><div class="reportBox"><table class="a4Table"><tr><th>No.</th><th>항목</th><th>금액</th></tr>${expenseRows}<tr><td colspan="2">총 지출</td><td>${won(total)}</td></tr></table></div></div><div class="a4Section"><h3>모임 결산</h3><div class="settleCards"><div>모임 전 잔액<b>${won(before)}</b></div><div>총 지출<b>${won(total)}</b></div><div class="green">모임 후 잔액<b>${won(after)}</b></div><div>1인당 지출<b>${won(att?Math.round(total/att):0)}</b></div></div></div></div>
+ <div class="reportTwoCol"><div class="a4Section"><h3>모임 내용</h3><div class="memoBox">${esc(r.agenda||'친목 도모 및 회비 관리 현황을 공유했습니다.')}</div></div><div class="a4Section"><h3>기타 메모 및 다음 일정</h3><div class="memoBox">${esc(r.memo||'다음 모임 일정은 추후 공지합니다. 즐거운 시간 보내세요! 😊')}</div></div></div>
+ <div class="a4Section"><h3>사진 첨부</h3><div class="photoPlaceholders"><div class="photoPlaceholder">📸</div><div class="photoPlaceholder">🍽️</div><div class="photoPlaceholder">🐱</div></div></div>
+ <div class="a4Foot"><span class="reportFooterBrand">🌶️ ${state.groupName}는 서로를 존중하고 함께 즐기는 모임입니다. ❤️</span><div class="sign">총무<br>확인</div></div>`;
 }
 function r(a,b){return `<div class="row"><span>${a}</span><b>${b}</b></div>`}
 function fillSelects(){
@@ -641,7 +646,23 @@ function printReport(type){
  const src=type==='monthly'?$('#monthlyA4'):$('#meetingA4');
  if(!src||src.style.display==='none')return alert('먼저 보고서를 선택하세요.');
  const w=window.open('','_blank');
- w.document.write(`<html><head><meta charset="utf-8"><title>고추참치회 보고서</title><style>body{margin:0;font-family:Arial,"Noto Sans KR",sans-serif}.a4{width:190mm;min-height:277mm;padding:10mm}.a4Header{display:flex;justify-content:space-between;border-bottom:3px solid #e65f54}.a4Header img{width:65px}.a4Meta{display:grid;grid-template-columns:1fr 1fr;gap:6px}.a4Meta div,.a4Section div{padding:6px}.a4Table{width:100%;border-collapse:collapse}.a4Table th,.a4Table td{border:1px solid #bbb;padding:6px}.a4Summary{display:grid;grid-template-columns:1fr 1fr}.a4Summary div{display:flex;justify-content:space-between}.a4Section h3{background:#fff0ec;padding:6px}.a4Foot{display:flex;justify-content:space-between;margin-top:20px}.sign{border-top:1px solid #333;width:120px;text-align:center}@page{size:A4;margin:10mm}</style></head><body>${src.outerHTML}<script>window.onload=()=>window.print()<\/script></body></html>`);
+ w.document.write(`<html><head><meta charset="utf-8"><title>고추참치회 보고서</title><style>body{margin:0;font-family:Arial,"Noto Sans KR",sans-serif}.a4{width:190mm;min-height:277mm;padding:10mm}.a4Header{display:flex;justify-content:space-between;border-bottom:3px solid #e65f54}.a4Header img{width:65px}.a4Meta{display:grid;grid-template-columns:1fr 1fr;gap:6px}.a4Meta div,.a4Section div{padding:6px}.a4Table{width:100%;border-collapse:collapse}.a4Table th,.a4Table td{border:1px solid #bbb;padding:6px}.a4Summary{display:grid;grid-template-columns:1fr 1fr}.a4Summary div{display:flex;justify-content:space-between}.a4Section h3{background:#fff0ec;padding:6px}.a4Foot{display:flex;justify-content:space-between;margin-top:20px}.sign{border-top:1px solid #333;width:120px;text-align:center}@page{size:A4;margin:10mm}
+/* V5.1 REPORT DESIGN */
+.a4{background:linear-gradient(180deg,#fffdfa,#fff9f3);border:1px solid #efb8aa;border-radius:18px;padding:18px;box-shadow:0 14px 40px rgba(139,42,28,.14);position:relative;font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif}
+.a4:before{content:"";position:absolute;inset:0;border:7px solid rgba(230,95,84,.045);border-radius:18px;pointer-events:none}
+.reportBrand{display:flex;align-items:center;gap:10px}.reportBrand img{width:68px;height:68px;border-radius:50%;border:3px solid #d9362b;object-fit:cover;background:#fff}.reportBrandName{font-size:20px;font-weight:950;color:#c6251d}.reportSlogan{font-size:10px;color:#79625c;margin-top:2px}
+.a4Header{border:0;padding:0 0 10px;margin-bottom:9px;align-items:flex-start}.a4Header h1{font-size:25px;letter-spacing:-1px;color:#361c18}.a4Header h1 em{font-style:normal;color:#d52e24}.headerMascot{width:105px!important;height:92px!important;border:0!important;border-radius:20px!important;object-fit:cover!important}.reportRibbon{display:inline-block;background:linear-gradient(135deg,#d72d22,#f0614d);color:#fff;padding:5px 14px;border-radius:4px 16px 4px 16px;font-size:12px;font-weight:900;box-shadow:0 4px 10px #e75b4a44}
+.a4Meta{grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:9px}.a4Meta div{background:#fff;border:1px solid #f0d3ca;border-radius:10px;padding:6px 7px;font-size:9px}.a4Meta b{display:block;color:#c72c23;font-size:9px;margin-bottom:2px}
+.a4Section{margin-top:9px;position:relative}.a4Section h3{display:inline-block;font-size:12px;color:#fff;background:linear-gradient(90deg,#ce3025,#ec5a45);border:0;border-radius:5px 13px 3px 5px;padding:5px 15px 5px 9px;margin:0 0 6px;box-shadow:0 3px 8px #db493333}.a4Section h3:before{content:"🌶️";font-size:10px;margin-right:4px}
+.summaryCards{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}.summaryCard{background:#fff;border:1px solid #ecd8d0;border-radius:11px;padding:8px 5px;text-align:center;min-height:66px}.summaryCard .ico{font-size:18px}.summaryCard span{display:block;font-size:9px;color:#6f5d58;margin:2px 0}.summaryCard b{font-size:13px;color:#173f75}.summaryCard.good{background:#f4fbf3}.summaryCard.good b{color:#16713d}.summaryCard.bad{background:#fff4f2}.summaryCard.bad b{color:#cf2822}
+.reportTwoCol{display:grid;grid-template-columns:1fr 1.06fr;gap:7px}.reportBox{background:#fff;border:1px solid #efd9d1;border-radius:11px;padding:7px}.a4Table{font-size:9px;border-radius:8px;overflow:hidden}.a4Table th,.a4Table td{padding:4px;border:1px solid #eadbd5}.a4Table th{background:#fff0e9;color:#60342c}.a4Table tr:last-child{font-weight:900;background:#fff6f1}.a4Table th:first-child,.a4Table td:first-child{position:static}
+.memberDots{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}.memberDot{text-align:center;background:#fff;border:1px solid #efd8cf;border-radius:12px;padding:6px 2px}.memberDot .avatar{width:34px;height:34px;border-radius:50%;margin:auto;background:#fff1e6;display:flex;align-items:center;justify-content:center;font-size:21px;border:1px solid #efc9ba}.memberDot b{display:block;font-size:8px;margin-top:3px}.memberDot small{font-size:8px;color:#178043}
+.memoBox{background:linear-gradient(135deg,#fff,#fff3e9);border:1px solid #efd6c9;border-radius:11px;min-height:50px;padding:8px;font-size:10px;line-height:1.55}.balanceStrip{display:grid;grid-template-columns:repeat(4,1fr);background:#fff;border:1px solid #e7d2ca;border-radius:10px;overflow:hidden}.balanceStrip div{text-align:center;padding:7px 3px;border-right:1px solid #eadbd5;font-size:8px}.balanceStrip div:last-child{border:0}.balanceStrip b{display:block;font-size:11px;margin-top:3px}.balanceStrip .last b{color:#168048}
+.a4Foot{border-top:1px dashed #e4bfb4;padding-top:8px;margin-top:10px;align-items:center}.reportFooterBrand{font-weight:850;color:#d03327}.sign{border:0;width:auto;background:#fff0e9;border-radius:50%;width:48px;height:48px;display:flex;align-items:center;justify-content:center;color:#c92720;font-weight:900;transform:rotate(-8deg);outline:2px solid #d84a3e;outline-offset:-5px;padding:0}
+.meetingInfo{display:grid;grid-template-columns:1fr 1fr;gap:5px}.meetingInfo div{background:#fff;border:1px solid #eed8d0;border-radius:9px;padding:7px;font-size:9px}.meetingInfo b{color:#c82c22;margin-right:4px}.settleCards{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}.settleCards div{text-align:center;background:#fff;border:1px solid #ead7cf;border-radius:11px;padding:8px 3px;font-size:8px}.settleCards b{display:block;font-size:12px;margin-top:4px}.settleCards .green b{color:#16723d}.photoPlaceholders{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}.photoPlaceholder{height:72px;border-radius:10px;background:linear-gradient(135deg,#f1d3bd,#ffe7d8);display:flex;align-items:center;justify-content:center;font-size:25px;border:1px solid #e7c5b7}.reportActions .btn{box-shadow:0 4px 12px rgba(89,42,34,.08)}
+@media(max-width:520px){.a4{padding:10px;min-height:720px}.a4Header h1{font-size:18px}.headerMascot{width:74px!important;height:68px!important}.reportBrand img{width:46px;height:46px}.reportBrandName{font-size:15px}.summaryCard{padding:5px 2px;min-height:57px}.summaryCard b{font-size:10px}.a4Meta{grid-template-columns:1fr 1fr}.reportTwoCol{grid-template-columns:1fr}.photoPlaceholder{height:48px}}
+
+</style></head><body>${src.outerHTML}<script>window.onload=()=>window.print()<\/script></body></html>`);
  w.document.close()
 }
 
