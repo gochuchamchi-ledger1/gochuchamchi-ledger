@@ -1,8 +1,8 @@
 {
   "id": "/",
-  "name": "고추참치회 장부",
+  "name": "고추참치회 장부 V3",
   "short_name": "고추참치회",
-  "description": "고추참치회 회비·거래·미수금·월결산 관리 앱",
+  "description": "고추참치회 회원·거래·미수금·월결산 관리 앱 V3",
   "lang": "ko-KR",
   "start_url": "./?source=pwa",
   "scope": "./",
