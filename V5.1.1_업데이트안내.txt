@@ -1,0 +1,15 @@
+고추참치회 V5.1.1 사진저장 수정본
+
+수정 내용
+- PNG 저장 결과가 보고서 화면과 동일한 디자인으로 생성됩니다.
+- 캐릭터, 고추참치 이미지, 색상 카드, 표, 리본 제목, 총무 의견, 서명 영역을 그대로 저장합니다.
+- 월 회계보고서와 모임보고서 모두 적용했습니다.
+- 저장 해상도: 1240 x 1754px (A4 비율)
+
+업로드
+1. ZIP 압축 해제
+2. GitHub 저장소 Add file > Upload files
+3. 압축 해제한 파일 전체 업로드
+4. Commit changes
+5. 아래 주소로 캐시 우회 확인
+https://gochuchamchi-ledger1.github.io/gochuchamchi-ledger/?v=511

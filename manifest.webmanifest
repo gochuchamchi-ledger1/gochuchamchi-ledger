@@ -1,8 +1,8 @@
 {
   "id": "./",
-  "name": "고추참치회 장부 V5.1",
+  "name": "고추참치회 장부 V5.1.1",
   "short_name": "고추참치회",
-  "description": "고추참치 캐릭터 A4 보고서 디자인 리뉴얼",
+  "description": "A4 보고서 화면과 동일한 디자인으로 PNG 저장",
   "lang": "ko-KR",
   "start_url": "./?source=pwa",
   "scope": "./",
