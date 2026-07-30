@@ -8,10 +8,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="고추참치회">
-<title>고추참치회 장부 V3.1</title>
+<title>고추참치회 장부 V3.2</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 :root{
  --bg:#fffaf6;--card:#fff;--text:#241b19;--muted:#786b68;--line:#f0deda;
@@ -47,7 +46,7 @@ nav{position:fixed;z-index:40;bottom:0;left:0;right:0;background:rgba(255,255,25
 <body>
 <div class="app">
 <header><div class="head">
- <div class="brand"><img class="logo" src="mascot.png"><div><div class="title" id="groupTitle">고추참치회</div><div class="sub">카카오뱅크 · V3.1 버튼수정판</div></div></div>
+ <div class="brand"><img class="logo" src="mascot.png"><div><div class="title" id="groupTitle">고추참치회</div><div class="sub">카카오뱅크 · V3.2 안정화판</div></div></div>
  <button class="mode" id="modeBtn">조회 모드</button>
 </div></header>
 <main>
@@ -150,7 +149,7 @@ nav{position:fixed;z-index:40;bottom:0;left:0;right:0;background:rgba(255,255,25
 </div></div>
 
 <script>
-const KEY='gochuchamchi-v3-1-data';
+const KEY='gochuchamchi-v3-2-data';
 const categories=['전체','회비','입출금통장 이자','식사비','모임비','기타수입','기타지출','미분류'];
 const seed={
  groupName:'고추참치회',bank:'카카오뱅크',startBalance:2091253,startMonth:'2026-01',adminPin:'1234',
@@ -177,9 +176,9 @@ const clone=x=>JSON.parse(JSON.stringify(x)), won=n=>(Number(n)||0).toLocaleStri
 function load(){
  try{
   const raw=localStorage.getItem(KEY);
-  if(!raw)return clone(seed);
+  if(!raw) return clone(seed);
   const obj=JSON.parse(raw);
-  if(!obj || !Array.isArray(obj.members) || !Array.isArray(obj.transactions))return clone(seed);
+  if(!obj || !Array.isArray(obj.members) || !Array.isArray(obj.transactions)) return clone(seed);
   return obj;
  }catch(e){
   return clone(seed);
@@ -293,7 +292,20 @@ function normDate(v){
  const s=String(v||'').trim().replace(/[./]/g,'-');const m=s.match(/(\d{4})-(\d{1,2})-(\d{1,2})(?:\s+(\d{1,2}):(\d{1,2}))?/);return m?`${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}T${(m[4]||'00').padStart(2,'0')}:${(m[5]||'00').padStart(2,'0')}`:new Date().toISOString().slice(0,16)
 }
 function findVal(row,keys){for(const k of Object.keys(row)){if(keys.some(x=>String(k).replace(/\s/g,'').includes(x)))return row[k]}return ''}
+
+function loadXlsxLibrary(){
+ return new Promise((resolve,reject)=>{
+  if(window.XLSX){resolve();return;}
+  const s=document.createElement('script');
+  s.src='https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+  s.onload=resolve;
+  s.onerror=()=>reject(new Error('엑셀 모듈을 불러오지 못했습니다.'));
+  document.head.appendChild(s);
+ });
+}
+
 async function importExcel(file){
+ try{await loadXlsxLibrary();}catch(e){alert('엑셀 업로드 기능을 불러오지 못했습니다. 인터넷 연결을 확인하세요.');return;}
  if(!window.XLSX)return alert('엑셀 처리 모듈을 불러오지 못했습니다. 인터넷 연결 후 다시 시도하세요.');
  try{
   const data=await file.arrayBuffer(),wb=XLSX.read(data,{type:'array',cellDates:true}),ws=wb.Sheets[wb.SheetNames[0]],rows=XLSX.utils.sheet_to_json(ws,{defval:''});
@@ -320,7 +332,7 @@ function makeReportCanvas(){
  x.fillStyle='#241b19';x.font='bold 58px sans-serif';x.fillText('고추참치회 월결산',70,105);x.font='30px sans-serif';x.fillStyle='#786b68';x.fillText(m.replace('-','년 ')+'월 · 카카오뱅크',70,160);
  const rows=[['전월 이월잔액',won(s.opening)],['회비 입금',won(s.dues)],['통장 이자',won(s.interest)],['기타 입금',won(s.otherIn)],['지출',won(s.out)],['월말 잔액',won(s.closing)],['회원 납부',paid+'/'+state.members.length+'명'],['누적 미수금',won(miss)],['확인 필요',s.review+'건']];
  let y=270;for(let i=0;i<rows.length;i++){x.fillStyle='#fff';x.beginPath();x.roundRect(55,y-65,970,92,18);x.fill();x.fillStyle='#5f514e';x.font='32px sans-serif';x.textAlign='left';x.fillText(rows[i][0],85,y);x.fillStyle=i===4||i===7?'#d42c2c':'#241b19';x.font='bold 35px sans-serif';x.textAlign='right';x.fillText(rows[i][1],990,y);y+=112}
- x.textAlign='left';x.fillStyle='#9b8884';x.font='25px sans-serif';x.fillText('고추참치회 장부 V3.1에서 생성',70,1430);return c
+ x.textAlign='left';x.fillStyle='#9b8884';x.font='25px sans-serif';x.fillText('고추참치회 장부 V3.2에서 생성',70,1430);return c
 }
 async function shareReport(){
  const c=makeReportCanvas(),blob=await new Promise(r=>c.toBlob(r,'image/png'));const m=$('#reportMonth').value||nowMonth(),file=new File([blob],`고추참치회_${m}_결산.png`,{type:'image/png'});
@@ -335,7 +347,7 @@ function changePin(){if(!requireAdmin())return;const old=prompt('현재 PIN을 �
 function installApp(){if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.then(()=>{deferredPrompt=null;$('#installBanner').classList.remove('show')})}else alert('Chrome 메뉴에서 “앱 설치”를 선택하세요. 기존 Chrome 배지 바로가기는 삭제한 뒤 다시 설치하세요.')}
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;$('#installBanner').classList.add('show')});
 window.addEventListener('appinstalled',()=>{$('#installBanner').classList.remove('show');alert('앱 설치가 완료되었습니다.')});
-function initApp(){
+function startApp(){
  try{
 $$('.navbtn').forEach(b=>b.onclick=()=>go(b.dataset.screen));
 $('#modeBtn').onclick=toggleAdmin;$('#fab').onclick=()=>openTx();$('#saveTx').onclick=saveTx;$('#deleteTx').onclick=deleteTx;
@@ -353,13 +365,9 @@ const params=new URLSearchParams(location.search);if(params.get('screen'))go(par
 render();
  }catch(err){
   console.error(err);
-  const box=document.createElement('div');
-  box.style.cssText='position:fixed;left:12px;right:12px;top:90px;z-index:9999;background:#fff3f0;border:2px solid #e65f54;border-radius:16px;padding:14px;color:#7b221c;font-weight:700';
-  box.innerHTML='앱 초기화 오류가 발생했습니다.<br><small>'+String(err.message||err)+'</small><br><button onclick="localStorage.clear();location.reload()" style="margin-top:10px;padding:9px 12px;border:0;border-radius:10px;background:#e65f54;color:white;font-weight:800">저장 데이터 초기화 후 다시 실행</button>';
-  document.body.appendChild(box);
+  alert('앱 실행 오류: '+(err.message||err));
  }
 }
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initApp);
-else initApp();
+document.addEventListener('DOMContentLoaded',startApp);
 </script>
 </body></html>
