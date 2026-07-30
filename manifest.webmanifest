@@ -1,10 +1,12 @@
 {
-  "name": "고추참치회 장부 V6.0",
+  "name": "고추참치회 장부 V6.0.1",
   "short_name": "고추참치회",
-  "start_url": "./?v=600",
+  "description": "고추참치회 실시간 공유 회비 장부",
+  "start_url": "./?v=601",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#fff8f2",
-  "theme_color": "#ea5b50",
+  "background_color": "#fffaf6",
+  "theme_color": "#e85b50",
   "icons": [
     {
       "src": "icon-192.png",

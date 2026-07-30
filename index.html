@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="고추참치회">
-<title>고추참치회 장부 V6.0</title>
+<title>고추참치회 장부 V6.0.1</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
@@ -275,6 +275,7 @@ nav{position:fixed;z-index:40;bottom:0;left:0;right:0;background:rgba(255,255,25
  <div class="hero"><img src="mascot.png"><div><h2>설정과 백업 🔧</h2><p>총무 PIN, 앱 설치, 데이터 백업과 복원을 관리합니다.</p></div></div>
  <div class="menuList" style="margin-top:12px">
   <button class="menuItem" id="installMenu"><div class="menuIcon">📲</div><div><b>앱 설치</b><span>고양이 아이콘·주소창 없는 앱 모드</span></div></button>
+  <button class="menuItem" id="shareInstallMenu"><div class="menuIcon">🔗</div><div><b>설치 링크 보내기</b><span>카카오톡·문자 등으로 회원에게 앱 주소 공유</span></div></button>
   <button class="menuItem" id="pinMenu"><div class="menuIcon">🔐</div><div><b>총무 PIN 변경</b><span>현재 PIN을 확인한 뒤 변경</span></div></button>
   <button class="menuItem" id="signatureMenu"><div class="menuIcon">✍️</div><div><b>총무 서명 등록</b><span>보고서 하단에 자동 표시</span></div></button>
   <button class="menuItem" id="stampMenu"><div class="menuIcon">🔴</div><div><b>승인 도장 등록</b><span>직접 등록하거나 기본 승인 도장 사용</span></div></button>
@@ -1288,6 +1289,27 @@ function backup(){
 }
 async function restore(file){try{const obj=JSON.parse(await file.text());if(!obj.members||!obj.transactions)throw Error();state=obj;save();render();alert('복원이 완료되었습니다.')}catch(e){alert('올바른 백업 파일이 아닙니다.')}}
 function changePin(){if(!requireAdmin())return;const old=prompt('현재 PIN을 입력하세요.');if(old!==state.adminPin)return alert('현재 PIN이 맞지 않습니다.');const p=prompt('새 PIN 4자리 이상');if(!p||p.length<4)return alert('4자리 이상 입력하세요.');state.adminPin=p;save();alert('PIN이 변경되었습니다.')}
+
+const INSTALL_URL='https://gochuchamchi-ledger1.github.io/gochuchamchi-ledger/?v=601';
+async function shareInstallLink(){
+ const title='고추참치회 장부 앱';
+ const text=`고추참치회 장부 앱 설치 링크입니다.\n링크를 연 뒤 설정 → 앱 설치를 눌러주세요.\n\n${INSTALL_URL}`;
+ try{
+  if(navigator.share){
+   await navigator.share({title,text,url:INSTALL_URL});
+   return;
+  }
+ }catch(e){
+  if(e?.name==='AbortError')return;
+ }
+ try{
+  await navigator.clipboard.writeText(text);
+  alert('설치 링크가 복사되었습니다.\n카카오톡이나 문자에 붙여넣어 보내세요.');
+ }catch(e){
+  prompt('아래 설치 링크를 길게 눌러 복사하세요.',INSTALL_URL);
+ }
+}
+
 function installApp(){if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.then(()=>{deferredPrompt=null;$('#installBanner').classList.remove('show')})}else alert('Chrome 메뉴에서 “앱 설치”를 선택하세요. 기존 Chrome 배지 바로가기는 삭제한 뒤 다시 설치하세요.')}
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;$('#installBanner').classList.add('show')});
 window.addEventListener('appinstalled',()=>{$('#installBanner').classList.remove('show');alert('앱 설치가 완료되었습니다.')});
@@ -1297,7 +1319,7 @@ $$('.navbtn').forEach(b=>b.onclick=()=>go(b.dataset.screen));
 function on(id,event,handler){
  const el=$('#'+id);
  if(el)el.addEventListener(event,handler);
- else console.warn('[V5.5.1] 선택 요소 없음:',id);
+ else console.warn('[V6.0.1] 선택 요소 없음:',id);
 }
 on('modeBtn','click',toggleAdmin);
 on('fab','click',()=>openTx());
@@ -1350,6 +1372,7 @@ on('meetingPrint','click',()=>printReport('meeting'));
 
 on('installBtn','click',installApp);
 on('installMenu','click',installApp);
+on('shareInstallMenu','click',shareInstallLink);
 on('pinMenu','click',changePin);
 on('signatureMenu','click',()=>openAssetManager('signature'));
 on('stampMenu','click',()=>openAssetManager('stamp'));

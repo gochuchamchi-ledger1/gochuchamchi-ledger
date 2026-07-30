@@ -1,0 +1,22 @@
+고추참치회 웹앱 V6.0.1
+
+추가 기능
+- 설정 → 설치 링크 보내기
+- 카카오톡, 문자, 이메일 등 휴대폰 공유창 지원
+- 공유창 미지원 시 링크 자동 복사
+- 받은 사람은 링크 접속 후 설정 → 앱 설치 선택
+
+공유 주소
+https://gochuchamchi-ledger1.github.io/gochuchamchi-ledger/?v=601
+
+GitHub 업로드
+1. ZIP 압축 해제
+2. 저장소 기존 파일 전체 덮어쓰기
+3. Commit changes
+4. 위 주소로 접속
+5. 설정 → 설치 링크 보내기 테스트
+
+참고
+- 링크를 받은 사람도 같은 Firebase 장부를 조회합니다.
+- 현재 Firestore 테스트 모드는 임시 설정입니다.
+- 다음 단계는 Firebase Authentication과 총무/회원 권한 분리입니다.
