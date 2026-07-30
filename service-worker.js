@@ -1,4 +1,4 @@
-const CACHE='gochuchamchi-v53-sign-photo-save';
+const CACHE='gochuchamchi-v54-auto-close-avatar';
 const CORE=[
  './','./index.html','./manifest.webmanifest',
  './icon-192.png','./icon-512.png','./mascot.png',
