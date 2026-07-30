@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="고추참치회">
-<title>고추참치회 장부 V5.4</title>
+<title>고추참치회 장부 V5.4.1</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
@@ -172,7 +172,7 @@ nav{position:fixed;z-index:40;bottom:0;left:0;right:0;background:rgba(255,255,25
 <body>
 <div class="app">
 <header><div class="head">
- <div class="brand"><img class="logo" src="mascot.png"><div><div class="title" id="groupTitle">고추참치회</div><div class="sub">카카오뱅크 · V5.4 자동회계·월마감·회원캐릭터</div></div></div>
+ <div class="brand"><img class="logo" src="mascot.png"><div><div class="title" id="groupTitle">고추참치회</div><div class="sub">카카오뱅크 · V5.4.1 초기실행 안정화</div></div></div>
  <button class="mode" id="modeBtn">조회 모드</button>
 </div></header>
 <main>
@@ -264,6 +264,7 @@ nav{position:fixed;z-index:40;bottom:0;left:0;right:0;background:rgba(255,255,25
   <input type="file" id="stampFile" accept="image/*" hidden>
 
   <button class="menuItem" id="arrearsStartMenu"><div class="menuIcon">📅</div><div><b>미수금 계산 시작월</b><span id="arrearsStartLabel">2026년 8월부터 자동 계산</span></div></button>
+  <button class="menuItem" id="autoRuleMenu"><div class="menuIcon">🤖</div><div><b>자동분류 규칙</b><span>총무가 분류한 거래를 다음 업로드부터 자동 인식</span></div></button>
   <button class="menuItem" id="importHistoryMenu"><div class="menuIcon">📥</div><div><b>최근 업로드 이력</b><span>카카오뱅크 파일 반영 결과 확인</span></div></button>
   <button class="menuItem" id="backupMenu"><div class="menuIcon">☁️</div><div><b>백업 저장</b><span>전체 장부를 JSON 파일로 저장</span></div></button>
   <button class="menuItem" id="restoreMenu"><div class="menuIcon">♻️</div><div><b>백업 복원</b><span>저장된 JSON 장부 불러오기</span></div></button>
@@ -1151,20 +1152,73 @@ window.addEventListener('appinstalled',()=>{$('#installBanner').classList.remove
 function startApp(){
  try{
 $$('.navbtn').forEach(b=>b.onclick=()=>go(b.dataset.screen));
-$('#modeBtn').onclick=toggleAdmin;$('#fab').onclick=()=>openTx();$('#saveTx').onclick=saveTx;$('#deleteTx').onclick=deleteTx;['fAmount','fDate','fCategory','fMember'].forEach(id=>$('#'+id).addEventListener('change',updateAllocationPreview));
-$('#addMemberBtn').onclick=()=>openMember();$('#saveMember').onclick=saveMember;$('#deleteMember').onclick=deleteMember;$('#chooseMemberPhoto').onclick=()=>$('#memberPhotoFile').click();$('#memberPhotoFile').onchange=e=>{if(e.target.files[0])loadMemberPhoto(e.target.files[0]);e.target.value=''};$('#removeMemberPhoto').onclick=()=>{editingMemberPhoto='';renderMemberAvatarPreview()};
-$('#homeMonth').value=nowMonth();$('#txMonth').value=nowMonth();$('#reportMonth').value=nowMonth();$('#arrearsMonth').value=nowMonth();
-$('#homeMonth').onchange=render;$('#txMonth').onchange=renderTransactions;$('#reportMonth').onchange=renderReport;$('#arrearsMonth').onchange=renderArrears;$('#txSearch').oninput=renderTransactions;
-$('#categoryTabs').innerHTML=categories.map((x,i)=>`<button class="${i===0?'active':''}" data-cat="${x}">${x}</button>`).join('');
+function on(id,event,handler){
+ const el=$('#'+id);
+ if(el)el.addEventListener(event,handler);
+ else console.warn('[V5.4.1] 선택 요소 없음:',id);
+}
+on('modeBtn','click',toggleAdmin);
+on('fab','click',()=>openTx());
+on('saveTx','click',saveTx);
+on('deleteTx','click',deleteTx);
+['fAmount','fDate','fCategory','fMember'].forEach(id=>on(id,'change',updateAllocationPreview));
+
+on('addMemberBtn','click',()=>openMember());
+on('saveMember','click',saveMember);
+on('deleteMember','click',deleteMember);
+on('chooseMemberPhoto','click',()=>$('#memberPhotoFile')?.click());
+on('memberPhotoFile','change',e=>{if(e.target.files?.[0])loadMemberPhoto(e.target.files[0]);e.target.value=''});
+on('removeMemberPhoto','click',()=>{editingMemberPhoto='';renderMemberAvatarPreview()});
+
+on('homeMonth','change',render);
+on('txMonth','change',renderTransactions);
+on('reportMonth','change',renderReport);
+on('arrearsMonth','change',renderArrears);
+
 $$('#categoryTabs button').forEach(b=>b.onclick=()=>{$$('#categoryTabs button').forEach(x=>x.classList.remove('active'));b.classList.add('active');activeCategory=b.dataset.cat;renderTransactions()});
-$('#importBtn').onclick=()=>requireAdmin()&&$('#excelFile').click();$('#excelFile').onchange=e=>{if(e.target.files[0])importExcel(e.target.files[0]);e.target.value=''};
-$('#cancelImport').onclick=()=>{pendingImport=[];closeModal('importModal')};$('#confirmImport').onclick=confirmImport;
-$('#arrearsStartMenu').onclick=changeArrearsStart;$('#autoRuleMenu').onclick=showAutoRules;$('#importHistoryMenu').onclick=()=>{renderImportHistory();$('#importHistoryModal').classList.add('show')};
-$$('#report .reportTab').forEach(b=>b.onclick=()=>{$$('#report .reportTab').forEach(x=>x.classList.remove('active'));$$('.reportPane').forEach(x=>x.classList.remove('active'));b.classList.add('active');$('#'+b.dataset.reportPane).classList.add('active')});
-$('#finalizeMonthly').onclick=finalizeMonthly;$('#closeMonthBtn').onclick=toggleMonthClose;$('#monthlyPng').onclick=()=>saveReportPng('monthly');$('#monthlyShare').onclick=()=>saveReportPng('monthly',true);$('#monthlyPrint').onclick=()=>printReport('monthly');
-$('#newMeetingReport').onclick=()=>openMeetingEditor();$('#addExpense').onclick=()=>addExpenseRow();$('#saveMeetingReport').onclick=saveMeeting;$('#deleteMeetingReport').onclick=deleteMeeting;$('#chooseMeetingPhotos').onclick=()=>$('#mrPhotos').click();$('#mrPhotos').onchange=e=>{loadMeetingPhotos(e.target.files);e.target.value=''};
-$('#meetingPng').onclick=()=>saveReportPng('meeting');$('#meetingShare').onclick=()=>saveReportPng('meeting',true);$('#meetingPrint').onclick=()=>printReport('meeting');$('#installBtn').onclick=installApp;$('#installMenu').onclick=installApp;$('#pinMenu').onclick=changePin;$('#signatureMenu').onclick=()=>openAssetManager('signature');$('#stampMenu').onclick=()=>openAssetManager('stamp');$('#assetChoose').onclick=()=>$(currentAssetType==='signature'?'#signatureFile':'#stampFile').click();$('#assetDelete').onclick=deleteAsset;$('#signatureFile').onchange=e=>{if(e.target.files[0])saveAssetFile(e.target.files[0],'signature');e.target.value=''};$('#stampFile').onchange=e=>{if(e.target.files[0])saveAssetFile(e.target.files[0],'stamp');e.target.value=''};$('#backupMenu').onclick=backup;$('#restoreMenu').onclick=()=>$('#restoreFile').click();$('#restoreFile').onchange=e=>e.target.files[0]&&restore(e.target.files[0]);
-$('#resetMenu').onclick=()=>{if(confirm('현재 데이터를 모두 초기화할까요?')){state=clone(seed);save();render()}};
+
+on('importBtn','click',()=>requireAdmin()&&$('#excelFile')?.click());
+on('excelFile','change',e=>{if(e.target.files?.[0])importExcel(e.target.files[0]);e.target.value=''});
+on('cancelImport','click',()=>{pendingImport=[];closeModal('importModal')});
+on('confirmImport','click',confirmImport);
+
+on('arrearsStartMenu','click',changeArrearsStart);
+on('autoRuleMenu','click',showAutoRules);
+on('importHistoryMenu','click',()=>{renderImportHistory();$('#importHistoryModal')?.classList.add('show')});
+
+$$('#report .reportTab').forEach(b=>b.onclick=()=>{$$('#report .reportTab').forEach(x=>x.classList.remove('active'));$$('.reportPane').forEach(x=>x.classList.remove('active'));b.classList.add('active');$('#'+b.dataset.reportPane)?.classList.add('active')});
+
+on('finalizeMonthly','click',finalizeMonthly);
+on('closeMonthBtn','click',toggleMonthClose);
+on('monthlyPng','click',()=>saveReportPng('monthly'));
+on('monthlyShare','click',()=>saveReportPng('monthly',true));
+on('monthlyPrint','click',()=>printReport('monthly'));
+
+on('newMeetingReport','click',()=>openMeetingEditor());
+on('addExpense','click',()=>addExpenseRow());
+on('saveMeetingReport','click',saveMeeting);
+on('deleteMeetingReport','click',deleteMeeting);
+on('chooseMeetingPhotos','click',()=>$('#mrPhotos')?.click());
+on('mrPhotos','change',e=>{loadMeetingPhotos(e.target.files);e.target.value=''});
+on('meetingPng','click',()=>saveReportPng('meeting'));
+on('meetingShare','click',()=>saveReportPng('meeting',true));
+on('meetingPrint','click',()=>printReport('meeting'));
+
+on('installBtn','click',installApp);
+on('installMenu','click',installApp);
+on('pinMenu','click',changePin);
+on('signatureMenu','click',()=>openAssetManager('signature'));
+on('stampMenu','click',()=>openAssetManager('stamp'));
+on('assetChoose','click',()=>$(currentAssetType==='signature'?'#signatureFile':'#stampFile')?.click());
+on('assetDelete','click',deleteAsset);
+on('signatureFile','change',e=>{if(e.target.files?.[0])saveAssetFile(e.target.files[0],'signature');e.target.value=''});
+on('stampFile','change',e=>{if(e.target.files?.[0])saveAssetFile(e.target.files[0],'stamp');e.target.value=''});
+
+on('backupMenu','click',backup);
+on('restoreMenu','click',()=>$('#restoreFile')?.click());
+on('restoreFile','change',e=>e.target.files?.[0]&&restore(e.target.files[0]));
+on('resetMenu','click',()=>{if(confirm('현재 데이터를 모두 초기화할까요?')){state=clone(seed);save();render()}});
+
 document.querySelectorAll('.modal').forEach(m=>m.onclick=e=>{if(e.target===m)m.classList.remove('show')});
 if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js'));
 const params=new URLSearchParams(location.search);if(params.get('screen'))go(params.get('screen'));if(params.get('action')==='add')setTimeout(()=>openTx(),500);
