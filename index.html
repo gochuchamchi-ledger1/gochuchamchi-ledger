@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="고추참치회">
-<title>고추참치회 장부 V5.5.1</title>
+<title>고추참치회 장부 V6.0</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
@@ -181,12 +181,16 @@ nav{position:fixed;z-index:40;bottom:0;left:0;right:0;background:rgba(255,255,25
 .reportReceipts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .reportReceipts img{width:100%;height:120px;object-fit:cover;border-radius:10px;border:1px solid #dfc7be}
 
+
+/* V6.0 Firebase */
+.cloudBadge{display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border-radius:999px;font-size:12px;font-weight:800;background:#eee;color:#555}.cloudBadge.online{background:#e7f7ec;color:#137333}.cloudBadge.syncing{background:#fff4d6;color:#8a5a00}.cloudBadge.error{background:#fde8e7;color:#b3261e}.cloudPanel{border:1px solid #ead2ca;background:#fff;border-radius:16px;padding:14px;margin:12px}.cloudPanel h3{margin:0 0 8px}.cloudActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.cloudNote{font-size:12px;color:#745b54;line-height:1.5}
+
 </style>
 </head>
 <body>
 <div class="app">
 <header><div class="head">
- <div class="brand"><img class="logo" src="mascot.png"><div><div class="title" id="groupTitle">고추참치회</div><div class="sub">카카오뱅크 · V5.5.1 영수증·참석체크·미납안내</div></div></div>
+ <div class="brand"><img class="logo" src="mascot.png"><div><div class="title" id="groupTitle">고추참치회</div><div class="sub">카카오뱅크 · V6.0 Firebase 실시간 공유</div></div></div>
  <button class="mode" id="modeBtn">조회 모드</button>
 </div></header>
 <main>
@@ -278,7 +282,8 @@ nav{position:fixed;z-index:40;bottom:0;left:0;right:0;background:rgba(255,255,25
   <input type="file" id="stampFile" accept="image/*" hidden>
 
   <button class="menuItem" id="arrearsStartMenu"><div class="menuIcon">📅</div><div><b>미수금 계산 시작월</b><span id="arrearsStartLabel">2026년 8월부터 자동 계산</span></div></button>
-  <button class="menuItem" id="autoRuleMenu"><div class="menuIcon">🤖</div><div><b>자동분류 규칙</b><span>총무가 분류한 거래를 다음 업로드부터 자동 인식</span></div></button>
+  <div class="cloudPanel"><div class="section" style="margin:0"><h3>☁️ Firebase 공유</h3><span id="cloudStatus" class="cloudBadge">연결 준비</span></div><div id="cloudDetail" class="cloudNote">인터넷 연결 후 Firebase 상태를 확인합니다.</div><div class="cloudActions"><button class="btn soft" id="uploadCloud">현재 데이터 올리기</button><button class="btn line" id="downloadCloud">클라우드 다시 받기</button></div><div class="cloudNote" style="margin-top:8px">회원·거래·결산·보고서는 모든 휴대폰에 실시간 공유됩니다. 영수증과 회원사진 등 이미지는 Firebase Storage 설정 전까지 현재 휴대폰에만 보관됩니다.</div></div>
+<button class="menuItem" id="autoRuleMenu"><div class="menuIcon">🤖</div><div><b>자동분류 규칙</b><span>총무가 분류한 거래를 다음 업로드부터 자동 인식</span></div></button>
   <button class="menuItem" id="importHistoryMenu"><div class="menuIcon">📥</div><div><b>최근 업로드 이력</b><span>카카오뱅크 파일 반영 결과 확인</span></div></button>
   <button class="menuItem" id="backupMenu"><div class="menuIcon">☁️</div><div><b>백업 저장</b><span>전체 장부를 JSON 파일로 저장</span></div></button>
   <button class="menuItem" id="restoreMenu"><div class="menuIcon">♻️</div><div><b>백업 복원</b><span>저장된 JSON 장부 불러오기</span></div></button>
@@ -418,8 +423,15 @@ nav{position:fixed;z-index:40;bottom:0;left:0;right:0;background:rgba(255,255,25
 </div></div>
 
 <div id="printArea" style="display:none"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script>
 const KEY='gochuchamchi-v5-data';
+const FIREBASE_CONFIG={apiKey:'AIzaSyA46ZSYVenzkY0dPod85SWIhcK1voDDD24',authDomain:'gochuchamchi-7.firebaseapp.com',projectId:'gochuchamchi-7',storageBucket:'gochuchamchi-7.firebasestorage.app',messagingSenderId:'633073478568',appId:'1:633073478568:web:127832c1732948263a0b9d'};
+const CLOUD_DOC_PATH='groups/gochuchamchi/app/state';
+let db=null,cloudRef=null,cloudReady=false,cloudApplying=false,cloudTimer=null,lastCloudWrite=0,unsubscribeCloud=null;
+
 const categories=['전체','회비','입출금통장 이자','식사비','모임비','기타수입','기타지출','미분류'];
 const seed={
  groupName:'고추참치회',bank:'카카오뱅크',startBalance:2091253,startMonth:'2026-01',arrearsStartMonth:'2026-08',adminPin:'1234',importHistory:[],monthlyReports:{},meetingReports:[],reportAssets:{signature:'',stamp:''},closedMonths:{},classificationRules:[],
@@ -455,7 +467,48 @@ function load(){
   return clone(seed);
  }
 }
-function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function mediaSafeState(obj){
+ const c=clone(obj);
+ c.reportAssets={signature:'',stamp:''};
+ c.members=(c.members||[]).map(m=>({...m,photo:''}));
+ c.transactions=(c.transactions||[]).map(t=>({...t,receipt:''}));
+ c.meetingReports=(c.meetingReports||[]).map(r=>({...r,photos:[]}));
+ return c
+}
+function setCloudStatus(mode,text,detail=''){
+ const el=$('#cloudStatus'),d=$('#cloudDetail');if(el){el.className='cloudBadge '+mode;el.textContent=text}if(d&&detail)d.textContent=detail
+}
+function save(){
+ localStorage.setItem(KEY,JSON.stringify(state));
+ if(!cloudReady||cloudApplying)return;
+ clearTimeout(cloudTimer);setCloudStatus('syncing','동기화 중');
+ cloudTimer=setTimeout(async()=>{try{lastCloudWrite=Date.now();await cloudRef.set({state:mediaSafeState(state),updatedAt:firebase.firestore.FieldValue.serverTimestamp(),version:'6.0'},{merge:true});setCloudStatus('online','공유됨','마지막 변경사항이 Firebase에 저장되었습니다.')}catch(e){console.error(e);setCloudStatus('error','저장 실패',e.message||'Firebase 쓰기 실패')}},550)
+}
+async function initFirebase(){
+ try{
+  if(!window.firebase)throw new Error('Firebase SDK를 불러오지 못했습니다. 인터넷 연결을 확인하세요.');
+  if(!firebase.apps.length)firebase.initializeApp(FIREBASE_CONFIG);
+  db=firebase.firestore();cloudRef=db.doc(CLOUD_DOC_PATH);cloudReady=true;setCloudStatus('syncing','연결 중');
+  unsubscribeCloud=cloudRef.onSnapshot(snap=>{
+   if(!snap.exists){setCloudStatus('online','연결됨','클라우드 데이터가 없습니다. 총무가 현재 데이터를 올려주세요.');return}
+   const remote=snap.data()?.state;if(!remote||!Array.isArray(remote.members)||!Array.isArray(remote.transactions))return;
+   if(Date.now()-lastCloudWrite<1200)return;
+   cloudApplying=true;
+   const localMedia={members:Object.fromEntries((state.members||[]).map(m=>[m.id,m.photo||''])),receipts:Object.fromEntries((state.transactions||[]).map(t=>[t.id,t.receipt||''])),assets:state.reportAssets||{},meetings:Object.fromEntries((state.meetingReports||[]).map(r=>[r.id,r.photos||[]]))};
+   state=remote;state.members=(state.members||[]).map(m=>({...m,photo:localMedia.members[m.id]||''}));state.transactions=(state.transactions||[]).map(t=>({...t,receipt:localMedia.receipts[t.id]||''}));state.reportAssets=localMedia.assets;state.meetingReports=(state.meetingReports||[]).map(r=>({...r,photos:localMedia.meetings[r.id]||[]}));
+   localStorage.setItem(KEY,JSON.stringify(state));render();cloudApplying=false;setCloudStatus('online','실시간 공유','클라우드 변경사항을 받았습니다.');
+  },e=>{console.error(e);setCloudStatus('error','연결 오류',e.message||'Firestore 연결 실패')});
+ }catch(e){console.error(e);setCloudStatus('error','오프라인',e.message||'Firebase 초기화 실패')}
+}
+async function uploadCurrentToCloud(){
+ if(!requireAdmin())return;if(!cloudReady){alert('Firebase가 아직 연결되지 않았습니다.');return}
+ if(!confirm('현재 휴대폰의 회원·거래·보고서 데이터를 Firebase 기준 데이터로 올릴까요?'))return;
+ try{setCloudStatus('syncing','업로드 중');lastCloudWrite=Date.now();await cloudRef.set({state:mediaSafeState(state),updatedAt:firebase.firestore.FieldValue.serverTimestamp(),version:'6.0'},{merge:true});setCloudStatus('online','업로드 완료','다른 휴대폰에서 같은 주소를 열면 데이터가 표시됩니다.');alert('클라우드 업로드가 완료되었습니다.')}catch(e){alert('업로드 실패: '+e.message);setCloudStatus('error','업로드 실패',e.message)}
+}
+async function downloadCloudNow(){
+ if(!cloudReady){alert('Firebase가 아직 연결되지 않았습니다.');return}
+ try{const snap=await cloudRef.get();if(!snap.exists){alert('클라우드에 저장된 데이터가 없습니다.');return}const remote=snap.data()?.state;if(!remote)return;cloudApplying=true;state={...state,...remote,reportAssets:state.reportAssets,members:(remote.members||[]).map(m=>({...m,photo:(state.members.find(x=>x.id===m.id)?.photo)||''})),transactions:(remote.transactions||[]).map(t=>({...t,receipt:(state.transactions.find(x=>x.id===t.id)?.receipt)||''}))};localStorage.setItem(KEY,JSON.stringify(state));render();cloudApplying=false;alert('클라우드 데이터를 다시 받았습니다.')}catch(e){alert('다운로드 실패: '+e.message)}
+}
 function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 function nowMonth(){return new Date().toISOString().slice(0,7)}
 function sorted(){return [...state.transactions].sort((a,b)=>a.datetime.localeCompare(b.datetime))}
@@ -1305,6 +1358,8 @@ on('assetDelete','click',deleteAsset);
 on('signatureFile','change',e=>{if(e.target.files?.[0])saveAssetFile(e.target.files[0],'signature');e.target.value=''});
 on('stampFile','change',e=>{if(e.target.files?.[0])saveAssetFile(e.target.files[0],'stamp');e.target.value=''});
 
+on('uploadCloud','click',uploadCurrentToCloud);
+on('downloadCloud','click',downloadCloudNow);
 on('backupMenu','click',backup);
 on('restoreMenu','click',()=>$('#restoreFile')?.click());
 on('restoreFile','change',e=>e.target.files?.[0]&&restore(e.target.files[0]));
@@ -1314,6 +1369,7 @@ document.querySelectorAll('.modal').forEach(m=>m.onclick=e=>{if(e.target===m)m.c
 if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js'));
 const params=new URLSearchParams(location.search);if(params.get('screen'))go(params.get('screen'));if(params.get('action')==='add')setTimeout(()=>openTx(),500);
 render();
+ initFirebase();
  }catch(err){
   console.error(err);
   alert('앱 실행 오류: '+(err.message||err));

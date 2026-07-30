@@ -1,0 +1,20 @@
+고추참치회 웹앱 V6.0 - Firebase 실시간 공유
+
+핵심 기능
+- 회원, 거래, 결산, 모임보고서 Firestore 실시간 공유
+- 기존 휴대폰 데이터 유지
+- 총무가 설정 > Firebase 공유 > 현재 데이터 올리기 1회 실행
+- 다른 휴대폰에서 같은 GitHub Pages 주소 접속 시 자동 수신
+- 오프라인 시 localStorage에 저장하고 연결 복구 후 동기화
+
+중요
+- 현재 Firestore 테스트 모드는 임시 공개 상태입니다. 30일 안에 Authentication과 보안 규칙을 설정해야 합니다.
+- V6.0에서는 영수증, 회원사진, 서명, 도장, 모임사진은 현재 기기에만 보관됩니다. Firebase Storage 설정 후 V6.1에서 이미지 공유를 연결합니다.
+
+업로드
+1. ZIP 압축 해제
+2. GitHub 저장소 파일 전체 덮어쓰기
+3. Commit changes
+4. https://gochuchamchi-ledger1.github.io/gochuchamchi-ledger/?v=600 접속
+5. 총무 모드 > 설정 > 현재 데이터 올리기
+6. 다른 휴대폰에서 같은 주소 접속

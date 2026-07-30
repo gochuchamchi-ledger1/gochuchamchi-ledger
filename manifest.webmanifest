@@ -1,27 +1,20 @@
 {
-  "id": "./",
-  "name": "고추참치회 장부 V5.5.1",
+  "name": "고추참치회 장부 V6.0",
   "short_name": "고추참치회",
-  "description": "영수증 첨부, 회원 참석 체크, 미납 안내 이미지",
-  "lang": "ko-KR",
-  "start_url": "./?v=551",
-  "scope": "./",
+  "start_url": "./?v=600",
   "display": "standalone",
-  "background_color": "#fff9f5",
-  "theme_color": "#e9554f",
-  "orientation": "portrait-primary",
+  "background_color": "#fff8f2",
+  "theme_color": "#ea5b50",
   "icons": [
     {
       "src": "icon-192.png",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     },
     {
       "src": "icon-512.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     }
   ]
 }
