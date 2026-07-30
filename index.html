@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="고추참치회">
-<title>고추참치회 장부 V3.4</title>
+<title>고추참치회 장부 V4</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
@@ -41,12 +41,23 @@ nav{position:fixed;z-index:40;bottom:0;left:0;right:0;background:rgba(255,255,25
 .menuList{display:grid;gap:10px}.menuItem{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:18px;padding:14px;text-align:left}.menuIcon{font-size:26px;width:38px;text-align:center}.menuItem b{display:block}.menuItem span{font-size:12px;color:var(--muted)}
 .installBanner{display:none;background:#fff0ea;border:1px solid #ffc8bc;border-radius:18px;padding:13px;margin-bottom:12px}.installBanner.show{display:flex;justify-content:space-between;align-items:center;gap:8px}
 @media(min-width:620px){.grid{grid-template-columns:repeat(4,1fr)}}
+
+.previewStats{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:10px 0}
+.previewStat{background:#fff7f4;border:1px solid var(--line);border-radius:14px;padding:10px;text-align:center}
+.previewStat b{display:block;font-size:18px;margin-top:4px}
+.previewTable{width:100%;min-width:760px;border-collapse:collapse;font-size:11px}
+.previewTable td,.previewTable th{padding:8px 6px}
+.badgeNew{color:#126739;background:#e8f7ee}.badgeDup{color:#74615d;background:#f4ece9}.badgeReview{color:#a6251d;background:#fff0ed}
+.previewCheck{width:19px;height:19px}
+.historyItem{padding:11px 0;border-bottom:1px solid var(--line)}.historyItem:last-child{border:0}
+@media(max-width:480px){.previewStats{grid-template-columns:1fr 1fr}}
+
 </style>
 </head>
 <body>
 <div class="app">
 <header><div class="head">
- <div class="brand"><img class="logo" src="mascot.png"><div><div class="title" id="groupTitle">고추참치회</div><div class="sub">카카오뱅크 · V3.4 1~7월 내역반영</div></div></div>
+ <div class="brand"><img class="logo" src="mascot.png"><div><div class="title" id="groupTitle">고추참치회</div><div class="sub">카카오뱅크 · V4 업로드검증·미수금자동</div></div></div>
  <button class="mode" id="modeBtn">조회 모드</button>
 </div></header>
 <main>
@@ -68,7 +79,7 @@ nav{position:fixed;z-index:40;bottom:0;left:0;right:0;background:rgba(255,255,25
 
 <section id="transactions" class="screen">
  <div class="hero"><img src="transaction-cat.png"><div><h2>거래 내역 🔎</h2><p>입금과 지출을 확인하고 총무 모드에서 추가·수정·삭제할 수 있어요.</p></div></div>
- <div class="section"><h3>거래 검색</h3><button class="btn soft" id="importBtn">엑셀 업로드</button></div>
+ <div class="section"><h3>거래 검색</h3><button class="btn soft" id="importBtn">카카오 업로드</button></div><div class="notice" style="margin-bottom:10px">업로드 전에 신규·중복·확인필요 건을 미리 보여줍니다. 선택한 신규 거래만 장부에 반영됩니다.</div>
  <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" hidden>
  <div class="filters"><input id="txMonth" type="month" class="field"><input id="txSearch" class="field" placeholder="이름·내용 검색"></div>
  <div class="tabs" id="categoryTabs"></div>
@@ -109,6 +120,9 @@ nav{position:fixed;z-index:40;bottom:0;left:0;right:0;background:rgba(255,255,25
  <div class="menuList" style="margin-top:12px">
   <button class="menuItem" id="installMenu"><div class="menuIcon">📲</div><div><b>앱 설치</b><span>고양이 아이콘·주소창 없는 앱 모드</span></div></button>
   <button class="menuItem" id="pinMenu"><div class="menuIcon">🔐</div><div><b>총무 PIN 변경</b><span>현재 PIN을 확인한 뒤 변경</span></div></button>
+
+  <button class="menuItem" id="arrearsStartMenu"><div class="menuIcon">📅</div><div><b>미수금 계산 시작월</b><span id="arrearsStartLabel">2026년 8월부터 자동 계산</span></div></button>
+  <button class="menuItem" id="importHistoryMenu"><div class="menuIcon">📥</div><div><b>최근 업로드 이력</b><span>카카오뱅크 파일 반영 결과 확인</span></div></button>
   <button class="menuItem" id="backupMenu"><div class="menuIcon">☁️</div><div><b>백업 저장</b><span>전체 장부를 JSON 파일로 저장</span></div></button>
   <button class="menuItem" id="restoreMenu"><div class="menuIcon">♻️</div><div><b>백업 복원</b><span>저장된 JSON 장부 불러오기</span></div></button>
   <input type="file" id="restoreFile" accept=".json" hidden>
@@ -153,11 +167,37 @@ nav{position:fixed;z-index:40;bottom:0;left:0;right:0;background:rgba(255,255,25
  <button class="btn danger full" id="deleteMember" style="margin-top:8px;display:none">회원 삭제</button>
 </div></div>
 
+
+<div class="modal" id="importModal"><div class="sheet">
+ <h3>카카오뱅크 업로드 미리보기</h3>
+ <div class="small" id="importFileName"></div>
+ <div class="previewStats">
+  <div class="previewStat">전체<b id="pTotal">0</b></div>
+  <div class="previewStat">신규<b class="green" id="pNew">0</b></div>
+  <div class="previewStat">중복<b id="pDup">0</b></div>
+  <div class="previewStat">확인 필요<b class="red" id="pReview">0</b></div>
+ </div>
+ <div class="notice" id="importNotice">중복 거래는 자동 제외됩니다. 체크된 신규 거래만 반영됩니다.</div>
+ <div style="overflow:auto;max-height:48vh;margin-top:10px">
+  <table class="previewTable" id="importPreviewTable"></table>
+ </div>
+ <div class="actions">
+  <button class="btn line" id="cancelImport">취소</button>
+  <button class="btn accent" id="confirmImport">선택 거래 반영</button>
+ </div>
+</div></div>
+
+<div class="modal" id="importHistoryModal"><div class="sheet">
+ <h3>최근 카카오뱅크 업로드 이력</h3>
+ <div class="card" id="importHistoryList"></div>
+ <button class="btn line full" style="margin-top:12px" onclick="closeModal('importHistoryModal')">닫기</button>
+</div></div>
+
 <script>
-const KEY='gochuchamchi-v3-4-data';
+const KEY='gochuchamchi-v4-data';
 const categories=['전체','회비','입출금통장 이자','식사비','모임비','기타수입','기타지출','미분류'];
 const seed={
- groupName:'고추참치회',bank:'카카오뱅크',startBalance:2091253,startMonth:'2026-01',arrearsStartMonth:'2026-08',adminPin:'1234',
+ groupName:'고추참치회',bank:'카카오뱅크',startBalance:2091253,startMonth:'2026-01',arrearsStartMonth:'2026-08',adminPin:'1234',importHistory:[],
  members:[
   {id:'m1',name:'정지협',fee:40000,startMonth:'2026-01'},
   {id:'m2',name:'강상구',fee:50000,startMonth:'2026-01'},
@@ -169,13 +209,15 @@ const seed={
 };
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const clone=x=>JSON.parse(JSON.stringify(x)), won=n=>(Number(n)||0).toLocaleString('ko-KR')+'원', ym=d=>String(d).slice(0,7);
-let state=load(),admin=false,editingTx=null,editingMember=null,activeCategory='전체',deferredPrompt=null;
+let state=load(),admin=false,editingTx=null,editingMember=null,activeCategory='전체',deferredPrompt=null,pendingImport=[];
 function load(){
  try{
   const raw=localStorage.getItem(KEY);
   if(!raw) return clone(seed);
   const obj=JSON.parse(raw);
   if(!obj || !Array.isArray(obj.members) || !Array.isArray(obj.transactions)) return clone(seed);
+  if(!Array.isArray(obj.importHistory))obj.importHistory=[];
+  if(!obj.arrearsStartMonth)obj.arrearsStartMonth='2026-08';
   return obj;
  }catch(e){
   return clone(seed);
@@ -233,7 +275,7 @@ function render(){
  const m=$('#homeMonth').value||nowMonth(),s=summary(m);
  $('#groupTitle').textContent=state.groupName;$('#modeBtn').textContent=admin?'총무 모드':'조회 모드';$('#modeBtn').style.background=admin?'#dcfce7':'#fff0ca';
  $('#kBalance').textContent=won(totalBalance());$('#kDues').textContent=won(s.dues);$('#kOut').textContent=won(s.out);$('#kReview').textContent=s.review+'건';
- renderPayments(m);renderRecent();renderTransactions();renderMembers();renderFeeHistory();renderReport();renderArrears();
+ renderPayments(m);renderRecent();renderTransactions();renderMembers();renderFeeHistory();renderReport();renderArrears();renderImportHistory();$('#arrearsStartLabel').textContent=(state.arrearsStartMonth||'2026-08').replace('-','년 ')+'월부터 자동 계산';
  $('#fab').style.display=admin?'block':'none';$('#addMemberBtn').style.display=admin?'block':'none';
  fillSelects();
 }
@@ -307,6 +349,7 @@ function normDate(v){
 }
 function findVal(row,keys){for(const k of Object.keys(row)){if(keys.some(x=>String(k).replace(/\s/g,'').includes(x)))return row[k]}return ''}
 
+
 function loadXlsxLibrary(){
  return new Promise((resolve,reject)=>{
   if(window.XLSX){resolve();return;}
@@ -317,28 +360,104 @@ function loadXlsxLibrary(){
   document.head.appendChild(s);
  });
 }
-
+function normalizedText(v){return String(v??'').replace(/\s+/g,' ').trim()}
+function normalizedAmount(v){
+ const n=Number(String(v??'').replace(/[,\s원+]/g,''));
+ return Number.isFinite(n)?n:0
+}
+function duplicateKey(t){
+ return [String(t.datetime||'').slice(0,16),t.type,Math.abs(Number(t.amount)||0),normalizedText(t.description)].join('|')
+}
+function pickHeaderRow(matrix){
+ return matrix.findIndex(row=>{
+  const joined=(row||[]).map(x=>String(x).replace(/\s/g,'')).join('|');
+  return /(거래일시|거래일자|거래일)/.test(joined)&&/(거래금액|입금액|출금액|금액)/.test(joined);
+ })
+}
+function rowsFromSheet(ws){
+ const matrix=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:true});
+ const idx=pickHeaderRow(matrix);
+ if(idx<0)return [];
+ const headers=matrix[idx].map(x=>String(x).trim());
+ return matrix.slice(idx+1).filter(r=>r.some(v=>v!==''&&v!=null)).map(r=>{
+  const obj={};headers.forEach((h,i)=>{if(h)obj[h]=r[i]??''});return obj
+ })
+}
+function parseBankRow(row){
+ const date=normDate(findVal(row,['거래일시','거래일자','거래일','일시','날짜']));
+ const desc=normalizedText(findVal(row,['내용','거래내용','적요','입금자','상대','받는분','보낸분']));
+ const inAmt=normalizedAmount(findVal(row,['입금액','입금금액']));
+ const outAmt=normalizedAmount(findVal(row,['출금액','출금금액']));
+ const rawAmt=normalizedAmount(findVal(row,['거래금액','금액']));
+ const rawType=normalizedText(findVal(row,['입출금','입출금구분','구분','거래구분']));
+ const type=inAmt>0?'입금':outAmt>0?'출금':/출금/.test(rawType)||rawAmt<0?'출금':'입금';
+ const amount=Math.abs(inAmt||outAmt||rawAmt);
+ if(!date||!amount)return null;
+ const c=classify(desc,type);
+ return {id:'x'+Date.now()+Math.random().toString(36).slice(2),datetime:date,type,amount,description:desc||'카카오뱅크 거래',category:c.category,member:c.member,status:c.status,memo:'카카오뱅크 엑셀 업로드'}
+}
+function renderImportPreview(fileName){
+ const newCount=pendingImport.filter(x=>!x.duplicate).length;
+ const dupCount=pendingImport.filter(x=>x.duplicate).length;
+ const reviewCount=pendingImport.filter(x=>!x.duplicate&&x.tx.status!=='자동확정').length;
+ $('#importFileName').textContent=fileName;
+ $('#pTotal').textContent=pendingImport.length+'건';
+ $('#pNew').textContent=newCount+'건';
+ $('#pDup').textContent=dupCount+'건';
+ $('#pReview').textContent=reviewCount+'건';
+ $('#confirmImport').textContent=`신규 ${newCount}건 반영`;
+ const rows=pendingImport.slice(0,100).map((x,i)=>{
+  const tag=x.duplicate?'<span class="chip badgeDup">중복</span>':x.tx.status==='자동확정'?'<span class="chip badgeNew">신규</span>':'<span class="chip badgeReview">확인필요</span>';
+  return `<tr>
+   <td><input class="previewCheck" type="checkbox" data-import-index="${i}" ${x.duplicate?'disabled':'checked'}></td>
+   <td>${tag}</td><td>${esc(x.tx.datetime.replace('T',' '))}</td><td>${esc(x.tx.type)}</td>
+   <td><b>${won(x.tx.amount)}</b></td><td>${esc(x.tx.description)}</td><td>${esc(x.tx.member||'-')}</td><td>${esc(x.tx.category)}</td>
+  </tr>`
+ }).join('');
+ $('#importPreviewTable').innerHTML='<tr><th>선택</th><th>판정</th><th>일시</th><th>구분</th><th>금액</th><th>내용</th><th>회원</th><th>분류</th></tr>'+rows;
+ $('#importModal').classList.add('show');
+}
 async function importExcel(file){
- try{await loadXlsxLibrary();}catch(e){alert('엑셀 업로드 기능을 불러오지 못했습니다. 인터넷 연결을 확인하세요.');return;}
- if(!window.XLSX)return alert('엑셀 처리 모듈을 불러오지 못했습니다. 인터넷 연결 후 다시 시도하세요.');
+ try{await loadXlsxLibrary()}catch(e){alert('엑셀 업로드 기능을 불러오지 못했습니다. 인터넷 연결을 확인하세요.');return}
  try{
-  const data=await file.arrayBuffer(),wb=XLSX.read(data,{type:'array',cellDates:true}),ws=wb.Sheets[wb.SheetNames[0]],rows=XLSX.utils.sheet_to_json(ws,{defval:''});
-  let added=0,dup=0;
-  for(const row of rows){
-   const date=normDate(findVal(row,['거래일시','거래일자','일시','날짜']));
-   const desc=String(findVal(row,['거래내용','내용','적요','입금자','상대']));
-   const inAmt=Number(String(findVal(row,['입금액','입금'])).replace(/,/g,''))||0;
-   const outAmt=Number(String(findVal(row,['출금액','출금'])).replace(/,/g,''))||0;
-   const rawAmt=Number(String(findVal(row,['거래금액','금액'])).replace(/,/g,''))||0;
-   const rawType=String(findVal(row,['입출금구분','구분','거래구분']));
-   const type=inAmt>0?'입금':outAmt>0?'출금':/출금/.test(rawType)?'출금':'입금';
-   const amount=inAmt||outAmt||Math.abs(rawAmt);if(!amount)continue;
-   const key=`${date}|${type}|${amount}|${desc}`;
-   if(state.transactions.some(t=>`${t.datetime}|${t.type}|${t.amount}|${t.description}`===key)){dup++;continue}
-   const c=classify(desc,type);state.transactions.push({id:'x'+Date.now()+Math.random(),datetime:date,type,amount,description:desc||'엑셀 거래',category:c.category,member:c.member,status:c.status,memo:'카카오뱅크 엑셀 업로드'});added++;
+  const data=await file.arrayBuffer(),wb=XLSX.read(data,{type:'array',cellDates:true});
+  let parsed=[];
+  for(const name of wb.SheetNames){
+   const rows=rowsFromSheet(wb.Sheets[name]);
+   if(rows.length){parsed=rows;break}
   }
-  save();render();alert(`업로드 완료\n추가 ${added}건\n중복 제외 ${dup}건`);
- }catch(e){console.error(e);alert('엑셀을 읽지 못했습니다. 비밀번호가 제거된 일반 xlsx/csv 파일인지 확인하세요.')}
+  if(!parsed.length)throw new Error('거래내역 표를 찾지 못했습니다.');
+  const existing=new Set(state.transactions.map(duplicateKey));
+  const seen=new Set();
+  pendingImport=parsed.map(parseBankRow).filter(Boolean).map(tx=>{
+   const key=duplicateKey(tx),duplicate=existing.has(key)||seen.has(key);
+   seen.add(key);return {tx,duplicate}
+  });
+  if(!pendingImport.length)throw new Error('반영할 거래가 없습니다.');
+  renderImportPreview(file.name)
+ }catch(e){console.error(e);alert('파일을 읽지 못했습니다.\n'+(e.message||'비밀번호가 제거된 일반 xlsx/csv 파일인지 확인하세요.'))}
+}
+function confirmImport(){
+ const selected=[...document.querySelectorAll('[data-import-index]:checked')].map(x=>pendingImport[Number(x.dataset.importIndex)]).filter(Boolean);
+ const add=selected.filter(x=>!x.duplicate).map(x=>x.tx);
+ const dup=pendingImport.filter(x=>x.duplicate).length;
+ if(!add.length)return alert('반영할 신규 거래가 없습니다.');
+ state.transactions.push(...add);
+ state.importHistory.unshift({date:new Date().toISOString(),added:add.length,duplicates:dup,review:add.filter(x=>x.status!=='자동확정').length});
+ state.importHistory=state.importHistory.slice(0,20);
+ save();closeModal('importModal');pendingImport=[];render();
+ alert(`업로드 완료\n신규 ${add.length}건 반영\n중복 ${dup}건 제외`);
+}
+function renderImportHistory(){
+ const list=state.importHistory||[];
+ $('#importHistoryList').innerHTML=list.length?list.map(h=>`<div class="historyItem"><b>${new Date(h.date).toLocaleString('ko-KR')}</b><div class="small">신규 ${h.added}건 · 중복 ${h.duplicates}건 · 확인필요 ${h.review}건</div></div>`).join(''):'<div class="empty">아직 업로드 이력이 없습니다.</div>';
+}
+function changeArrearsStart(){
+ if(!requireAdmin())return;
+ const v=prompt('미수금 계산 시작월을 YYYY-MM 형식으로 입력하세요.',state.arrearsStartMonth||'2026-08');
+ if(!v)return;
+ if(!/^\d{4}-\d{2}$/.test(v))return alert('예: 2026-08 형식으로 입력하세요.');
+ state.arrearsStartMonth=v;save();render();alert(`${v.replace('-','년 ')}월부터 미수금을 계산합니다.`);
 }
 function makeReportCanvas(){
  const m=$('#reportMonth').value||nowMonth(),s=summary(m),paid=state.members.filter(x=>paidFor(x,m)>=x.fee).length,miss=state.members.reduce((a,x)=>a+arrears(x,m),0);
@@ -346,7 +465,7 @@ function makeReportCanvas(){
  x.fillStyle='#241b19';x.font='bold 58px sans-serif';x.fillText('고추참치회 월결산',70,105);x.font='30px sans-serif';x.fillStyle='#786b68';x.fillText(m.replace('-','년 ')+'월 · 카카오뱅크',70,160);
  const rows=[['전월 이월잔액',won(s.opening)],['회비 입금',won(s.dues)],['통장 이자',won(s.interest)],['기타 입금',won(s.otherIn)],['지출',won(s.out)],['월말 잔액',won(s.closing)],['회원 납부',paid+'/'+state.members.length+'명'],['누적 미수금',won(miss)],['확인 필요',s.review+'건']];
  let y=270;for(let i=0;i<rows.length;i++){x.fillStyle='#fff';x.beginPath();x.roundRect(55,y-65,970,92,18);x.fill();x.fillStyle='#5f514e';x.font='32px sans-serif';x.textAlign='left';x.fillText(rows[i][0],85,y);x.fillStyle=i===4||i===7?'#d42c2c':'#241b19';x.font='bold 35px sans-serif';x.textAlign='right';x.fillText(rows[i][1],990,y);y+=112}
- x.textAlign='left';x.fillStyle='#9b8884';x.font='25px sans-serif';x.fillText('고추참치회 장부 V3.4에서 생성',70,1430);return c
+ x.textAlign='left';x.fillStyle='#9b8884';x.font='25px sans-serif';x.fillText('고추참치회 장부 V4에서 생성',70,1430);return c
 }
 async function shareReport(){
  const c=makeReportCanvas(),blob=await new Promise(r=>c.toBlob(r,'image/png'));const m=$('#reportMonth').value||nowMonth(),file=new File([blob],`고추참치회_${m}_결산.png`,{type:'image/png'});
@@ -371,6 +490,8 @@ $('#homeMonth').onchange=render;$('#txMonth').onchange=renderTransactions;$('#re
 $('#categoryTabs').innerHTML=categories.map((x,i)=>`<button class="${i===0?'active':''}" data-cat="${x}">${x}</button>`).join('');
 $$('#categoryTabs button').forEach(b=>b.onclick=()=>{$$('#categoryTabs button').forEach(x=>x.classList.remove('active'));b.classList.add('active');activeCategory=b.dataset.cat;renderTransactions()});
 $('#importBtn').onclick=()=>requireAdmin()&&$('#excelFile').click();$('#excelFile').onchange=e=>{if(e.target.files[0])importExcel(e.target.files[0]);e.target.value=''};
+$('#cancelImport').onclick=()=>{pendingImport=[];closeModal('importModal')};$('#confirmImport').onclick=confirmImport;
+$('#arrearsStartMenu').onclick=changeArrearsStart;$('#importHistoryMenu').onclick=()=>{renderImportHistory();$('#importHistoryModal').classList.add('show')};
 $('#shareReport').onclick=shareReport;$('#installBtn').onclick=installApp;$('#installMenu').onclick=installApp;$('#pinMenu').onclick=changePin;$('#backupMenu').onclick=backup;$('#restoreMenu').onclick=()=>$('#restoreFile').click();$('#restoreFile').onchange=e=>e.target.files[0]&&restore(e.target.files[0]);
 $('#resetMenu').onclick=()=>{if(confirm('현재 데이터를 모두 초기화할까요?')){state=clone(seed);save();render()}};
 document.querySelectorAll('.modal').forEach(m=>m.onclick=e=>{if(e.target===m)m.classList.remove('show')});

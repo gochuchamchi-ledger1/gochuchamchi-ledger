@@ -1,8 +1,8 @@
 {
   "id": "/",
-  "name": "고추참치회 장부 V3.4",
+  "name": "고추참치회 장부 V4",
   "short_name": "고추참치회",
-  "description": "카카오뱅크 2026년 1~7월 거래와 회비내역을 반영한 장부",
+  "description": "카카오뱅크 업로드 미리보기, 중복검사, 8월 이후 미수금 자동 계산",
   "lang": "ko-KR",
   "start_url": "./?source=pwa",
   "scope": "./",
