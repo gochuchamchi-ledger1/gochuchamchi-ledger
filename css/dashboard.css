@@ -1,0 +1,9 @@
+.previewStats{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:10px 0}
+.previewStat{background:#fff7f4;border:1px solid var(--line);border-radius:14px;padding:10px;text-align:center}
+.previewStat b{display:block;font-size:18px;margin-top:4px}
+.previewTable{width:100%;min-width:760px;border-collapse:collapse;font-size:11px}
+.previewTable td,.previewTable th{padding:8px 6px}
+.badgeNew{color:#126739;background:#e8f7ee}.badgeDup{color:#74615d;background:#f4ece9}.badgeReview{color:#a6251d;background:#fff0ed}
+.previewCheck{width:19px;height:19px}
+.historyItem{padding:11px 0;border-bottom:1px solid var(--line)}.historyItem:last-child{border:0}
+@media(max-width:480px){.previewStats{grid-template-columns:1fr 1fr}}

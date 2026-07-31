@@ -1,0 +1,42 @@
+/* V5.5.1 */
+.receiptBox{border:1px solid #efd2c8;background:#fff8f4;border-radius:14px;padding:10px}
+.receiptPreview{margin-top:8px;display:flex;align-items:center;gap:10px}
+.receiptPreview img{width:96px;height:96px;object-fit:cover;border-radius:12px;border:1px solid #e4c6bd;background:#fff}
+.attendanceGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.attendanceItem{display:flex;align-items:center;gap:8px;padding:9px;border:1px solid #ead2ca;border-radius:12px;background:#fff}
+.attendanceItem input{width:20px;height:20px}
+.attendanceItem .memberAvatar{width:34px;height:34px;font-size:20px}
+.arrearsShareBtn{margin-top:7px}
+.receiptThumb{width:54px;height:54px;border-radius:9px;object-fit:cover;border:1px solid #e4c9c0}
+.reportReceipts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.reportReceipts img{width:100%;height:120px;object-fit:cover;border-radius:10px;border:1px solid #dfc7be}
+
+
+/* V6.0 Firebase */
+.cloudBadge{display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border-radius:999px;font-size:12px;font-weight:800;background:#eee;color:#555}.cloudBadge.online{background:#e7f7ec;color:#137333}.cloudBadge.syncing{background:#fff4d6;color:#8a5a00}.cloudBadge.error{background:#fde8e7;color:#b3261e}.cloudPanel{border:1px solid #ead2ca;background:#fff;border-radius:16px;padding:14px;margin:12px}.cloudPanel h3{margin:0 0 8px}.cloudActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.cloudNote{font-size:12px;color:#745b54;line-height:1.5}
+
+
+.memberDot .memberAvatar{margin:0 auto}
+.memberDot .memberAvatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+
+
+/* V7.1 PDF 동일 보고서 및 대형 캐릭터 */
+.memberDot{padding:8px 3px;min-height:84px}
+.memberDot .avatar,.memberDot .memberAvatar{width:54px!important;height:54px!important;font-size:34px!important;border-width:2px!important;margin:0 auto!important}
+.memberDot .memberAvatar img,.memberDot .avatar img{width:100%!important;height:100%!important;object-fit:cover!important;border-radius:50%!important}
+.memberDot b{font-size:10px!important;margin-top:5px!important}
+.memberDot small{font-size:9px!important}
+#monthlyA4 .memberDots,#meetingA4 .memberDots{gap:7px}
+.reportPreviewHint{font-size:12px;color:#8a6b62;text-align:center;margin:6px 0 10px}
+@media(max-width:520px){
+ #monthlyPane,#meetingPane{overflow-x:hidden!important}
+ #monthlyA4,#meetingA4{width:200%!important;max-width:none!important;zoom:.5;padding:18px!important;border-radius:18px!important}
+ #monthlyA4 .reportTwoCol,#meetingA4 .reportTwoCol{grid-template-columns:1fr 1.06fr!important}
+ #monthlyA4 .summaryCards{grid-template-columns:repeat(4,1fr)!important}
+ #monthlyA4 .memberDots{grid-template-columns:repeat(6,1fr)!important}
+ #meetingA4 .memberDots{grid-template-columns:repeat(3,1fr)!important}
+ #monthlyA4 .a4Header h1,#meetingA4 .a4Header h1{font-size:25px!important}
+ #monthlyA4 .headerMascot,#meetingA4 .headerMascot{width:105px!important;height:92px!important}
+ #monthlyA4 .reportBrand img,#meetingA4 .reportBrand img{width:68px!important;height:68px!important}
+ #monthlyA4 .reportBrandName,#meetingA4 .reportBrandName{font-size:20px!important}
+}

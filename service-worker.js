@@ -1,5 +1,5 @@
-const CACHE='gochuchamchi-v710-pdf-report-large-avatar';
-const ASSETS=["./", "./index.html", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./mascot.png", "./home-cat.png", "./transaction-cat.png", "./member-cat.png", "./report-cat.png", "./arrears-cat.png", "./report-qr.png"];
+const CACHE='gochuchamchi-v800-refactor';
+const ASSETS=["./","./index.html","./manifest.webmanifest","./css/common.css","./css/dashboard.css","./css/report.css","./css/member.css","./css/mobile.css","./js/utils.js","./js/firebase.js","./js/storage.js","./js/member.js","./js/payment.js","./js/arrears.js","./js/report.js","./js/dashboard.js","./js/meeting.js","./js/app.js","./icon-192.png","./icon-512.png","./mascot.png","./home-cat.png","./transaction-cat.png","./member-cat.png","./report-cat.png","./arrears-cat.png","./report-qr.png"];
 self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(fetch(e.request).then(r=>{const cp=r.clone();caches.open(CACHE).then(c=>c.put(e.request,cp));return r}).catch(()=>caches.match(e.request).then(r=>r||caches.match('./index.html'))))});
