@@ -4,16 +4,25 @@ function transactionAllocations(t){
  return []
 }
 
-function buildAllocations(memberName,amount,startMonth){
+function buildAllocations(memberName,amount,startMonth,excludeId=null){
  const mem=state.members.find(x=>x.name===memberName);if(!mem||!amount)return [];
  const fee=Number(mem.fee||0);if(!fee)return [];
- const result=[];let remain=Number(amount),i=0;
- while(remain>0&&i<60){const part=Math.min(fee,remain);result.push({month:addMonths(startMonth,i),amount:part});remain-=part;i++}
+ const baseline=state.arrearsStartMonth||state.startMonth||startMonth;
+ const memberStart=mem.startMonth||state.startMonth||startMonth;
+ const calcStart=memberStart>baseline?memberStart:baseline;
+ const result=[];let remain=Number(amount);
+ const pastCount=startMonth>=calcStart?monthsBetween(calcStart,startMonth):0;
+ for(let i=0;i<pastCount&&remain>0;i++){
+  const month=addMonths(calcStart,i),already=paidFor(mem,month,excludeId),needed=Math.max(0,fee-already);
+  if(needed){const part=Math.min(needed,remain);result.push({month,amount:part});remain-=part}
+ }
+ let nextMonth=result.length?addMonths(result[result.length-1].month,1):pastCount?addMonths(startMonth,1):(startMonth<calcStart?calcStart:startMonth),i=0;
+ while(remain>0&&i<60){const part=Math.min(fee,remain);result.push({month:nextMonth,amount:part});remain-=part;nextMonth=addMonths(nextMonth,1);i++}
  return result
 }
 
 function renderPayments(m){
- $('#paymentStatus').innerHTML=state.members.map(mem=>{const p=paidFor(mem,m),pct=Math.min(100,Math.round(p/mem.fee*100));return `<div class="member"><div class="memberTop"><div class="memberIdentity">${memberAvatarHtml(mem,true)}<div><b>${esc(mem.name)}</b><div class="progress"><i style="width:${pct}%"></i></div></div></div><div style="text-align:right"><b>${won(p)}</b><div class="small">/ ${won(mem.fee)}</div></div><div>${p>=mem.fee?'✅':'미납'}</div></div></div>`}).join('')
+ $('#paymentStatus').innerHTML=state.members.map(mem=>{const p=paidFor(mem,m),pct=Math.min(100,Math.round(p/mem.fee*100)),status=p>=mem.fee?'완납':p>0?'부분납':'미납';return `<div class="member"><div class="memberTop"><div class="memberIdentity">${memberAvatarHtml(mem,true)}<div><b>${esc(mem.name)}</b><div class="progress"><i style="width:${pct}%"></i></div></div></div><div style="text-align:right"><b>${won(p)}</b><div class="small">/ ${won(mem.fee)}</div></div><span class="paymentState ${p>=mem.fee?'paid':p>0?'partial':'unpaid'}">${status}</span></div></div>`}).join('')
 }
 
 function txHtml(t){
@@ -45,7 +54,7 @@ function updateAllocationPreview(){
  const amount=Number($('#fAmount').value||0),member=$('#fMember').value,category=$('#fCategory').value,start=String($('#fDate').value||'').slice(0,7);
  const box=$('#allocationPreview');
  if(category!=='회비'||!member||!amount||!start){box.style.display='none';return}
- const allocations=buildAllocations(member,amount,start);
+ const allocations=buildAllocations(member,amount,start,editingTx);
  $('#allocationList').innerHTML=allocations.map(a=>`<span class="allocationChip">${a.month.replace('-','년 ')}월 ${won(a.amount)}</span>`).join('');
  box.style.display='block'
 }
@@ -61,7 +70,7 @@ function saveTx(){
  if(!ensureMonthEditable(ym(dt)))return;
  const category=$('#fCategory').value,member=$('#fMember').value;
  const obj={id:editingTx||'u'+Date.now(),datetime:dt,type:$('#fType').value,amount,description:$('#fDesc').value.trim(),category,member,status:$('#fStatus').value,memo:$('#fMemo').value,receipt:editingReceipt||''};
- if(obj.type==='입금'&&category==='회비'&&member)obj.allocations=buildAllocations(member,amount,ym(dt));
+ if(obj.type==='입금'&&category==='회비'&&member)obj.allocations=buildAllocations(member,amount,ym(dt),editingTx);
  const old=state.transactions.find(x=>x.id===editingTx);
  if(old&&ym(old.datetime)!==ym(dt)&&!ensureMonthEditable(ym(old.datetime)))return;
  const i=state.transactions.findIndex(x=>x.id===editingTx);if(i>=0)state.transactions[i]=obj;else state.transactions.push(obj);

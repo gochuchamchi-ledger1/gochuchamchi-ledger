@@ -15,7 +15,7 @@ function save(){
  localStorage.setItem(KEY,JSON.stringify(state));
  if(!cloudReady||cloudApplying)return;
  clearTimeout(cloudTimer);setCloudStatus('syncing','동기화 중');
- cloudTimer=setTimeout(async()=>{try{lastCloudWrite=Date.now();await cloudRef.set({state:mediaSafeState(state),updatedAt:firebase.firestore.FieldValue.serverTimestamp(),version:'8.0'},{merge:true});setCloudStatus('online','공유됨','마지막 변경사항이 Firebase에 저장되었습니다.')}catch(e){console.error(e);setCloudStatus('error','저장 실패',e.message||'Firebase 쓰기 실패')}},550)
+ cloudTimer=setTimeout(async()=>{try{lastCloudWrite=Date.now();await cloudRef.set({state:mediaSafeState(state),updatedAt:firebase.firestore.FieldValue.serverTimestamp(),version:'8.4'},{merge:true});setCloudStatus('online','공유됨','마지막 변경사항이 Firebase에 저장되었습니다.')}catch(e){console.error(e);setCloudStatus('error','저장 실패',e.message||'Firebase 쓰기 실패')}},800)
 }
 
 async function initFirebase(){
@@ -38,7 +38,7 @@ async function initFirebase(){
 async function uploadCurrentToCloud(){
  if(!requireAdmin())return;if(!cloudReady){alert('Firebase가 아직 연결되지 않았습니다.');return}
  if(!confirm('현재 휴대폰의 회원·거래·보고서 데이터를 Firebase 기준 데이터로 올릴까요?'))return;
- try{setCloudStatus('syncing','업로드 중');lastCloudWrite=Date.now();await cloudRef.set({state:mediaSafeState(state),updatedAt:firebase.firestore.FieldValue.serverTimestamp(),version:'8.0'},{merge:true});setCloudStatus('online','업로드 완료','다른 휴대폰에서 같은 주소를 열면 데이터가 표시됩니다.');alert('클라우드 업로드가 완료되었습니다.')}catch(e){alert('업로드 실패: '+e.message);setCloudStatus('error','업로드 실패',e.message)}
+ try{setCloudStatus('syncing','업로드 중');lastCloudWrite=Date.now();await cloudRef.set({state:mediaSafeState(state),updatedAt:firebase.firestore.FieldValue.serverTimestamp(),version:'8.4'},{merge:true});setCloudStatus('online','업로드 완료','다른 휴대폰에서 같은 주소를 열면 데이터가 표시됩니다.');alert('클라우드 업로드가 완료되었습니다.')}catch(e){alert('업로드 실패: '+e.message);setCloudStatus('error','업로드 실패',e.message)}
 }
 
 async function downloadCloudNow(){

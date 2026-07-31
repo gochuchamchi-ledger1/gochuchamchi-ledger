@@ -5,8 +5,9 @@ function memberAvatarHtml(m,small=false){
 
 
 function renderMembers(){
- const through=$('#homeMonth').value||nowMonth();
- $('#memberList').innerHTML=state.members.map(m=>`<div class="member" data-id="${m.id}"><div class="memberTop"><div class="memberIdentity">${memberAvatarHtml(m)}<div><b>${esc(m.name)}</b><div class="small">${m.startMonth}부터 관리</div></div></div><div style="text-align:right"><b>${won(m.fee)}</b><div class="small">월 회비</div></div><div style="text-align:right"><b class="${arrears(m,through)>0?'red':'green'}">${won(arrears(m,through))}</b><div class="small">누적 미수</div></div></div></div>`).join('');
+ const through=$('#homeMonth').value||nowMonth(),q=($('#memberSearch')?.value||'').trim().toLowerCase();
+ const members=state.members.filter(m=>m.name.toLowerCase().includes(q));
+ $('#memberList').innerHTML=members.length?members.map(m=>`<div class="member" data-id="${m.id}"><div class="memberTop"><div class="memberIdentity">${memberAvatarHtml(m)}<div><b>${esc(m.name)}</b><div class="small">${m.startMonth}부터 관리</div></div></div><div style="text-align:right"><b>${won(m.fee)}</b><div class="small">월 회비</div></div><div style="text-align:right"><b class="${arrears(m,through)>0?'red':'green'}">${won(arrears(m,through))}</b><div class="small">누적 미수</div></div></div></div>`).join(''):'<div class="empty">검색된 회원이 없습니다.</div>';
  $$('#memberList .member').forEach(el=>el.onclick=()=>admin?openMember(el.dataset.id):null)
 }
 

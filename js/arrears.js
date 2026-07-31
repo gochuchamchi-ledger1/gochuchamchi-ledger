@@ -1,5 +1,5 @@
-function paidFor(member,m){
- return state.transactions.reduce((s,t)=>s+transactionAllocations(t).filter(a=>a.month===m&&t.member===member.name).reduce((x,a)=>x+Number(a.amount||0),0),0)
+function paidFor(member,m,excludeId=null){
+ return state.transactions.reduce((s,t)=>s+(t.id!==excludeId&&t.member===member.name?transactionAllocations(t).filter(a=>a.month===m).reduce((x,a)=>x+Number(a.amount||0),0):0),0)
 }
 
 function isMonthClosed(m){return !!state.closedMonths?.[m]}
@@ -10,20 +10,27 @@ function ensureMonthEditable(m){
  return false
 }
 
-function arrears(member,through){
+function arrearsBreakdown(member,through){
  const baseline=state.arrearsStartMonth||'2026-08';
- if(through<baseline)return 0;
+ if(through<baseline)return [];
  const memberStart=member.startMonth||state.startMonth;
  const calcStart=memberStart>baseline?memberStart:baseline;
- const due=monthsBetween(calcStart,through)*Number(member.fee);
- const paid=state.transactions.reduce((s,t)=>s+(t.member===member.name?transactionAllocations(t).filter(a=>a.month<=through&&a.month>=calcStart).reduce((x,a)=>x+Number(a.amount||0),0):0),0);
- return Math.max(0,due-paid)
+ const count=monthsBetween(calcStart,through);
+ return Array.from({length:count},(_,i)=>{
+  const month=addMonths(calcStart,i),due=Number(member.fee||0),paid=paidFor(member,month);
+  return {month,due,paid,shortfall:Math.max(0,due-paid)}
+ })
+}
+
+function arrears(member,through){
+ return arrearsBreakdown(member,through).reduce((total,row)=>total+row.shortfall,0)
 }
 
 
 
 function renderFeeHistory(){
- const months=['2026-01','2026-02','2026-03','2026-04','2026-05','2026-06','2026-07'];
+ const end=$('#homeMonth').value||nowMonth(),months=Array.from({length:12},(_,i)=>addMonths(end,i-11));
+ $('#feeHistoryTitle').textContent=`${months[0].replace('-','년 ')}월 ~ ${end.replace('-','년 ')}월 회비`;
  const head='<tr><th>회원</th>'+months.map(m=>`<th>${Number(m.slice(5))}월</th>`).join('')+'<th>합계</th></tr>';
  const body=state.members.map(mem=>{
   const vals=months.map(m=>paidFor(mem,m));
@@ -36,8 +43,15 @@ function renderFeeHistory(){
 
 
 function renderArrears(){
- const through=$('#arrearsMonth').value||nowMonth(),rows=state.members.map(mem=>({mem,amount:arrears(mem,through)})).filter(x=>x.amount>0).sort((a,b)=>b.amount-a.amount);
- $('#arrearsList').innerHTML=rows.length?rows.map(x=>`<div class="member"><div class="memberTop"><div class="memberIdentity">${memberAvatarHtml(x.mem,true)}<div><b>${esc(x.mem.name)}</b><div class="small">${x.mem.startMonth}부터 누적</div></div></div><div style="text-align:right"><b class="red">${won(x.amount)}</b><div class="small">누적 미수</div><button class="btn soft arrearsShareBtn" data-arrears-share="${x.mem.id}">안내 이미지</button></div><div>⚠️</div></div></div>`).join(''):'<div class="empty">미수금이 없습니다. 🎉</div>';
+ const through=$('#arrearsMonth').value||nowMonth(),q=($('#arrearsSearch')?.value||'').trim().toLowerCase();
+ const allRows=state.members.map(mem=>{const detail=arrearsBreakdown(mem,through),unpaid=detail.filter(x=>x.shortfall>0);return {mem,detail,unpaid,amount:unpaid.reduce((s,x)=>s+x.shortfall,0)}}),unpaidRows=allRows.filter(x=>x.amount>0);
+ $('#aTotal').textContent=won(unpaidRows.reduce((s,x)=>s+x.amount,0));$('#aMembers').textContent=unpaidRows.length+'명';
+ const rows=unpaidRows.filter(x=>x.mem.name.toLowerCase().includes(q)).sort((a,b)=>b.amount-a.amount);
+ $('#arrearsList').innerHTML=rows.length?rows.map(x=>{
+  const current=x.detail.find(d=>d.month===through)||{due:Number(x.mem.fee),paid:0,shortfall:Number(x.mem.fee)};
+  const chips=x.unpaid.slice(-6).map(d=>`<span class="arrearsMonthChip">${Number(d.month.slice(5))}월 ${won(d.shortfall)}</span>`).join('');
+  return `<div class="member arrearsMember"><div class="memberTop"><div class="memberIdentity">${memberAvatarHtml(x.mem,true)}<div><b>${esc(x.mem.name)}</b><div class="small">이번 달 ${won(current.paid)} / ${won(current.due)} · 미납 ${x.unpaid.length}개월</div></div></div><div style="text-align:right"><b class="red">${won(x.amount)}</b><div class="small">누적 미수</div><button class="btn soft arrearsShareBtn" data-arrears-share="${x.mem.id}">안내 이미지</button></div><div>⚠️</div></div><div class="arrearsMonths">${chips}</div></div>`
+ }).join(''):'<div class="empty">조건에 맞는 미수금이 없습니다. 🎉</div>';
  $$('#arrearsList [data-arrears-share]').forEach(b=>b.onclick=()=>saveArrearsNotice(b.dataset.arrearsShare))
 }
 

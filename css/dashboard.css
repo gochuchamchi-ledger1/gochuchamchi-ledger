@@ -7,3 +7,11 @@
 .previewCheck{width:19px;height:19px}
 .historyItem{padding:11px 0;border-bottom:1px solid var(--line)}.historyItem:last-child{border:0}
 @media(max-width:480px){.previewStats{grid-template-columns:1fr 1fr}}
+
+/* V8.4 통합 대시보드 */
+.dashboardStrip{display:flex;gap:8px;overflow:auto;margin-top:10px;padding:10px 12px;background:linear-gradient(135deg,#372724,#6a3d35);color:#fff;border-radius:16px;box-shadow:var(--shadow)}
+.dashboardStrip span{white-space:nowrap;font-size:12px;padding-right:9px;border-right:1px solid rgba(255,255,255,.25)}
+.dashboardStrip span:last-child{border:0}
+.kpi{position:relative;overflow:hidden;transition:transform .18s ease,box-shadow .18s ease}
+.kpi:after{content:"";position:absolute;width:54px;height:54px;border-radius:50%;right:-20px;top:-20px;background:rgba(230,95,84,.08)}
+.kpi:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(93,38,29,.13)}

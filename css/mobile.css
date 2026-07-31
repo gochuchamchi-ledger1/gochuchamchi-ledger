@@ -40,3 +40,14 @@
  #monthlyA4 .reportBrand img,#meetingA4 .reportBrand img{width:68px!important;height:68px!important}
  #monthlyA4 .reportBrandName,#meetingA4 .reportBrandName{font-size:20px!important}
 }
+
+/* V8.4 모바일 사용성 */
+@media(max-width:520px){
+ header{padding:9px 11px}.logo{width:46px;height:46px}.title{font-size:19px}.sub{font-size:11px}
+ main{padding:11px}.hero{min-height:112px;padding:12px;border-radius:20px}.hero img{width:88px;height:88px;border-radius:22px}.hero h2{font-size:20px}.hero p{font-size:12px}
+ .grid{gap:8px}.card{border-radius:17px;padding:13px}.kpi .val{font-size:19px}
+ .memberTop{grid-template-columns:minmax(0,1fr) auto auto}.memberAvatar{width:42px;height:42px}
+ .btn{min-height:42px}.field{min-height:44px}.fab{width:56px;height:56px;right:14px}
+ .navbtn{font-size:9px}.navbtn b{font-size:19px}.dashboardStrip{margin-top:8px}
+ .arrearsMonths{margin-left:0}.sheet{padding:16px 14px}
+}

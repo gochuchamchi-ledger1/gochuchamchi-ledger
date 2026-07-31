@@ -15,3 +15,12 @@
 .closedNotice{background:#fff0f0;border:1px solid #f3b6b6;color:#8f1d1d;border-radius:12px;padding:9px 10px;font-size:12px;margin-bottom:8px}
 .autoClassBadge{font-size:10px;padding:3px 7px;border-radius:999px;background:#e8f7ed;color:#16703b;font-weight:850}
 .reviewTools{display:flex;gap:7px;flex-wrap:wrap;margin:8px 0}
+
+/* V8.4 검색·납부·미수 상세 */
+.searchField{margin-bottom:10px;padding-left:42px;background:#fff no-repeat 14px center;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' fill='none' stroke='%23786b68' stroke-width='2'%3E%3Ccircle cx='8' cy='8' r='5'/%3E%3Cpath d='m12 12 4 4'/%3E%3C/svg%3E")}
+.paymentState{font-size:11px;font-weight:900;padding:5px 8px;border-radius:999px;white-space:nowrap}
+.paymentState.paid{background:#e8f7ee;color:#126739}.paymentState.partial{background:#fff4d6;color:#8a5a00}.paymentState.unpaid{background:#fee8e6;color:#b3261e}
+.arrearsMember{padding:14px 0}.arrearsMonths{display:flex;gap:5px;flex-wrap:wrap;margin:9px 0 0 44px}
+.arrearsMonthChip{font-size:10px;padding:4px 7px;border-radius:999px;background:#fff0ed;color:#a6251d;border:1px solid #ffd0ca}
+.dataHealth{background:linear-gradient(135deg,#fff,#fff3ee);border:1px solid var(--line);border-radius:18px;padding:14px}
+.healthGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}.healthGrid span{font-size:11px;color:var(--muted);background:#fff;padding:9px;border-radius:10px}.healthGrid strong{display:block;color:var(--text);font-size:13px;margin-top:3px}

@@ -201,8 +201,11 @@ on('removeMemberPhoto','click',()=>{editingMemberPhoto='';renderMemberAvatarPrev
 
 on('homeMonth','change',render);
 on('txMonth','change',renderTransactions);
+on('txSearch','input',renderTransactions);
+on('memberSearch','input',renderMembers);
 on('reportMonth','change',renderReport);
 on('arrearsMonth','change',renderArrears);
+on('arrearsSearch','input',renderArrears);
 
 $$('#categoryTabs button').forEach(b=>b.onclick=()=>{$$('#categoryTabs button').forEach(x=>x.classList.remove('active'));b.classList.add('active');activeCategory=b.dataset.cat;renderTransactions()});
 
@@ -249,6 +252,7 @@ on('downloadCloud','click',downloadCloudNow);
 on('backupMenu','click',backup);
 on('restoreMenu','click',()=>$('#restoreFile')?.click());
 on('restoreFile','change',e=>e.target.files?.[0]&&restore(e.target.files[0]));
+on('exportCsvMenu','click',exportTransactionsCsv);
 on('resetMenu','click',()=>{if(confirm('현재 데이터를 모두 초기화할까요?')){state=clone(seed);save();render()}});
 
 document.querySelectorAll('.modal').forEach(m=>m.onclick=e=>{if(e.target===m)m.classList.remove('show')});
