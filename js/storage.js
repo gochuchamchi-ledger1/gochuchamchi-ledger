@@ -28,4 +28,4 @@ async function restore(file){try{const obj=JSON.parse(await file.text());if(!obj
 
 function changePin(){if(!requireAdmin())return;const old=prompt('현재 PIN을 입력하세요.');if(old!==state.adminPin)return alert('현재 PIN이 맞지 않습니다.');const p=prompt('새 PIN 4자리 이상');if(!p||p.length<4)return alert('4자리 이상 입력하세요.');state.adminPin=p;save();alert('PIN이 변경되었습니다.')}
 
-const INSTALL_URL='https://gochuchamchi-ledger1.github.io/gochuchamchi-ledger/?v=710';
+const INSTALL_URL='https://gochuchamchi-ledger1.github.io/gochuchamchi-ledger/?v=800';
