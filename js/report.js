@@ -179,22 +179,25 @@ async function drawMeetingReportCanvas(){
  const r=(state.meetingReports||[]).find(v=>v.id===selectedMeetingId);if(!r)return null;
  const c=document.createElement('canvas');c.width=1240;c.height=1754;const ctx=c.getContext('2d');ctx.fillStyle='#fffaf4';ctx.fillRect(0,0,c.width,c.height);ctx.fillStyle='#d9362b';ctx.fillRect(0,0,c.width,16);
  const [mascot,tuna]=await Promise.all([loadCanvasImage('mascot.png'),loadCanvasImage('report-cat.png')]);
- const total=sumMeetingExpenses(r),att=(r.attendees||[]).length,before=balanceAt(String(r.start).slice(0,10));
- drawHeaderBrand(ctx,r.title,`총무 작성 · ${r.createdDate}`,mascot,tuna);
- drawSectionRibbon(ctx,1,'모임 개요',40,220,550);drawSectionRibbon(ctx,2,'참석자 명단',630,220,570);
- const infoRows=[['모임 장소',r.place],['시작',String(r.start).replace('T',' ')],['종료',String(r.end).replace('T',' ')],['참석 인원',`${att}명`]];drawTable(ctx,40,276,550,['구분','내용'],infoRows,[1.2,2.5],47);
- roundRect(ctx,630,276,570,228,18,'#fff','#ead6ce');const people=r.attendees||[];for(let i=0;i<people.length;i++){const name=people[i],mem=state.members.find(v=>v.name===name),col=i%6,row=Math.floor(i/6),cx=706+col*88,cy=342+row*104;await drawMemberAvatarCanvas(ctx,mem||{name,avatar:'🐱'},cx,cy,36);canvasText(ctx,name,cx,cy+58,16,'800','#47332f','center')}
- drawSectionRibbon(ctx,3,'지출 내역',40,540,560);drawSectionRibbon(ctx,4,'모임 결산',630,540,570);
- const expRows=(r.expenses||[]).map(x=>[x.item,won(x.amount)]);expRows.push(['총 지출',won(total)]);drawTable(ctx,40,596,550,['항목','금액'],expRows,[2,1.2],47);
- drawSummaryCard(ctx,645,596,170,125,'💰','모임 전 잔액',won(before),'blue');drawSummaryCard(ctx,830,596,170,125,'💸','총 지출',won(total),'red');drawSummaryCard(ctx,1015,596,170,125,'👛','모임 후 잔액',won(before-total),'green');
- roundRect(ctx,645,740,540,76,14,'#fff9ef','#ecd5b7');canvasText(ctx,'1인당 지출 금액',685,789,21,'700','#6b554f');canvasText(ctx,won(att?Math.round(total/att):0),1150,789,28,'900','#173f75','right');
- drawSectionRibbon(ctx,5,'모임 내용',40,870,560);drawSectionRibbon(ctx,6,'기타 메모 및 다음 일정',630,870,570);
- roundRect(ctx,40,928,550,270,18,'#fff','#ead6ce');ctx.font='24px sans-serif';ctx.fillStyle='#493733';wrapCanvasText(ctx,r.agenda||'내용 없음',70,980,490,40,5);
- roundRect(ctx,630,928,570,270,18,'#fff','#ead6ce');ctx.font='24px sans-serif';ctx.fillStyle='#493733';wrapCanvasText(ctx,r.memo||'메모 없음',660,980,510,40,5);
- drawSectionRibbon(ctx,7,'사진 첨부',40,1240,1160);
+ const total=sumMeetingExpenses(r),att=(r.attendees||[]).length,plan=Number(r.planBudget||0),difference=plan-total;
+ drawHeaderBrand(ctx,`${r.kind||'모임'} 계획 및 결과보고서`,`총무 작성 · ${r.createdDate||reportDateText()}`,mascot,tuna);
+ drawSectionRibbon(ctx,1,'모임(여행) 개요',40,220,560);drawSectionRibbon(ctx,2,'세부 일정',630,220,570);
+ const infoRows=[['제목',r.title],['장소',r.place],['기간',`${String(r.start).replace('T',' ')} ~ ${String(r.end).replace('T',' ')}`],['인원',`계획 ${Number(r.expectedPeople||state.members.length)}명 / 참석 ${att}명`],['목적',r.purpose||r.agenda||'-']];
+ drawTable(ctx,40,276,550,['구분','내용'],infoRows,[1.1,2.9],42);
+ const schedules=parseMeetingSchedule(r.schedule).slice(0,5).map(x=>[x.time,x.activity,x.owner]);if(!schedules.length)schedules.push(['-','등록된 일정 없음','-']);
+ drawTable(ctx,630,276,570,['시간','일정·장소','담당'],schedules,[1,2.6,1],42);
+ drawSectionRibbon(ctx,3,'예산 계획',40,550,560);drawSectionRibbon(ctx,4,'참석자 현황',630,550,570);
+ drawSummaryCard(ctx,40,608,170,108,'📋','계획 예산',won(plan),'blue');drawSummaryCard(ctx,225,608,170,108,'💸','실제 지출',won(total),'red');drawSummaryCard(ctx,410,608,170,108,'💰','차액',won(difference),difference>=0?'green':'red');
+ const expRows=(r.expenses||[]).slice(0,4).map(x=>[x.item,won(x.amount)]);if(!expRows.length)expRows.push(['지출 없음','0원']);expRows.push(['합계',won(total)]);drawTable(ctx,40,734,550,['항목','금액'],expRows,[2.2,1.2],38);
+ roundRect(ctx,630,608,570,324,18,'#fff','#ead6ce');const people=r.attendees||[];
+ for(let i=0;i<Math.min(people.length,12);i++){const name=people[i],mem=state.members.find(v=>v.name===name),col=i%6,row=Math.floor(i/6),cx=706+col*88,cy=674+row*124;await drawMemberAvatarCanvas(ctx,mem||{name,avatar:'🐱'},cx,cy,36);canvasText(ctx,name,cx,cy+58,16,'800','#47332f','center');canvasText(ctx,'참석',cx,cy+80,13,'700','#178143','center')}
+ if(!people.length)canvasText(ctx,'참석자를 입력해 주세요.',915,770,22,'700','#8b7771','center');
+ drawSectionRibbon(ctx,5,'모임(여행) 사진',40,970,760);drawSectionRibbon(ctx,6,'결과 및 최종 정산',830,970,370);
  const ordered=[...(r.photos||[])];const ri=Number(r.representativePhoto||0);if(ordered.length&&ri>0&&ri<ordered.length){const [main]=ordered.splice(ri,1);ordered.unshift(main)}
- for(let i=0;i<3;i++){roundRect(ctx,40+i*390,1300,360,210,16,'#f5eee9','#dfc9c0');if(ordered[i]){const ph=await loadCanvasImage(ordered[i]);if(ph){const ratio=Math.max(360/ph.width,210/ph.height),dw=ph.width*ratio,dh=ph.height*ratio;ctx.save();ctx.beginPath();ctx.rect(40+i*390,1300,360,210);ctx.clip();ctx.drawImage(ph,40+i*390+(360-dw)/2,1300+(210-dh)/2,dw,dh);ctx.restore()}}else{canvasText(ctx,'📷',220+i*390,1390,55,'400','#7d6963','center');canvasText(ctx,`모임 사진 ${i+1}`,220+i*390,1450,21,'700','#7d6963','center')}}
- await drawApprovalAssets(ctx,875,1525,true);
+ for(let i=0;i<3;i++){const x=40+i*253;roundRect(ctx,x,1028,235,230,16,'#f5eee9','#dfc9c0');if(ordered[i]){const ph=await loadCanvasImage(ordered[i]);if(ph){const ratio=Math.max(235/ph.width,230/ph.height),dw=ph.width*ratio,dh=ph.height*ratio;ctx.save();ctx.beginPath();ctx.rect(x,1028,235,230);ctx.clip();ctx.drawImage(ph,x+(235-dw)/2,1028+(230-dh)/2,dw,dh);ctx.restore()}}else{canvasText(ctx,'📷',x+118,1120,50,'400','#7d6963','center');canvasText(ctx,`여행 사진 ${i+1}`,x+118,1180,18,'700','#7d6963','center')}}
+ roundRect(ctx,830,1028,370,230,18,'#fff','#ead6ce');canvasText(ctx,'계획 예산',860,1072,18,'700','#6d5954');canvasText(ctx,won(plan),1170,1072,21,'900','#173f75','right');canvasText(ctx,'실제 지출',860,1117,18,'700','#6d5954');canvasText(ctx,won(total),1170,1117,21,'900','#cf2822','right');canvasText(ctx,'차액',860,1162,18,'700','#6d5954');canvasText(ctx,won(difference),1170,1162,21,'900',difference>=0?'#178143':'#cf2822','right');ctx.font='18px sans-serif';ctx.fillStyle='#493733';wrapCanvasText(ctx,r.result||r.agenda||'결과를 입력해 주세요.',860,1210,310,28,2);
+ drawSectionRibbon(ctx,7,'총무 의견 및 개선점',40,1300,1160);roundRect(ctx,40,1358,1160,205,18,'#fff','#ead6ce');ctx.font='23px sans-serif';ctx.fillStyle='#493733';wrapCanvasText(ctx,r.memo||'다음 모임을 위한 의견을 입력해 주세요.',70,1410,1100,38,4);
+ canvasText(ctx,r.createdDate||reportDateText(),760,1595,20,'600','#66524d');await drawApprovalAssets(ctx,875,1560,true);
  roundRect(ctx,28,1640,1184,76,0,'#f7d5c9');canvasText(ctx,'🌶️  고추참치회는 서로를 존중하고 함께 즐기는 모임입니다.  🐟',620,1688,22,'800','#b52b23','center');
  return c
 }
@@ -237,7 +240,8 @@ function printReport(type){
  const src=type==='monthly'?$('#monthlyA4'):$('#meetingA4');
  if(!src||src.style.display==='none')return alert('먼저 보고서를 선택하세요.');
  const w=window.open('','_blank');
- w.document.write(`<html><head><meta charset="utf-8"><title>고추참치회 보고서</title><style>body{margin:0;font-family:Arial,"Noto Sans KR",sans-serif}.a4{width:190mm;min-height:277mm;padding:10mm}.a4Header{display:flex;justify-content:space-between;border-bottom:3px solid #e65f54}.a4Header img{width:65px}.a4Meta{display:grid;grid-template-columns:1fr 1fr;gap:6px}.a4Meta div,.a4Section div{padding:6px}.a4Table{width:100%;border-collapse:collapse}.a4Table th,.a4Table td{border:1px solid #bbb;padding:6px}.a4Summary{display:grid;grid-template-columns:1fr 1fr}.a4Summary div{display:flex;justify-content:space-between}.a4Section h3{background:#fff0ec;padding:6px}.a4Foot{display:flex;justify-content:space-between;margin-top:20px}.sign{border-top:1px solid #333;width:120px;text-align:center}@page{size:A4;margin:10mm}
+ const linkedStyles=[...document.querySelectorAll('link[rel="stylesheet"]')].map(link=>`<link rel="stylesheet" href="${link.href}">`).join('');
+ w.document.write(`<html><head><meta charset="utf-8"><base href="${location.href}"><title>고추참치회 보고서</title>${linkedStyles}<style>body{margin:0;font-family:Arial,"Noto Sans KR",sans-serif}.a4{width:190mm;min-height:277mm;padding:10mm}.a4Header{display:flex;justify-content:space-between;border-bottom:3px solid #e65f54}.a4Header img{width:65px}.a4Meta{display:grid;grid-template-columns:1fr 1fr;gap:6px}.a4Meta div,.a4Section div{padding:6px}.a4Table{width:100%;border-collapse:collapse}.a4Table th,.a4Table td{border:1px solid #bbb;padding:6px}.a4Summary{display:grid;grid-template-columns:1fr 1fr}.a4Summary div{display:flex;justify-content:space-between}.a4Section h3{background:#fff0ec;padding:6px}.a4Foot{display:flex;justify-content:space-between;margin-top:20px}.sign{border-top:1px solid #333;width:120px;text-align:center}@page{size:A4;margin:10mm}
 /* V5.1 REPORT DESIGN */
 .a4{background:linear-gradient(180deg,#fffdfa,#fff9f3);border:1px solid #efb8aa;border-radius:18px;padding:18px;box-shadow:0 14px 40px rgba(139,42,28,.14);position:relative;font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif}
 .a4:before{content:"";position:absolute;inset:0;border:7px solid rgba(230,95,84,.045);border-radius:18px;pointer-events:none}

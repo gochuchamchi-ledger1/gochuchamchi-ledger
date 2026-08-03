@@ -15,7 +15,7 @@ function save(){
  localStorage.setItem(KEY,JSON.stringify(state));
  if(!cloudReady||cloudApplying)return;
  clearTimeout(cloudTimer);setCloudStatus('syncing','동기화 중');
- cloudTimer=setTimeout(async()=>{try{lastCloudWrite=Date.now();await cloudRef.set({state:mediaSafeState(state),updatedAt:firebase.firestore.FieldValue.serverTimestamp(),version:'8.4'},{merge:true});setCloudStatus('online','공유됨','마지막 변경사항이 Firebase에 저장되었습니다.')}catch(e){console.error(e);setCloudStatus('error','저장 실패',e.message||'Firebase 쓰기 실패')}},800)
+ cloudTimer=setTimeout(async()=>{try{lastCloudWrite=Date.now();await cloudRef.set({state:mediaSafeState(state),updatedAt:firebase.firestore.FieldValue.serverTimestamp(),version:'8.5'},{merge:true});setCloudStatus('online','공유됨','마지막 변경사항이 Firebase에 저장되었습니다.')}catch(e){console.error(e);setCloudStatus('error','저장 실패',e.message||'Firebase 쓰기 실패')}},800)
 }
 
 async function initFirebase(){

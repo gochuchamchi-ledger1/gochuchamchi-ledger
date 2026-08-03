@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="고추참치회">
-<title>고추참치회 장부 V8.4</title>
+<title>고추참치회 장부 V8.5</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="stylesheet" href="css/common.css">
@@ -20,7 +20,7 @@
 <body>
 <div class="app">
 <header><div class="head">
- <div class="brand"><img class="logo" src="mascot.png"><div><div class="title" id="groupTitle">고추참치회</div><div class="sub">카카오뱅크 · V8.4 통합버전</div></div></div>
+ <div class="brand"><img class="logo" src="mascot.png"><div><div class="title" id="groupTitle">고추참치회</div><div class="sub">카카오뱅크 · V8.5 모임·여행보고서</div></div></div>
  <button class="mode" id="modeBtn">조회 모드</button>
 </div></header>
 <main>
@@ -222,12 +222,19 @@
 <div class="modal" id="meetingModal"><div class="sheet">
  <h3 id="meetingModalTitle">모임보고서 작성</h3>
  <div class="form">
+  <div class="filters">
+   <div><div class="label">구분</div><select id="mrKind" class="field"><option>정기모임</option><option>여행</option><option>행사</option></select></div>
+   <div><div class="label">계획 인원</div><input id="mrExpectedPeople" type="number" min="1" class="field" placeholder="예: 6"></div>
+  </div>
   <div><div class="label">보고서 제목</div><input id="mrTitle" class="field" placeholder="예: 2026년 8월 정기모임"></div>
   <div><div class="label">모임 장소</div><input id="mrPlace" class="field" placeholder="예: 부산 서면 ○○식당"></div>
   <div class="filters">
    <div><div class="label">시작 일시</div><input id="mrStart" type="datetime-local" class="field"></div>
    <div><div class="label">종료 일시</div><input id="mrEnd" type="datetime-local" class="field"></div>
   </div>
+  <div><div class="label">모임·여행 목적</div><textarea id="mrPurpose" class="field" rows="2" placeholder="예: 회원 친목 도모 및 하반기 일정 논의"></textarea></div>
+  <div><div class="label">세부 일정</div><textarea id="mrSchedule" class="field" rows="5" placeholder="한 줄에 하나씩 입력: 09:00 | 집결 및 출발 | 총무"></textarea><div class="small">시간 | 일정·장소 | 담당 형식으로 입력하면 보고서 일정표로 만들어집니다.</div></div>
+  <div><div class="label">계획 예산</div><input id="mrPlanBudget" type="number" class="field" placeholder="예: 720000"></div>
   <div>
    <div class="label">회원 참석 체크</div>
    <div id="attendanceGrid" class="attendanceGrid"></div>
@@ -236,7 +243,8 @@
   <div><div class="label">모임 내용 / 주요 안건</div><textarea id="mrAgenda" class="field" rows="3"></textarea></div>
   <div class="section" style="margin-top:6px"><h3>지출내역</h3><button type="button" class="btn soft" id="addExpense">항목 추가</button></div>
   <div id="expenseRows"></div>
-  <div><div class="label">기타 메모 / 다음 일정</div><textarea id="mrMemo" class="field" rows="3"></textarea></div>
+  <div><div class="label">결과 및 주요 성과</div><textarea id="mrResult" class="field" rows="3" placeholder="실제 진행 결과와 좋았던 점을 입력하세요."></textarea></div>
+  <div><div class="label">총무 의견 및 개선점</div><textarea id="mrMemo" class="field" rows="3" placeholder="다음 모임에서 개선할 점과 후속 일정을 입력하세요."></textarea></div>
   <div class="photoUploadBox">
    <div class="section" style="margin:0"><h3>모임사진 첨부</h3><button type="button" class="btn soft" id="chooseMeetingPhotos">사진 선택</button></div>
    <input id="mrPhotos" type="file" accept="image/*" multiple hidden>
